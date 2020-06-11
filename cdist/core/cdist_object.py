@@ -28,6 +28,11 @@ import cdist.core
 from cdist.util import fsproperty
 
 
+# FileNotFoundError is added in 3.3.
+if not hasattr(__builtins__, 'FileNotFoundError'):
+    FileNotFoundError = (OSError, IOError, )
+
+
 class IllegalObjectIdError(cdist.Error):
     def __init__(self, object_id, message=None):
         self.object_id = object_id

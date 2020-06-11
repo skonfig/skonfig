@@ -68,9 +68,12 @@ class HostSource:
             return
 
         if isinstance(self.source, str):
-            yield from self._hosts_from_file()
+            for x in self._hosts_from_file():
+                yield x
         else:
-            yield from self._hosts_from_sequence()
+            for x in self._hosts_from_sequence():
+                yield x
 
     def __call__(self):
-        yield from self.hosts()
+        for x in self.hosts():
+            yield x

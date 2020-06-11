@@ -191,9 +191,14 @@ class Local:
 
         close_stdout = False
         close_stderr = False
+        stderr_special_devnull = False
+        stdout_special_devnull = False
         if quiet:
-            stderr = subprocess.DEVNULL
-            stdout = subprocess.DEVNULL
+            stderr, close_stderr = util._get_devnull()
+            stderr_special_devnull = not close_stderr
+
+            stdout, close_stdout = util._get_devnull()
+            stdout_special_devnull = not close_stdout
         elif do_save_output:
             if not return_output and stdout is None:
                 stdout = util.get_std_fd(self.stdout_base_path, 'local')
@@ -228,8 +233,10 @@ class Local:
                 output = None
 
             if do_save_output:
-                util.log_std_fd(self.log, command, stderr, 'Local stderr')
-                util.log_std_fd(self.log, command, stdout, 'Local stdout')
+                if not stderr_special_devnull:
+                    util.log_std_fd(self.log, command, stderr, 'Local stderr')
+                if not stdout_special_devnull:
+                    util.log_std_fd(self.log, command, stdout, 'Local stdout')
             return output
         except (OSError, subprocess.CalledProcessError) as error:
             raise cdist.Error(" ".join(command) + ": " + str(error.args[1]))
@@ -237,9 +244,15 @@ class Local:
             if message_prefix:
                 message.merge_messages()
             if close_stdout:
-                stdout.close()
+                if isinstance(stdout, int):
+                    os.close(stdout)
+                else:
+                    stdout.close()
             if close_stderr:
-                stderr.close()
+                if isinstance(stderr, int):
+                    os.close(stderr)
+                else:
+                    stderr.close()
 
     def run_script(self, script, env=None, return_output=False,
                    message_prefix=None, stdout=None, stderr=None):

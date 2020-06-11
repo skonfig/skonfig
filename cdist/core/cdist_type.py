@@ -26,6 +26,11 @@ import cdist.core
 import logging
 
 
+# FileNotFoundError is added in 3.3.
+if not hasattr(__builtins__, 'FileNotFoundError'):
+    FileNotFoundError = (OSError, IOError, )
+
+
 class InvalidTypeError(cdist.Error):
     def __init__(self, name, type_path, type_absolute_path):
         self.name = name

@@ -297,10 +297,11 @@ class Remote:
         os_environ['__target_fqdn'] = self.target_host[2]
 
         self.log.trace("Remote run: %s", command)
+        special_devnull = False
         try:
             if self.quiet_mode:
-                stderr = subprocess.DEVNULL
-                close_stderr = False
+                stderr, close_stderr = util._get_devnull()
+                special_devnull = not close_stderr
             if return_output:
                 output = subprocess.check_output(command, env=os_environ,
                                                  stderr=stderr).decode()
@@ -310,7 +311,8 @@ class Remote:
                 output = None
 
             if self.save_output_streams:
-                util.log_std_fd(self.log, command, stderr, 'Remote stderr')
+                if not special_devnull:
+                    util.log_std_fd(self.log, command, stderr, 'Remote stderr')
                 util.log_std_fd(self.log, command, stdout, 'Remote stdout')
 
             return output
@@ -322,4 +324,7 @@ class Remote:
             if close_stdout:
                 stdout.close()
             if close_stderr:
-                stderr.close()
+                if isinstance(stderr, int):
+                    os.close(stderr)
+                else:
+                    stderr.close()

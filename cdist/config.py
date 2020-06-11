@@ -130,7 +130,8 @@ class Config:
     @staticmethod
     def hosts(source):
         try:
-            yield from cdist.hostsource.HostSource(source)()
+            for x in cdist.hostsource.HostSource(source)():
+                yield x
         except (IOError, OSError, UnicodeError) as e:
             raise cdist.Error(
                     "Error reading hosts from \'{}\': {}".format(

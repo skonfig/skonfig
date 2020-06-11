@@ -171,11 +171,19 @@ def get_std_fd(base_path, name):
     return stdfd
 
 
-def log_std_fd(log, command, stdfd, prefix):
-    if stdfd is not None and stdfd != subprocess.DEVNULL:
-        stdfd.seek(0, 0)
-        log.trace("Command: {}; {}: {}".format(
-            command, prefix, stdfd.read().decode()))
+# subprocess.DEVNULL is added in 3.3.
+if hasattr(subprocess, 'DEVNULL'):
+    def log_std_fd(log, command, stdfd, prefix):
+        if stdfd is not None and stdfd != subprocess.DEVNULL:
+            stdfd.seek(0, 0)
+            log.trace("Command: {}; {}: {}".format(command, prefix,
+                                                   stdfd.read().decode()))
+else:
+    def log_std_fd(log, command, stdfd, prefix):
+        if stdfd is not None and not isinstance(stdfd, int):
+            stdfd.seek(0, 0)
+            log.trace("Command: {}; {}: {}".format(command, prefix,
+                                                   stdfd.read().decode()))
 
 
 def dist_conf_dir():
@@ -210,3 +218,11 @@ def resolve_conf_dirs_from_config_and_args(args):
     cfg = cdist.configuration.Configuration(args)
     configuration = cfg.get_config(section='GLOBAL')
     return resolve_conf_dirs(configuration, args.conf_dir)
+
+
+# subprocess.DEVNULL is added in 3.3.
+def _get_devnull():
+    if hasattr(subprocess, 'DEVNULL'):
+        return (subprocess.DEVNULL, False)
+    else:
+        return (os.open(os.devnull, os.O_RDWR), True)
