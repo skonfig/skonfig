@@ -1,29 +1,56 @@
 # cdist
 
-**cdist** is a usable configuration management system.
+This is the [community maintained](https://github.com/cdist-community)
+fork of ungleich's [cdist](https://github.com/ungleich/cdist)
+(after [f061fb1](https://github.com/ungleich/cdist/commit/f061fb168ddacc894cb6e9882ff5c8ba002fadd8)).
 
-It adheres to the [**KISS principle**](https://en.wikipedia.org/wiki/KISS_principle)
-and is being used in small up to enterprise grade environments.
+Work is split between three repositories:
 
-For more information have a look at [**homepage**](https://cdi.st)
-or at **``docs/src``** for manual in **reStructuredText** format.
+* **cdist** - implementation of the **cdist core** (this repository).
+* [cdist-conf](https://github.com/cdist-community/cdist-conf) - **essential** explorers and types.
+* [cdist-extra](https://github.com/cdist-community/cdist-extra) - **non-essential** explorers, types, scripts, tools etc.
 
-## Contributing
+Difference between essential and non-essential? Explorers and types which are
+used to manage state of the operating system (modify files and directories,
+install packages, manage services, etc.) and are not strictly related to some
+specific piece of software are considered essential.
 
-Pull requests can be made in both [upstream](https://code.ungleich.ch/ungleich-public/cdist)
-(managed by [**ungleich**](https://ungleich.ch)) and [GitHub](https://github.com/ungleich/cdist).
+## Getting Started
 
-Issues can be made and other project management activites happen
-[**only in upstream**](https://code.ungleich.ch/ungleich-public/cdist)
-(needs [**ungleich** account](https://account.ungleich.ch)).
+Since this fork is still in early stages, there will be no versioned releases
+for now.
 
-For community-maintained types there is
-[**cdist-contrib** project](https://code.ungleich.ch/ungleich-public/cdist-contrib).
+Everything is expected to be used straight from the repositories.
 
-## Participating
+We are currently targetting cdist power users who already know what they are
+doing, so expect some rough edges.
 
-IRC: ``#cdist`` @ [libera](https://libera.chat)
+### Get core with essentials
 
-Matrix: ``#cdist:ungleich.ch``
+```sh
+git clone --recurse-submodules https://github.com/cdist-community/cdist
+ln -s "$PWD/cdist/bin/cdist" "$HOME/.local/bin/cdist"
+```
 
-Matrix and IRC are bridged.
+**NB** Your `PATH` may not contain `$HOME/.local/bin/`, so modify this line accordingly.
+
+To update `cdist/conf` submodule later:
+
+```sh
+git submodule update --remote cdist/conf
+```
+
+### Get everything
+
+**NB** Don't copy-paste following lines carelessly into your terminal - existing `~/.cdist.cfg` will be overwritten.
+
+```sh
+git clone https://github.com/cdist-community/cdist
+git clone https://github.com/cdist-community/cdist-conf
+git clone https://github.com/cdist-community/cdist-extra
+ln -s "$PWD/cdist/bin/cdist" "$HOME/.local/bin/cdist"
+cat > "$HOME/.cdist.cfg" << EOF
+[GLOBAL]
+conf_dir = $HOME/.cdist:$PWD/cdist-extra:$PWD/cdist-conf
+EOF
+```
