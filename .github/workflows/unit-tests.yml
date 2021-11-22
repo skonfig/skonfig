@@ -1,0 +1,23 @@
+---
+name: unit-tests
+on: [push, pull_request]
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get -y install python3
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Information
+        run: |
+          python3 -V
+          bin/cdist-build-helper version
+          bin/cdist -V
+      - name: Run unit tests
+        run: |
+          bin/cdist-build-helper test
