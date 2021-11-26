@@ -92,7 +92,7 @@ class ExplorerClassTestCase(test.CdistTestCase):
                          sorted(os.listdir(destination)))
 
     def test_run_global_explorer(self):
-        """Checkt that running ONE global explorer works"""
+        """Check that running ONE global explorer works"""
         self.explorer.transfer_global_explorers()
         output = self.explorer.run_global_explorer('global')
         self.assertEqual(output, 'global\n')

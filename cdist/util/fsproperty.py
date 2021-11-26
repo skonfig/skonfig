@@ -20,9 +20,13 @@
 #
 
 import os
-import collections
 
 import cdist
+
+try:
+    from collections.abc import (MutableMapping, MutableSequence)
+except ImportError:
+    from collections import (MutableMapping, MutableSequence)
 
 
 class AbsolutePathRequiredError(cdist.Error):
@@ -33,7 +37,7 @@ class AbsolutePathRequiredError(cdist.Error):
         return 'Absolute path required, got: {}'.format(self.path)
 
 
-class FileList(collections.MutableSequence):
+class FileList(MutableSequence):
     """A list that stores it's state in a file.
 
     """
@@ -102,7 +106,7 @@ class FileList(collections.MutableSequence):
         self.__write(lines)
 
 
-class DirectoryDict(collections.MutableMapping):
+class DirectoryDict(MutableMapping):
     """A dict that stores it's items as files in a directory.
 
     """
