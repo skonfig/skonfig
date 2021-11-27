@@ -20,7 +20,6 @@
 #
 #
 
-import importlib
 import os
 import sys
 import unittest
@@ -37,9 +36,17 @@ for possible_test in os.listdir(base_dir):
 
 suites = []
 for test_module in test_modules:
-    module_spec = importlib.util.find_spec("cdist.test.{}".format(test_module))
-    module = importlib.util.module_from_spec(module_spec)
-    module_spec.loader.exec_module(module)
+    test_module_full = "cdist.test.%s" % (test_module)
+    try:
+        from importlib.util import (find_spec, module_from_spec)
+        module_spec = find_spec(test_module_full)
+        module = module_from_spec(module_spec)
+        module_spec.loader.exec_module(module)
+    except ImportError:
+        # Python < 3.4 does not have importlib.util.find_spec
+        from imp import (find_module, load_module)
+        module_parameters = find_module(test_module, [base_dir])
+        module = load_module(test_module_full, *module_parameters)
 
     suite = unittest.defaultTestLoader.loadTestsFromModule(module)
     # print("Got suite: " + suite.__str__())
