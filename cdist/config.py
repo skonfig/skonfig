@@ -393,7 +393,8 @@ class Config:
                 # have a place to send their logs to.
                 log_server_socket_dir = tempfile.mkdtemp()
                 cls._register_path_for_removal(log_server_socket_dir)
-                cdist.log.setupLogServer(log_server_socket_dir, log)
+                from cdist.log_server import setupLogServer
+                setupLogServer(log_server_socket_dir, log)
 
             remote_exec, remote_copy, cleanup_cmd = cls._resolve_remote_cmds(
                 args)

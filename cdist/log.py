@@ -25,9 +25,6 @@ import logging
 import logging.handlers
 import sys
 import os
-import asyncio
-import contextlib
-import pickle
 import struct
 import threading
 
@@ -165,44 +162,6 @@ def setupTimestampingParallelLogging():
 def setupParallelLogging():
     del logging.getLogger().handlers[:]
     logging.setLoggerClass(ParallelLog)
-
-
-async def handle_log_client(reader, writer):
-    while True:
-        chunk = await reader.read(4)
-        if len(chunk) < 4:
-            return
-
-        data_size = struct.unpack('>L', chunk)[0]
-        data = await reader.read(data_size)
-
-        obj = pickle.loads(data)
-        record = logging.makeLogRecord(obj)
-        logger = logging.getLogger(record.name)
-        logger.handle(record)
-
-
-def run_log_server(server_address):
-    # Get a new loop inside the current thread to run the log server.
-    loop = asyncio.new_event_loop()
-    loop.create_task(asyncio.start_unix_server(handle_log_client,
-                                               server_address))
-    loop.run_forever()
-
-
-def setupLogServer(socket_dir, log=logging.getLogger(__name__)):
-    """Run a asyncio based unix socket log server in a background thread.
-    """
-    log_server_socket = os.path.join(socket_dir, 'log-server')
-    log.debug('Starting logging server on: %s', log_server_socket)
-    os.environ['__cdist_log_server_socket_export'] = log_server_socket
-    with contextlib.suppress(FileNotFoundError):
-        os.remove(log_server_socket)
-    t = threading.Thread(target=run_log_server, args=(log_server_socket,))
-    # Deamonizing the thread means we don't have to care about stoping it.
-    # It will die together with the main process.
-    t.daemon = True
-    t.start()
 
 
 setupDefaultLogging()
