@@ -389,6 +389,12 @@ class Config:
 
         try:
             if args.log_server:
+                if sys.version_info[:3] < (3, 5):
+                    print(
+                        "Python >= 3.5 is required on the source host to use "
+                        "the log server.", file=sys.stderr)
+                    sys.exit(1)
+
                 # Start a log server so that nested `cdist config` runs
                 # have a place to send their logs to.
                 log_server_socket_dir = tempfile.mkdtemp()
