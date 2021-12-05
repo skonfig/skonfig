@@ -36,6 +36,10 @@ def mp_sig_handler(signum, frame):
     os.killpg(os.getpgrp(), signal.SIGKILL)
 
 
+def _mp_run_method(self, fname, *args, **kwargs):
+    return getattr(self, fname)(*args, **kwargs)
+
+
 def mp_pool_run(func, args=None, kwds=None, jobs=multiprocessing.cpu_count()):
     """Run func using concurrent.futures.ProcessPoolExecutor with jobs jobs
        and supplied iterables of args and kwds with one entry for each
@@ -51,15 +55,22 @@ def mp_pool_run(func, args=None, kwds=None, jobs=multiprocessing.cpu_count()):
     else:
         return [func(), ]
 
-    retval = []
+    if hasattr(func, "__self__"):
+        # Special case that wraps bound methods for pickling on Python < 3.3
+        fself = func.__self__
+        fname = func.__func__.__name__
+
+        func = _mp_run_method
+        fargs = (((fself, fname) + a, k) for (a, k) in fargs)
+
     with cf.ProcessPoolExecutor(jobs) as executor:
         try:
-            results = [
-                executor.submit(func, *a, **k) for a, k in fargs
-            ]
-            for f in cf.as_completed(results):
-                retval.append(f.result())
-            return retval
+            return [
+                f.result()
+                for f in cf.as_completed(
+                    [executor.submit(func, *a, **k)
+                     for a, k in fargs])
+                ]
         except KeyboardInterrupt:
             mp_sig_handler(signal.SIGINT, None)
             raise
