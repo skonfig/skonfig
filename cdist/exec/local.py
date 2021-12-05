@@ -238,8 +238,10 @@ class Local:
                 if not stdout_special_devnull:
                     util.log_std_fd(self.log, command, stdout, 'Local stdout')
             return output
-        except (OSError, subprocess.CalledProcessError) as error:
-            raise cdist.Error(" ".join(command) + ": " + str(error.args[1]))
+        except subprocess.CalledProcessError as e:
+            raise cdist.Error("%s: %d" % (" ".join(e.cmd), e.returncode))
+        except OSError as e:
+            raise cdist.Error("%s: %d" % (" ".join(command), e.errno))
         finally:
             if message_prefix:
                 message.merge_messages()
