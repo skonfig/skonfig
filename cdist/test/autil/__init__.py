@@ -41,14 +41,17 @@ class AUtilTestCase(test.CdistTestCase):
         }
         source = explorers_path
         for mode in test_modes:
-            tarpath, fcnt = autil.tar(source, mode)
-            self.assertIsNotNone(tarpath)
-            fcnt = 0
-            with tarfile.open(tarpath, test_modes[mode]) as tar:
-                for tarinfo in tar:
-                    fcnt += 1
-            os.remove(tarpath)
-            self.assertGreater(fcnt, 0)
+            try:
+                tarpath, fcnt = autil.tar(source, mode)
+                self.assertIsNotNone(tarpath)
+                fcnt = 0
+                with tarfile.open(tarpath, test_modes[mode]) as tar:
+                    for tarinfo in tar:
+                        fcnt += 1
+                os.remove(tarpath)
+                self.assertGreater(fcnt, 0)
+            except tarfile.CompressionError:
+                pass
 
 
 if __name__ == "__main__":

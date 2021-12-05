@@ -26,6 +26,12 @@ import os
 import cdist
 from . import util
 
+
+# FileNotFoundError is added in 3.3.
+if not hasattr(__builtins__, 'FileNotFoundError'):
+    FileNotFoundError = (OSError, IOError, )
+
+
 '''
 common:
     runs only locally, does not need remote

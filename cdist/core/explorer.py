@@ -131,12 +131,15 @@ class Explorer:
             self._run_global_explorer(explorer, out_path)
 
     def _run_global_explorers_parallel(self, out_path):
-        self.log.debug("Running global explorers in %s parallel jobs",
-                       self.jobs)
-        self.log.trace("Multiprocessing start method is %s",
-                       multiprocessing.get_start_method())
-        self.log.trace("Starting multiprocessing Pool for global explorers"
-                       " run")
+        self.log.debug(
+            "Running global explorers in %s parallel jobs", self.jobs)
+        if callable(getattr(multiprocessing, "get_start_method", None)):
+            # Python >= 3.4
+            self.log.trace(
+                "Multiprocessing start method is %s",
+                multiprocessing.get_start_method())
+        self.log.trace(
+            "Starting multiprocessing Pool for global explorers run")
         args = [
             (e, out_path, ) for e in self.list_global_explorer_names()
         ]

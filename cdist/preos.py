@@ -43,18 +43,21 @@ def scan_preos_dir_plugins(dir):
         module_name = fname
         try:
             module = __import__(module_name)
-            yield from preos_plugin(module)
+            for x in preos_plugin(module):
+                yield x
             clsmembers = inspect.getmembers(module, inspect.isclass)
             for cm in clsmembers:
                 c = cm[1]
-                yield from preos_plugin(c)
+                for x in preos_plugin(c):
+                    yield x
         except ImportError as e:
             log.warning("Cannot import '%s': %s", module_name, e)
 
 
 def find_preos_plugins():
     for dir in _PLUGINS_PATH:
-        yield from scan_preos_dir_plugins(dir)
+        for x in scan_preos_dir_plugins(dir):
+            yield x
 
 
 def find_preoses():

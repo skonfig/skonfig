@@ -33,6 +33,11 @@ from cdist import flock
 from cdist.core.manifest import Manifest
 
 
+# FileNotFoundError is added in 3.3.
+if not hasattr(__builtins__, 'FileNotFoundError'):
+    FileNotFoundError = (OSError, IOError, )
+
+
 class MissingRequiredEnvironmentVariableError(cdist.Error):
     def __init__(self, name):
         self.name = name

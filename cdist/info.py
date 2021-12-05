@@ -67,25 +67,24 @@ class Info:
                 rv.append(explorer)
         return rv
 
-    def _should_display_type(self, dir_entry):
-        if not dir_entry.is_dir():
+    def _should_display_type(self, path, name):
+        if not os.path.isdir(os.path.join(path, name)):
             return False
         if self.glob_pattern is None:
             return True
         if self.fixed_string:
-            return dir_entry.name == self.glob_pattern
+            return name == self.glob_pattern
         else:
-            return fnmatch.fnmatch(dir_entry.name, self.glob_pattern)
+            return fnmatch.fnmatch(name, self.glob_pattern)
 
     def _get_types(self, conf_path):
         rv = []
         types_path = os.path.join(conf_path, "type")
         if not os.path.exists(types_path):
             return rv
-        with os.scandir(types_path) as it:
-            for entry in it:
-                if self._should_display_type(entry):
-                    rv.append(entry.path)
+        for filename in os.listdir(types_path):
+            if self._should_display_type(types_path, filename):
+                rv.append(os.path.join(types_path, filename))
         return rv
 
     def _display_details(self, title, details, default_values=None,

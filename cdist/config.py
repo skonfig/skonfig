@@ -130,7 +130,8 @@ class Config:
     @staticmethod
     def hosts(source):
         try:
-            yield from cdist.hostsource.HostSource(source)()
+            for x in cdist.hostsource.HostSource(source)():
+                yield x
         except (IOError, OSError, UnicodeError) as e:
             raise cdist.Error(
                     "Error reading hosts from \'{}\': {}".format(
@@ -298,8 +299,11 @@ class Config:
             except cdist.Error:
                 failed_hosts.append(host)
         elif args.parallel:
-            log.trace("Multiprocessing start method is %s",
-                      multiprocessing.get_start_method())
+            if callable(getattr(multiprocessing, "get_start_method", None)):
+                # Python >= 3.4
+                log.trace(
+                    "Multiprocessing start method is %s",
+                    multiprocessing.get_start_method())
             log.trace("Starting multiprocessing Pool for %d parallel host"
                       " operation", args.parallel)
 
@@ -388,11 +392,18 @@ class Config:
 
         try:
             if args.log_server:
+                if sys.version_info[:3] < (3, 5):
+                    print(
+                        "Python >= 3.5 is required on the source host to use "
+                        "the log server.", file=sys.stderr)
+                    sys.exit(1)
+
                 # Start a log server so that nested `cdist config` runs
                 # have a place to send their logs to.
                 log_server_socket_dir = tempfile.mkdtemp()
                 cls._register_path_for_removal(log_server_socket_dir)
-                cdist.log.setupLogServer(log_server_socket_dir, log)
+                from cdist.log_server import setupLogServer
+                setupLogServer(log_server_socket_dir, log)
 
             remote_exec, remote_copy, cleanup_cmd = cls._resolve_remote_cmds(
                 args)
@@ -585,8 +596,11 @@ class Config:
             self.object_prepare(cargo[0])
             objects_changed = True
         elif cargo:
-            self.log.trace("Multiprocessing start method is %s",
-                           multiprocessing.get_start_method())
+            if callable(getattr(multiprocessing, "get_start_method", None)):
+                # Python >= 3.4
+                self.log.trace(
+                    "Multiprocessing start method is %s",
+                    multiprocessing.get_start_method())
 
             self.log.trace("Multiprocessing cargo: %s", cargo)
 
@@ -664,8 +678,12 @@ class Config:
                 self.object_run(chunk[0])
                 objects_changed = True
             elif chunk:
-                self.log.trace("Multiprocessing start method is %s",
-                               multiprocessing.get_start_method())
+                if callable(getattr(
+                        multiprocessing, "get_start_method", None)):
+                    # Python >= 3.4
+                    self.log.trace(
+                        "Multiprocessing start method is %s",
+                        multiprocessing.get_start_method())
                 self.log.trace("Starting multiprocessing Pool for %d "
                                "parallel object run", n)
                 args = [
