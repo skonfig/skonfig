@@ -299,8 +299,11 @@ class Config:
             except cdist.Error:
                 failed_hosts.append(host)
         elif args.parallel:
-            log.trace("Multiprocessing start method is %s",
-                      multiprocessing.get_start_method())
+            if callable(getattr(multiprocessing, "get_start_method", None)):
+                # Python >= 3.4
+                log.trace(
+                    "Multiprocessing start method is %s",
+                    multiprocessing.get_start_method())
             log.trace("Starting multiprocessing Pool for %d parallel host"
                       " operation", args.parallel)
 
@@ -593,8 +596,11 @@ class Config:
             self.object_prepare(cargo[0])
             objects_changed = True
         elif cargo:
-            self.log.trace("Multiprocessing start method is %s",
-                           multiprocessing.get_start_method())
+            if callable(getattr(multiprocessing, "get_start_method", None)):
+                # Python >= 3.4
+                self.log.trace(
+                    "Multiprocessing start method is %s",
+                    multiprocessing.get_start_method())
 
             self.log.trace("Multiprocessing cargo: %s", cargo)
 
@@ -672,8 +678,12 @@ class Config:
                 self.object_run(chunk[0])
                 objects_changed = True
             elif chunk:
-                self.log.trace("Multiprocessing start method is %s",
-                               multiprocessing.get_start_method())
+                if callable(getattr(
+                        multiprocessing, "get_start_method", None)):
+                    # Python >= 3.4
+                    self.log.trace(
+                        "Multiprocessing start method is %s",
+                        multiprocessing.get_start_method())
                 self.log.trace("Starting multiprocessing Pool for %d "
                                "parallel object run", n)
                 args = [
