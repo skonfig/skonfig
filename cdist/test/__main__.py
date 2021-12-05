@@ -34,19 +34,29 @@ for possible_test in os.listdir(base_dir):
     if os.path.isfile(mod_path):
         test_modules.append(possible_test)
 
+
+try:
+    from importlib.util import (find_spec, module_from_spec)
+
+    def exec_test_module(test_module, test_module_full_name):
+        module_spec = find_spec(test_module_full_name)
+        module = module_from_spec(module_spec)
+        module_spec.loader.exec_module(module)
+        return module
+except ImportError:
+    # Python < 3.4 does not have importlib.util.find_spec
+    from imp import (find_module, load_module)
+
+    def exec_test_module(test_module, test_module_full_name):
+        module_parameters = find_module(test_module, [base_dir])
+        module = load_module(test_module_full_name, *module_parameters)
+        return module
+
+
 suites = []
 for test_module in test_modules:
     test_module_full = "cdist.test.%s" % (test_module)
-    try:
-        from importlib.util import (find_spec, module_from_spec)
-        module_spec = find_spec(test_module_full)
-        module = module_from_spec(module_spec)
-        module_spec.loader.exec_module(module)
-    except ImportError:
-        # Python < 3.4 does not have importlib.util.find_spec
-        from imp import (find_module, load_module)
-        module_parameters = find_module(test_module, [base_dir])
-        module = load_module(test_module_full, *module_parameters)
+    module = exec_test_module(test_module, test_module_full)
 
     suite = unittest.defaultTestLoader.loadTestsFromModule(module)
     # print("Got suite: " + suite.__str__())
