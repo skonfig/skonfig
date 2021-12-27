@@ -35,20 +35,14 @@ cdist_init_dir = os.path.join(cdist_dir, 'cdist', '__init__.py')
 if os.path.exists(cdist_init_dir):
     sys.path.insert(0, cdist_dir)
 
-import cdist            # noqa 402
-import cdist.argparse   # noqa 402
-import cdist.banner     # noqa 402
-import cdist.config     # noqa 402
-import cdist.install    # noqa 402
-import cdist.shell      # noqa 402
-import cdist.inventory  # noqa 402
-
 
 def commandline():
     """Parse command line"""
+    import cdist.argparse
 
     # preos subcommand hack
     if len(sys.argv) > 1 and sys.argv[1] == 'preos':
+        import cdist.preos
         return cdist.preos.PreOS.commandline(sys.argv[1:])
     parser, cfg = cdist.argparse.parse_and_configure(sys.argv[1:])
     args = cfg.get_args()
@@ -72,6 +66,8 @@ def commandline():
 
 
 if __name__ == "__main__":
+    import cdist
+
     if sys.version_info[:3] < cdist.MIN_SUPPORTED_PYTHON_VERSION:
         print(
             'Python >= {} is required on the source host.'.format(

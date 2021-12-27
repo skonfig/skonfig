@@ -20,11 +20,9 @@
 #
 #
 
-import os
 import hashlib
+import os
 import subprocess
-
-import cdist.log
 
 
 VERSION = 'unknown version'

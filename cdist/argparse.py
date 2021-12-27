@@ -1,14 +1,12 @@
 import argparse
-import cdist
 import multiprocessing
 import logging
 import collections
 import functools
+
+import cdist
 import cdist.configuration
 import cdist.log
-import cdist.preos
-import cdist.info
-import cdist.scan
 
 
 # set of beta sub-commands
@@ -151,6 +149,8 @@ def get_parsers():
             title="Commands", dest="command")
 
     # Banner
+    import cdist.banner
+
     parser['banner'] = parser['sub'].add_parser(
             'banner', parents=[parser['loglevel']])
     parser['banner'].set_defaults(func=cdist.banner.banner)
@@ -260,6 +260,8 @@ def get_parsers():
            action='store_false', dest='save_output_streams', default=True)
 
     # Config
+    import cdist.config
+
     parser['config_args'] = argparse.ArgumentParser(add_help=False)
     parser['config_args'].add_argument(
              '-A', '--all-tagged',
@@ -307,11 +309,15 @@ def get_parsers():
     parser['config'].set_defaults(func=cdist.config.Config.commandline)
 
     # Install
+    import cdist.install
+
     parser['install'] = parser['sub'].add_parser('install', add_help=False,
                                                  parents=[parser['config']])
     parser['install'].set_defaults(func=cdist.install.Install.commandline)
 
     # Inventory
+    import cdist.inventory
+
     parser['inventory'] = parser['sub'].add_parser('inventory')
     parser['invsub'] = parser['inventory'].add_subparsers(
             title="Inventory commands", dest="subcommand")
@@ -429,9 +435,13 @@ def get_parsers():
             func=cdist.inventory.Inventory.commandline)
 
     # PreOS
+    import cdist.preos
+
     parser['preos'] = parser['sub'].add_parser('preos', add_help=False)
 
     # Shell
+    import cdist.shell
+
     parser['shell'] = parser['sub'].add_parser(
             'shell', parents=[parser['loglevel'], parser['colored_output']])
     parser['shell'].add_argument(
@@ -441,6 +451,8 @@ def get_parsers():
     parser['shell'].set_defaults(func=cdist.shell.Shell.commandline)
 
     # Info
+    import cdist.info
+
     parser['info'] = parser['sub'].add_parser('info')
     parser['info'].add_argument(
             '-a', '--all', help='Display all info. This is the default.',
@@ -472,6 +484,8 @@ def get_parsers():
     parser['info'].set_defaults(func=cdist.info.Info.commandline)
 
     # Scan = config + further
+    import cdist.scan
+
     parser['scan'] = parser['sub'].add_parser('scan', add_help=False,
                                               parents=[parser['config']])
 
