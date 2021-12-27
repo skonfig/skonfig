@@ -26,6 +26,8 @@ import logging
 import os
 import sys
 
+log = logging.getLogger("cdist")
+
 # See if this file's parent is cdist module
 # and if so add it to module search path.
 cdist_dir = os.path.realpath(
@@ -43,6 +45,46 @@ import cdist.config     # noqa 402
 import cdist.install    # noqa 402
 import cdist.shell      # noqa 402
 import cdist.inventory  # noqa 402
+
+
+def _check_python_version():
+    import textwrap
+    silence_hint = textwrap.dedent("""\
+    You can silence this warning by
+    - setting the environment variable CDIST_CHECK_PYTHON_VERSION=no, or
+    - by adding check_python_version = no to the cdist.cfg.
+    """)
+
+    if sys.version_info < cdist.MIN_RECOMMENDED_PYTHON_VERSION:
+        log.warning(
+            "It is not recommended to run cdist on Python versions older than "
+            "%s. You are using %s.\n"
+            "While it should still work, you may want to try to upgrade to a "
+            "newer version of Python.\n\n%s",
+            ".".join(map(str, cdist.MIN_RECOMMENDED_PYTHON_VERSION)),
+            sys.version.split()[0],
+            silence_hint)
+
+    # NOTE: test for releaselevel before MAX_TESTED_PYTHON_VERSION because
+    #       pre-release versions should never be in MAX_TESTED_PYTHON_VERSION.
+    elif sys.version_info.releaselevel != "final":
+        log.warning(
+            "You are running cdist on a pre-release version of Python (%s). "
+            "You may experience bugs.\n\n%s",
+            sys.version.split()[0],
+            silence_hint)
+
+    # NOTE: limit the precision of sys.version_info to the precision of
+    #       cdist.MAX_TESTED_PYTHON_VERSION to not produce false-positives when
+    #       cdist is run on e.g. (3, 10, 2) and MAX_TESTED_PYTHON_VERSION is
+    #       (3, 10)
+    elif sys.version_info[:len(cdist.MAX_TESTED_PYTHON_VERSION)] \
+            > cdist.MAX_TESTED_PYTHON_VERSION:
+        log.warning(
+            "cdist has not been tested on Python %s. Please check if there is "
+            "a newer version of cdist available.\n\n%s",
+            sys.version.split()[0],
+            silence_hint)
 
 
 def _commandline():
@@ -69,15 +111,19 @@ def _commandline():
         parser['main'].print_help()
         sys.exit(0)
 
+    if cfg.get_config(section="GLOBAL").get("check_python_version", True):
+        _check_python_version()
+
     args.func(args)
 
 
 if __name__ == "__main__":
-    if sys.version_info[:3] < cdist.MIN_SUPPORTED_PYTHON_VERSION:
-        print(
-            'Python >= {} is required on the source host.'.format(
-                ".".join(map(str, cdist.MIN_SUPPORTED_PYTHON_VERSION))),
-            file=sys.stderr)
+    if sys.version_info < cdist.MIN_SUPPORTED_PYTHON_VERSION:
+        log.error(
+            "Python >= %s is required on the source host. "
+            "You are using %s.",
+            ".".join(map(str, cdist.MIN_SUPPORTED_PYTHON_VERSION)),
+            sys.version.split()[0])
         sys.exit(1)
 
     try:
@@ -88,7 +134,7 @@ if __name__ == "__main__":
             _commandline()
         sys.exit(0)
     except cdist.Error as e:
-        logging.getLogger("cdist").error(e)
+        log.error(e)
         sys.exit(1)
     except KeyboardInterrupt:
         sys.exit(2)
