@@ -405,7 +405,7 @@ eof
     ;;
 
     pycodestyle|pep8)
-        pycodestyle "${basedir}" "${basedir}/bin/cdist"
+        pycodestyle "${basedir}/cdist/" "${basedir}/bin/"
     ;;
 
     check-pycodestyle)
