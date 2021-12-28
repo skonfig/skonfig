@@ -333,6 +333,7 @@ class Configuration(metaclass=Singleton):
             'save_output_streams': BooleanOption('save_output_streams',
                                                  default_overrides=False),
             'timestamp': BooleanOption('timestamp'),
+            'check_python_version': BooleanOption('check_python_version'),
         },
     }
 
@@ -347,6 +348,7 @@ class Configuration(metaclass=Singleton):
         'CDIST_CACHE_PATH_PATTERN': 'cache_path_pattern',
         'CDIST_COLORED_OUTPUT': 'colored_output',
         '__cdist_log_level': 'verbosity',
+        'CDIST_CHECK_PYTHON_VERSION': 'check_python_version',
     }
     ENV_VAR_BOOLEAN_OPTIONS = ('CDIST_BETA', )
     ENV_VAR_OPTIONS = {
