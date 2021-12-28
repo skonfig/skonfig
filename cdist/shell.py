@@ -23,10 +23,11 @@ import logging
 import os
 import tempfile
 
+import cdist.config
+import cdist.log
+
 # initialise cdist
 import cdist.exec.local
-
-import cdist.config
 
 log = logging.getLogger(__name__)
 

@@ -33,11 +33,12 @@ import shutil
 import socket
 
 import cdist
-import cdist.hostsource
+import cdist.configuration
 import cdist.exec.local
 import cdist.exec.remote
+import cdist.hostsource
+import cdist.log
 import cdist.util.ipaddr as ipaddr
-import cdist.configuration
 
 from cdist import core, inventory
 from cdist.mputil import mp_pool_run, mp_sig_handler

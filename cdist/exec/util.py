@@ -19,13 +19,14 @@
 #
 #
 
-import subprocess
 import os
-from tempfile import TemporaryFile
-from collections import OrderedDict
+import subprocess
 
 import cdist
+import cdist.log
 
+from collections import OrderedDict
+from tempfile import TemporaryFile
 
 # IMPORTANT:
 # with the code below in python 3.5 when command is executed and error

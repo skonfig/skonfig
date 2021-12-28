@@ -21,18 +21,20 @@
 #
 #
 
-import os
-import sys
-import re
-import subprocess
-import shutil
+import datetime
 import logging
+import os
+import re
+import shutil
+import subprocess
+import sys
 import tempfile
 import time
-import datetime
 
 import cdist
+import cdist.log
 import cdist.message
+
 from cdist import core
 import cdist.exec.util as util
 

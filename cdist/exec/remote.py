@@ -26,6 +26,7 @@ import subprocess
 import logging
 
 import cdist
+import cdist.log
 import cdist.exec.util as util
 import cdist.util.ipaddr as ipaddr
 

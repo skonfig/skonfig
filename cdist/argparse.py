@@ -97,6 +97,7 @@ def get_parsers():
                   'value.'),
             action='count', default=None)
 
+    import cdist.configuration
     parser['colored_output'] = argparse.ArgumentParser(add_help=False)
     parser['colored_output'].add_argument(
             '--colors', metavar='WHEN',

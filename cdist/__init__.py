@@ -22,7 +22,6 @@
 
 import hashlib
 import os
-import subprocess
 
 
 VERSION = 'unknown version'
@@ -35,6 +34,7 @@ except ModuleNotFoundError:
         os.path.join(os.path.dirname(__file__), os.pardir))
     if os.path.isdir(os.path.join(cdist_dir, '.git')):
         try:
+            import subprocess
             VERSION = subprocess.check_output(
                 ['git', 'describe', '--always'],
                 cwd=cdist_dir,

@@ -19,15 +19,15 @@
 #
 #
 
-
 import configparser
+import logging
+import multiprocessing
 import os
+import re
+import sys
+
 import cdist
 import cdist.log
-import re
-import multiprocessing
-import logging
-import sys
 
 
 class Singleton(type):

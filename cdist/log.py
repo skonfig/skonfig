@@ -25,10 +25,8 @@ import collections
 import datetime
 import logging
 import logging.handlers
-import sys
 import os
-import struct
-import threading
+import sys
 
 
 # Define additional cdist logging levels.

@@ -19,14 +19,14 @@
 #
 #
 
-
-import multiprocessing
 import concurrent.futures as cf
 import itertools
+import logging
+import multiprocessing
 import os
 import signal
-import logging
 
+import cdist.log
 
 log = logging.getLogger("cdist-mputil")
 

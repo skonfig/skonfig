@@ -24,10 +24,12 @@
 import argparse
 import logging
 import os
-import sys
 import re
+import sys
 
 import cdist
+import cdist.log
+
 from cdist import core
 from cdist import flock
 from cdist.core.manifest import Manifest

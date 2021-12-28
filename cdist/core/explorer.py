@@ -20,11 +20,13 @@
 #
 #
 
-import logging
-import os
 import glob
+import logging
 import multiprocessing
+import os
+
 import cdist
+import cdist.log
 from cdist.mputil import mp_pool_run
 from . import util
 

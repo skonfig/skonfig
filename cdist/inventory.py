@@ -19,13 +19,16 @@
 #
 #
 
-import cdist
+import itertools
 import logging
 import os
 import os.path
-import itertools
 import sys
+
+import cdist
 import cdist.configuration
+import cdist.log
+
 from cdist.hostsource import hostfile_process_line
 
 DIST_INVENTORY_DB_NAME = "inventory"
