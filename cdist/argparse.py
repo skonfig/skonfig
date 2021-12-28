@@ -1,7 +1,6 @@
 import argparse
 import multiprocessing
 import logging
-import collections
 import functools
 
 import cdist
@@ -18,33 +17,6 @@ BETA_ARGS = {
 EPILOG = "Get cdist at https://code.ungleich.ch/ungleich-public/cdist"
 # Parser others can reuse
 parser = None
-
-
-_verbosity_level_off = -2
-_verbosity_level = {
-    None: logging.WARNING,
-    _verbosity_level_off: logging.OFF,
-    -1: logging.ERROR,
-    0: logging.WARNING,
-    1: logging.INFO,
-    2: logging.VERBOSE,
-    3: logging.DEBUG,
-    4: logging.TRACE,
-}
-
-
-# Generate verbosity level constants:
-# VERBOSE_OFF, VERBOSE_ERROR, VERBOSE_WARNING, VERBOSE_INFO, VERBOSE_VERBOSE,
-# VERBOSE_DEBUG, VERBOSE_TRACE.
-this_globals = globals()
-for level in _verbosity_level:
-    const = 'VERBOSE_' + logging.getLevelName(_verbosity_level[level])
-    this_globals[const] = level
-
-
-# All verbosity levels above 4 are TRACE.
-_verbosity_level = collections.defaultdict(
-    lambda: logging.TRACE, _verbosity_level)
 
 
 def add_beta_command(cmd):
@@ -534,9 +506,9 @@ def get_parsers():
 
 def handle_loglevel(args):
     if hasattr(args, 'quiet') and args.quiet:
-        args.verbose = _verbosity_level_off
+        args.verbose = cdist.log._verbosity_level_off
 
-    logging.getLogger().setLevel(_verbosity_level[args.verbose])
+    logging.getLogger().setLevel(cdist.log._verbosity_level[args.verbose])
 
 
 def handle_log_colors(args):

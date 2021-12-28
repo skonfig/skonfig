@@ -2,6 +2,7 @@
 #
 # 2010-2013 Nico Schottelius (nico-cdist at schottelius.org)
 # 2019-2020 Steven Armstrong
+# 2021 Dennis Camera (cdist at dtnr.ch)
 #
 # This file is part of cdist.
 #
@@ -20,6 +21,7 @@
 #
 #
 
+import collections
 import datetime
 import logging
 import logging.handlers
@@ -54,6 +56,30 @@ def _trace(self, msg, *args, **kwargs):
 
 
 logging.Logger.trace = _trace
+
+
+_verbosity_level_off = -2
+
+# All verbosity levels above 4 are TRACE.
+_verbosity_level = collections.defaultdict(lambda: logging.TRACE, {
+    None: logging.WARNING,
+    _verbosity_level_off: logging.OFF,
+    -1: logging.ERROR,
+    0: logging.WARNING,
+    1: logging.INFO,
+    2: logging.VERBOSE,
+    3: logging.DEBUG,
+    4: logging.TRACE,
+    })
+
+# Generate verbosity level constants:
+# VERBOSE_OFF, VERBOSE_ERROR, VERBOSE_WARNING, VERBOSE_INFO, VERBOSE_VERBOSE,
+# VERBOSE_DEBUG, VERBOSE_TRACE.
+globals().update({
+    ("VERBOSE_" + logging.getLevelName(l)): i
+    for i, l in _verbosity_level.items()
+    if i is not None
+    })
 
 
 class CdistFormatter(logging.Formatter):

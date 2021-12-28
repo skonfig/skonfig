@@ -26,7 +26,6 @@ import tempfile
 # initialise cdist
 import cdist.exec.local
 
-
 import cdist.config
 
 log = logging.getLogger(__name__)

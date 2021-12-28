@@ -32,16 +32,16 @@ import atexit
 import shutil
 import socket
 
-from cdist.mputil import mp_pool_run, mp_sig_handler
-from cdist import core, inventory
-from cdist.util.remoteutil import inspect_ssh_mux_opts
-
 import cdist
 import cdist.hostsource
 import cdist.exec.local
 import cdist.exec.remote
 import cdist.util.ipaddr as ipaddr
 import cdist.configuration
+
+from cdist import core, inventory
+from cdist.mputil import mp_pool_run, mp_sig_handler
+from cdist.util.remoteutil import inspect_ssh_mux_opts
 
 
 def graph_check_cycle(graph):
