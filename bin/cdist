@@ -3,6 +3,7 @@
 #
 # 2010-2016 Nico Schottelius (nico-cdist at schottelius.org)
 # 2016 Darko Poljak (darko.poljak at gmail.com)
+# 2021 Dennis Camera (cdist at dtnr.ch)
 #
 # This file is part of cdist.
 #
@@ -44,7 +45,7 @@ import cdist.shell      # noqa 402
 import cdist.inventory  # noqa 402
 
 
-def commandline():
+def _commandline():
     """Parse command line"""
 
     # preos subcommand hack
@@ -79,25 +80,15 @@ if __name__ == "__main__":
             file=sys.stderr)
         sys.exit(1)
 
-    exit_code = 0
-
     try:
-        import re
-        import os
-
-        if re.match("__", os.path.basename(sys.argv[0])):
+        if os.path.basename(sys.argv[0])[:2] == "__":
             import cdist.emulator
-            emulator = cdist.emulator.Emulator(sys.argv)
-            emulator.run()
+            cdist.emulator.Emulator(sys.argv).run()
         else:
-            commandline()
-
-    except KeyboardInterrupt:
-        exit_code = 2
-
+            _commandline()
+        sys.exit(0)
     except cdist.Error as e:
-        log = logging.getLogger("cdist")
-        log.error(e)
-        exit_code = 1
-
-    sys.exit(exit_code)
+        logging.getLogger("cdist").error(e)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        sys.exit(2)
