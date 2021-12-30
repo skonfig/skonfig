@@ -1,0 +1,418 @@
+#!/bin/sh
+#
+# 2021-2022 Dennis Camera (cdist at dtnr.ch)
+#
+# This file is part of cdist.
+#
+# cdist is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# cdist is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with cdist. If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e -u
+
+# Helper functions
+
+atexit() {
+	# ATTENTION: arguments are not quoted properly
+	_atexit_=${_atexit_-}${_atexit_:+;}$*
+	# shellcheck disable=SC2154
+	trap 'eval "${_atexit_-}"' 0
+}
+
+quote() { printf '%s\n' "$*" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/'/"; }
+
+breify() {
+	# Convert arguments to a POSIX BRE-compatible form, i.e. escape special
+	# characters (incl. delimiter)
+	printf '%s\n' "$*" | sed -e 's/[].^$*\[]/\\&/g' -e 's:/:\\/:g'
+}
+
+error() {
+	_fmt=$1
+	shift
+	# shellcheck disable=SC2059
+	printf "error: ${_fmt}\n" "$@" >&2
+	exit 1
+}
+
+join() {
+	# joins the FIELDS using SEP.
+	# usage: join SEP FIELDS
+
+	_sep=$1
+	shift
+	for _a
+	do
+		set -- "$@" "${_sep}" "$1"
+		shift
+	done
+	shift  # shift away first sep
+	unset _a _sep
+	(IFS=''; printf '%s\n' "$*")
+}
+
+require() {
+	for _bin
+	do
+		shift
+		command -v "${_bin}" >/dev/null 2>&1 || {
+			set -- "$@" "${_bin}"
+		}
+	done
+	unset _bin
+	if test $# -gt 0
+	then
+		printf 'error: missing: %s\n' "$@" >&2
+		return 1
+	fi
+}
+
+
+# Help
+
+help() {
+	cat <<-EOF
+	$(usage)
+
+	cdist-type-helper allows you to easily move cdist types between Git
+	repositories and make sets of arbitrary type combinations.
+
+	Commands:
+
+	copy -s <src repo> [-P <src prefix>] -d <dest repo> [-p <dest prefix>] -b <branch>  <type name>...
+	    copies the given type from the source repository into a new branch in a
+	    destination Git repository, keeping the Git history.
+	    The dest repo can be a local working copy or a remote URL.
+
+	    The resulting branch in the destination repo will produce a disjunct
+	    tree that can be merged into another branch using
+
+	      git merge --allow-unrelated-histories
+
+	move -s <src_repo> [-P <src prefix>] [-B <src branch>] -d <dest repo> [-p <dest prefix>] -b <branch> <type name>...
+	    copies a type to an other Git repository like the copy command does, but
+	    it will additionally delete the type from the source (in a branch with
+	    the same name).
+
+	    if the name of the branch in the source repository should have a
+	    different name, the -B option can be used.
+
+	make-set [-m] -s <src repo> [-P <src prefix>] [-B <src branch>] -d <dest repo> <type name>...
+	    splits out a set of types into a cdist set.
+	    this command expects an empty(!) repository to exist at <dest repo>.
+
+	    setting -m will delete the types exported to the set from the source
+	    repository (it will do so on the <src branch>).
+
+	    the type name option accepts globs which will be interpreted relative to
+	    the source repository's type directory.  Make sure to quote globs to
+	    that the calling shell does not interpret them.
+
+	EOF
+}
+
+usage() {
+	printf 'usage: %s [-h] <command> [<args>...]\n' "$0"
+}
+
+
+# Git functions
+
+git_is_branch() {
+	git -C "${1:?}" rev-parse --quiet --verify "${2:?}" >/dev/null 2>&1
+}
+
+git_is_clean() {
+	# usage: git_is_clean [working copy]
+	# returns 1 if the given working copy contains modifications or untracked
+	# files
+	! git -C "${1:?}" status --porcelain --untracked-files=all | grep -q .
+}
+
+git_gitdir() {
+	GIT_DIR= git -C "${1:?}" rev-parse --git-dir
+}
+
+git_is_working_copy() {
+	test -e "${1:?}/.git"
+}
+
+git_temp_branch() {
+	mktemp -u "$(git_gitdir "${1:?}")/refs/heads"/cdist-type-helper.XXXXXX | sed 's:.*/::'
+}
+
+
+# commands
+
+_copy_cleanup() {
+	if git_is_branch "${src_repo}" "refs/original/refs/heads/${temp_branch}"
+	then
+		git -C "${src_repo}" update-ref -d "refs/original/refs/heads/${temp_branch}"
+	fi
+
+	if git_is_branch "${src_repo}" "${temp_branch-}"
+	then
+		# Remove temporary branch
+		printf 'Deleting temporary branch (in source): %s\n' "${temp_branch}"
+		git -C "${src_repo}" checkout "${oldref}"
+		git -C "${src_repo}" branch -D "${temp_branch}"
+	fi
+}
+
+cmd_copy() {
+	require git
+
+	# defaults
+	src_repo=$(pwd -P)
+	src_prefix=
+	dest_prefix=
+	move_mode=false
+
+	# parse options
+	while getopts ':b:B:d:mp:P:s:' _opt
+	do
+		case ${_opt}
+		in
+			(b)
+				dest_branch=${OPTARG}
+				;;
+			(B)
+				src_branch=${OPTARG}
+				;;
+			(d)
+				dest_repo=${OPTARG}
+				;;
+			(m)
+				move_mode=true
+				;;
+			(p)
+				dest_prefix=${OPTARG}
+				;;
+			(P)
+				src_prefix=${OPTARG}
+				;;
+			(s)
+				src_repo=${OPTARG}
+				;;
+			(\?)
+				shift $((OPTIND-2))
+				error 'illegal option for %s: %s' "$0 ${command}" "$1"
+				;;
+		esac
+	done
+	shift $((OPTIND-1))
+	OPTIND=1  # reset
+	unset _opt OPTARG
+
+	# no types, nothing to do
+	test $# -gt 0 || return 0
+
+	test -n "${dest_repo-}" || {
+		error 'option -r is required for %s command.' "${command}"
+	}
+	test -n "${dest_branch-}" || {
+		error 'option -b is mandatory for %s command.' "${command}"
+	}
+	: "${src_branch:=${dest_branch}}"  # default src_branch=dest_branch
+
+	git_is_working_copy "${src_repo:?}" || {
+		error 'conf dir must be the root of a Git repository.'
+	}
+	git_is_clean "${src_repo:?}" || {
+		error 'this operation requires a clean Git working copy.'
+	}
+
+	if test -d "${dest_repo}"
+	then
+		# ensure the path is absolute because the git command will chdir
+		dest_repo=file://$(cd "${dest_repo}" && pwd -P)
+	fi
+
+	src_path="${src_prefix%/}${src_prefix:+/}type"
+	dst_path="${dest_prefix%/}${dest_prefix:+/}type"
+
+	# breify type names
+	for _type_name
+	do
+		test -d "${src_repo%/}/${src_path:?}/$1" || {
+			error 'type %s does not exist at %s' "$1" "${src_repo%/}/${src_path:?}"
+		}
+
+		set -- "$@" "$(breify "$1")"
+		shift
+	done
+
+	file_filter="^$(breify "${src_path}")/\($(join '\|' "$@")\)/"
+
+	temp_branch=$(git_temp_branch "${src_repo:?}")
+
+	printf 'Creating new (temporary) branch in source: %s\n' "${temp_branch}"
+	oldref=$(git -C "${src_repo}" rev-parse --abbrev-ref HEAD)
+	atexit _copy_cleanup
+	git -C "${src_repo}" checkout -b "${temp_branch}" HEAD
+
+
+	printf 'Isolating types: %s\n' "$(join ', ' "$@")"
+	filter_cmd="git ls-files --full-name -z | tr '\0' '\n' | grep -v $(quote "${file_filter}") | xargs git rm -q --cached --"
+
+	if test "${src_path}" != "${dst_path}"
+	then
+		# move if necessary
+		filter_cmd="${filter_cmd:-:}; cd \$(git rev-parse --show-cdup)./ && mkdir -p $(quote "${dest_prefix%/}") && git mv -f -k $(quote "${src_path}") $(quote "${dest_prefix%/}")"
+	fi
+
+	shmdir=$(find /run/shm /dev/shm -prune | head -n 1)
+	if test -d "${shmdir}"
+	then
+		filter_tmpdir=$(mktemp -u "${shmdir}/cdist-type-helper.XXXXXX")
+	fi
+
+	FILTER_BRANCH_SQUELCH_WARNING=1 \
+	git -C "${src_repo}" filter-branch ${filter_tmpdir:+-d "${filter_tmpdir}"} \
+		--index-filter "${filter_cmd}" \
+		--prune-empty \
+		--parent-filter "sed 's/-p //g' | xargs git show-branch --independent | sed 's/^/-p /' | tr '\\n' ' '" \
+		-- "${temp_branch}"
+		# --prune-empty
+
+	printf 'Pushing to: %s\n' "${dest_repo}"
+	git -C "${src_repo}" push "${dest_repo}" "${temp_branch}":"${dest_branch}"
+
+	_copy_cleanup
+
+	# Remove source types (if in move mode)
+	if ${move_mode}
+	then
+		printf 'Creating branch (in source): %s\n' "${src_branch}"
+		git -C "${src_repo}" checkout -b "${src_branch}" "${oldref}"
+
+		for _type_name
+		do
+			git -C "${src_repo}" rm -q -r "${src_path:?}/${_type_name}/"
+			git -C "${src_repo}" commit -m "[${src_path:?}/${_type_name}] Remove type"
+		done
+
+		git -C "${src_repo}" checkout "${oldref}"
+	fi
+}
+
+cmd_move() {
+	cmd_copy -m "$@"
+}
+
+cmd_make_set() {
+	require git
+
+	# defaults
+	delete_src=false
+	src_branch=
+	src_prefix=
+
+	# parse options
+	while getopts ':B:d:mP:s:' _opt
+	do
+		case ${_opt}
+		in
+			(B)
+				src_branch=${OPTARG}
+				;;
+			(m)
+				delete_src=true
+				;;
+			(d)
+				dest_repo=${OPTARG}
+				;;
+			(s)
+				src_repo=${OPTARG}
+				;;
+			(P)
+				src_prefix=${OPTARG}
+				;;
+			(\?)
+				shift $((OPTIND-2))
+				OPTIND=2
+				error 'illegal option for %s: %s' "$0 ${command}" "$1"
+				;;
+		esac
+	done
+	shift $((OPTIND-1))
+	OPTIND=1  # reset
+	unset _opt OPTARG
+
+	git_is_clean "${src_repo:?}" || {
+		error 'this operation requires a clean Git working copy.'
+	}
+
+	src_path="${src_prefix%/}${src_prefix:+/}type"
+
+	# expand globs
+	cd "${src_repo:?}/${src_path}" &&
+	for _type_glob
+	do
+		# shellcheck disable=SC2086
+		set -- "$@" $1
+		shift
+	done
+	cd - >/dev/null
+
+	if ${delete_src}
+	then
+		test -n "${src_branch-}" || {
+			error 'option -B is required when -m is set.'
+		}
+
+		set -- -m -B "${src_branch:?}" "$@"
+	fi
+
+	cmd_copy -s "${src_repo:?}" -d "${dest_repo:?}" -b main "$@"
+}
+
+
+# main
+
+while getopts 'h' _opt
+do
+	case ${_opt}
+	in
+		(h)
+			help
+			exit 0
+			;;
+		(\?)  # others
+			usage
+			exit 2
+			;;
+	esac
+done
+shift $((OPTIND-1))
+OPTIND=1  # reset
+unset OPTARG _opt
+
+if test $# -ge 1
+then
+	command=$1
+	shift
+	cmd_func=cmd_$(printf '%s\n' "${command}" | tr '-' '_')
+
+	if type "${cmd_func}" >/dev/null 2>&1
+	then
+		"${cmd_func}" "$@"
+	else
+		printf 'error: invalid command: %s\n' "${command}" >&2
+		help
+		exit 1
+	fi
+else
+	printf 'no command set.\n' >&2
+	usage
+fi
