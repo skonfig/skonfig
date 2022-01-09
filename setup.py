@@ -27,21 +27,20 @@ import cdist  # noqa
 def data_finder(data_dir):
     entries = []
     for name in os.listdir(data_dir):
-
         # Skip .gitignore files
         if name == ".gitignore":
             continue
 
         # Skip vim swp files
-        swpfile = re.search(r'^\..*\.swp$', name)
-        if swpfile:
+        if re.search(r'^\..*\.swp$', name):
+            continue
+
+        # Skip Emacs backups files
+        if re.search(r'(^\.?#|~$)', name):
             continue
 
         entry = os.path.join(data_dir, name)
-        if os.path.isdir(entry):
-            entries.extend(data_finder(entry))
-        else:
-            entries.append(entry)
+        entries += data_finder(entry) if os.path.isdir(entry) else [entry]
 
     return entries
 
