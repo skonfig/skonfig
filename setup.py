@@ -12,8 +12,8 @@ version_file = os.path.join('cdist', 'version.py')
 # If we have build-helper we could be a git repo.
 if os.path.exists(build_helper):
     # Try to generate version.py.
-    rv = subprocess.run([build_helper, 'version', ])
-    if rv.returncode != 0:
+    rc = subprocess.call([build_helper, 'version'], shell=False)
+    if rc != 0:
         raise DistutilsError("Failed to generate {}".format(version_file))
 else:
     # Otherwise, version.py should be present.
