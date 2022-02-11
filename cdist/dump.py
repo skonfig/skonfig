@@ -58,12 +58,12 @@ class Dump:
             if host not in hosts.keys():
                 hosts[host] = []
             hosts[host].append(root)
-        return hosts
+        return sorted(hosts.items())
 
     def __init__(self, args):
         cache_dir = "{}/cache/".format(cdist.home_dir())
         hosts = self._get_hosts(cache_dir)
-        for host, host_cache_dirs in hosts.items():
+        for host, host_cache_dirs in hosts:
             for host_cache_dir in host_cache_dirs:
                 cache_suffix = host_cache_dir[len(cache_dir):]
                 if args.host:
