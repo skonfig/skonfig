@@ -9,6 +9,7 @@ import cdist.log
 import cdist.preos
 import cdist.info
 import cdist.scan.commandline
+import cdist.dump
 
 
 # set of beta sub-commands
@@ -511,6 +512,11 @@ def get_parsers():
         action='store',  default=5, type=int,
         help='How long (seconds) to wait between ICMPv6 echo requests')
     parser['scan'].set_defaults(func=cdist.scan.commandline.commandline)
+
+    # Dump
+    parser['dump'] = parser['sub'].add_parser('dump')
+    parser['dump'].add_argument('host', nargs='*')
+    parser['dump'].set_defaults(func=cdist.dump.Dump.commandline)
 
     for p in parser:
         parser[p].epilog = EPILOG
