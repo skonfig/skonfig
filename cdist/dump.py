@@ -44,9 +44,10 @@ class Dump:
     def _print_dump(self, host, cache_suffix, host_cache_dir):
         dump = self._get_dump(host_cache_dir)
         for dump_file, dump_file_content in dump.items():
-            dump_file_suffix = dump_file[len(host_cache_dir) + 1 :]
+            dump_file_suffix = dump_file[len(host_cache_dir)+1:]
             for line in dump_file_content.split("\n"):
-                print(": ".join([host, cache_suffix, dump_file_suffix, line.rstrip()]))
+                print(": ".join([
+                    host, cache_suffix, dump_file_suffix, line.rstrip()]))
 
     def _get_hosts(self, cache_dir):
         hosts = {}
@@ -64,7 +65,7 @@ class Dump:
         hosts = self._get_hosts(cache_dir)
         for host, host_cache_dirs in hosts.items():
             for host_cache_dir in host_cache_dirs:
-                cache_suffix = host_cache_dir[len(cache_dir) :]
+                cache_suffix = host_cache_dir[len(cache_dir):]
                 if args.host:
                     if host not in args.host:
                         continue
