@@ -18,12 +18,12 @@ class Dump:
     def _get_dump_files(self, host_cache_dir):
         dump_files = []
         for cache_entry in [
-            "explorer",
-            "messages",
-            "object",
-            "stderr",
-            "stdout",
             "typeorder",
+            "explorer",
+            "object",
+            "stdout",
+            "stderr",
+            "messages",
         ]:
             cache_entry_path = os.path.join(host_cache_dir, cache_entry)
             if os.path.isfile(cache_entry_path):
