@@ -12,7 +12,7 @@ class Dump:
         if not os.path.isfile(file_path):
             return None
         with open(file_path) as handle:
-            return handle.read().strip()
+            return handle.read().rstrip()
         return None
 
     def _get_dump_files(self, host_cache_dir):
@@ -71,4 +71,7 @@ class Dump:
                         continue
                     self._print_dump(host, cache_suffix, host_cache_dir)
                 else:
-                    print("{}: {}".format(host, cache_suffix))
+                    if host == cache_suffix:
+                        print(host)
+                    else:
+                        print("{}: {}".format(host, cache_suffix))
