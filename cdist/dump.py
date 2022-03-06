@@ -46,8 +46,8 @@ class Dump:
         for dump_file, dump_file_content in dump.items():
             dump_file_suffix = dump_file[len(host_cache_dir)+1:]
             for line in dump_file_content.split("\n"):
-                print(": ".join([
-                    host, cache_suffix, dump_file_suffix, line.rstrip()]))
+                print("{}: {}/{}: {}".format(
+                    host, cache_suffix, dump_file_suffix, line))
 
     def _get_hosts(self, cache_dir):
         hosts = {}
