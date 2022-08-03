@@ -55,9 +55,8 @@ source_suffix = ['.rst']
 master_doc = 'index'
 
 # General information about the project.
-project = 'cdist'
-copyright = 'ungleich GmbH 2021'
-# author = 'Darko Poljak'
+project = 'skonfig'
+copyright = '2022 skonfig nerds'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
