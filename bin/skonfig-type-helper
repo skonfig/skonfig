@@ -1,21 +1,21 @@
 #!/bin/sh
 #
-# 2021-2022 Dennis Camera (cdist at dtnr.ch)
+# 2021-2022 Dennis Camera (skonfig at dtnr.ch)
 #
-# This file is part of cdist.
+# This file is part of skonfig.
 #
-# cdist is free software: you can redistribute it and/or modify
+# skonfig is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# cdist is distributed in the hope that it will be useful,
+# skonfig is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with cdist. If not, see <http://www.gnu.org/licenses/>.
+# along with skonfig. If not, see <http://www.gnu.org/licenses/>.
 #
 
 set -e -u
@@ -84,7 +84,7 @@ help() {
 	cat <<-EOF
 	$(usage)
 
-	cdist-type-helper allows you to easily move cdist types between Git
+	skonfig-type-helper allows you to easily move skonfig types between Git
 	repositories and make sets of arbitrary type combinations.
 
 	Commands:
@@ -108,7 +108,7 @@ help() {
 	    different name, the -B option can be used.
 
 	make-set [-m] -s <src repo> [-P <src prefix>] [-B <src branch>] -d <dest repo> <type name>...
-	    splits out a set of types into a cdist set.
+	    splits out a set of types into a skonfig set.
 	    this command expects an empty(!) repository to exist at <dest repo>.
 
 	    setting -m will delete the types exported to the set from the source
@@ -148,7 +148,7 @@ git_is_working_copy() {
 }
 
 git_temp_branch() {
-	mktemp -u "$(git_gitdir "${1:?}")/refs/heads"/cdist-type-helper.XXXXXX | sed 's:.*/::'
+	mktemp -u "$(git_gitdir "${1:?}")/refs/heads"/skonfig-type-helper.XXXXXX | sed 's:.*/::'
 }
 
 
@@ -274,7 +274,7 @@ cmd_copy() {
 	shmdir=$(find /run/shm /dev/shm -prune | head -n 1)
 	if test -d "${shmdir}"
 	then
-		filter_tmpdir=$(mktemp -u "${shmdir}/cdist-type-helper.XXXXXX")
+		filter_tmpdir=$(mktemp -u "${shmdir}/skonfig-type-helper.XXXXXX")
 	fi
 
 	FILTER_BRANCH_SQUELCH_WARNING=1 \
