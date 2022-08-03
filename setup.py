@@ -55,7 +55,7 @@ setup(
     name="skonfig",
     packages=["cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
     package_data={'cdist': package_data},
-    scripts=["bin/cdist", "bin/cdist-dump", "bin/cdist-new-type", "bin/skonfig-type-helper"],
+    scripts=["bin/cdist", "bin/cdist-dump", "bin/skonfig-new-type", "bin/skonfig-type-helper"],
     version=cdist.version.VERSION,
     description="system configuration framework",
     author="skonfig nerds",
