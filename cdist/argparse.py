@@ -17,7 +17,6 @@ BETA_COMMANDS = set(('install', 'inventory', 'scan', ))
 BETA_ARGS = {
     'config': set(('tag', 'all_tagged_hosts', 'use_archiving', )),
 }
-EPILOG = "Get cdist at https://code.ungleich.ch/ungleich-public/cdist"
 # Parser others can reuse
 parser = None
 
@@ -511,9 +510,6 @@ def get_parsers():
         action='store',  default=5, type=int,
         help='How long (seconds) to wait between ICMPv6 echo requests')
     parser['scan'].set_defaults(func=cdist.scan.commandline.commandline)
-
-    for p in parser:
-        parser[p].epilog = EPILOG
 
     return parser
 
