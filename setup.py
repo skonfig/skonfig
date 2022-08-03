@@ -55,7 +55,7 @@ setup(
     name="cdist",
     packages=["cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
     package_data={'cdist': package_data},
-    scripts=["bin/cdist", "bin/cdist-dump", "bin/cdist-new-type", "bin/cdist-type-helper"],
+    scripts=["bin/cdist", "bin/cdist-dump", "bin/skonfig-new-type", "bin/cdist-type-helper"],
     version=cdist.version.VERSION,
     description="A Usable Configuration Management System",
     author="cdist contributors",
