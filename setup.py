@@ -52,14 +52,14 @@ os.chdir(cur)
 
 
 setup(
-    name="cdist",
+    name="skonfig",
     packages=["cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
     package_data={'cdist': package_data},
     scripts=["bin/cdist", "bin/cdist-dump", "bin/cdist-new-type", "bin/cdist-type-helper"],
     version=cdist.version.VERSION,
-    description="A Usable Configuration Management System",
-    author="cdist contributors",
-    url="https://cdi.st",
+    description="system configuration framework",
+    author="skonfig nerds",
+    url="https://skonfig.li",
     classifiers=[
         "Development Status :: 6 - Mature",
         "Environment :: Console",
@@ -78,11 +78,4 @@ setup(
         "Topic :: System :: Software Distribution",
         "Topic :: Utilities"
     ],
-    long_description='''
-        cdist is a usable configuration management system.
-        It adheres to the KISS principle and is being used in small up to
-        enterprise grade environments.
-        cdist is an alternative to other configuration management systems like
-        cfengine, bcfg2, chef and puppet.
-    '''
 )
