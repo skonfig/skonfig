@@ -21,9 +21,6 @@ It natively supports IPv6 since the first release.
    cdist-support
    cdist-quickstart
    cdist-real-world
-   man1/cdist
-   man1/cdist-dump
-   man1/cdist-new-type
    cdist-bootstrap
    cdist-configuration
    cdist-manifest
