@@ -6,7 +6,19 @@ import subprocess
 import glob
 import shutil
 
+# Logging output
+import logging
+logging.basicConfig(level=logging.INFO)
+LOG = logging.getLogger("setup.py")
 
+# Set locale
+try:
+    import locale
+    locale.setlocale(locale.LC_ALL, "C")
+except:
+    pass
+
+# Import setuptools / distutils
 try:
     import setuptools
     from setuptools import setup
@@ -65,94 +77,44 @@ class ManPages:
     rst_glob = glob.glob("man/man?/*.rst")
 
     @classmethod
-    def _find_egg_scripts_dir(cls, package):
-        # find the scripts directory of an egg
-        try:
-            import pkg_resources
-            from itertools import chain
+    def _render_manpage(cls, rst_path, dest_path):
+        from docutils.core import publish_file
+        from docutils.writers import manpage
 
-            dist = next((
-                d for d in chain.from_iterable(
-                    pkg_resources.find_distributions(p)
-                    for p in sys.path
-                    if p.endswith(".egg"))
-                if d.project_name == package))
-            scripts_dir = os.path.join(dist.location, "EGG-INFO", "scripts")
-            if os.path.isdir(scripts_dir):
-                return scripts_dir
-        except StopIteration:
-            pass
-
-    @classmethod
-    def _find_rst2man(cls):
-        rst2man_name_candidates = (
-            # Debian
-            "rst2man",
-            # pip
-            "rst2man.py",
-            # e.g. MacPorts
-            "rst2man-%s.py" % (".".join(map(str, sys.version_info[:2]))),
-            )
-
-        rst2man = None
-
-        # use setuptools downloaded egg if available
-        egg_scripts = cls._find_egg_scripts_dir("docutils")
-        if egg_scripts:
-            for scr in (os.path.join(egg_scripts, c)
-                        for c in rst2man_name_candidates):
-                # NOTE: prefer running scripts with given interpreter instead
-                #       of relying on sheband, because the shebang can be wrong
-                #       in egg.
-                if os.access(scr, os.R_OK) and sys.executable:
-                    rst2man = [sys.executable, scr]
-                    break
-                elif os.access(scr, os.X_OK):
-                    rst2man = [scr]
-                    break
-
-        # otherwise, search system rst2man executable
-        if not rst2man:
-            try:
-                rst2man = [next(filter(None, map(shutil.which, rst2man_name_candidates)))]
-            except StopIteration:
-                pass
-
-        if not rst2man:
-            raise RuntimeError("rst2man not found")
-
-        return rst2man
+        publish_file(
+            source_path=rst_path,
+            destination_path=dest_path,
+            writer=manpage.Writer(),
+            settings_overrides={
+                "language_code": "en",
+                "report_level": 1,  # info
+                "halt_level": 1,  # info
+                "smart_quotes": True,
+                "syntax_highlight": "none",
+                "traceback": True
+            })
 
     @classmethod
     def build(cls, distribution):
-        rst2man = cls._find_rst2man()
+        try:
+            import docutils
+        except ImportError:
+            LOG.warning("docutils is not available, no man pages will be generated")
+            return
 
         man_pages = collections.defaultdict(list)
 
         # convert man pages
         for path in cls.rst_glob:
-            base = os.path.basename(path)
+            pagename = os.path.splitext(os.path.basename(path))[0]
             section_dir = os.path.basename(os.path.dirname(path))
             section = int(section_dir.replace("man", ""))
-            pagename = os.path.splitext(base)[0]
+
             destpath = os.path.join(
                 os.path.dirname(path), "%s.%u" % (pagename, section))
 
             print("generating man page %s" % destpath)
-            pargs = rst2man + ["--strict", path]
-            with open(destpath, "wb") as f:
-                p = subprocess.Popen(
-                    pargs, executable=pargs[0],
-                    stdin=subprocess.DEVNULL, stdout=f, stderr=None,
-                    env={
-                        "LC_ALL": "C",
-                        "PYTHONPATH": os.pathsep.join(sys.path)
-                    },
-                    shell=False, close_fds=True)
-                p.wait()
-                if p.returncode:
-                    raise RuntimeError(
-                        "%s returned %d" % (" ".join(pargs), p.returncode))
+            cls._render_manpage(path, destpath)
 
             man_pages[section_dir].append(destpath)
 
@@ -200,10 +162,14 @@ if using_setuptools:
         # https://github.com/pypa/pypi-support/issues/978
         # on setuptools < 36.8.0 produces:
         # distutils.errors.DistutilsError: Could not find suitable distribution for Requirement.parse('docutils')
-        kwargs["setup_requires"] = ["docutils", "Pygments"]
+        kwargs["setup_requires"] = ["docutils"]
+    else:
+        LOG.warning("You are running an old version of setuptools: %s" % setuptools.__version__)
 else:
     # distutils specific setup() keywords
     kwargs = dict()
+
+    LOG.warning("You are running %s using distutils. Please consider installing setuptools." % __file__)
 
 
 setup(
