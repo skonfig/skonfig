@@ -1,10 +1,8 @@
 import os
-import sys
 import collections
 import re
 import subprocess
 import glob
-import shutil
 
 # Logging output
 import logging
@@ -18,14 +16,25 @@ try:
 except:
     pass
 
+from distutils.version import LooseVersion as Version
+
 # Import setuptools / distutils
 try:
     import setuptools
     from setuptools import setup
     using_setuptools = True
+
+    if Version(setuptools.__version__) < Version("38.6.0"):
+        # setuptools 38.6.0 is required for connections to PyPI.
+        # cf. also _pypi_can_connect()
+        LOG.warning("You are running an old version of setuptools: %s. "
+                    "Consider upgrading." % setuptools.__version__)
 except ImportError:
     from distutils.core import setup
     using_setuptools = False
+
+    LOG.warning("You are running %s using distutils. "
+                "Please consider installing setuptools." % __file__)
 
 from distutils.errors import DistutilsError
 
@@ -40,8 +49,7 @@ version_file = os.path.join('cdist', 'version.py')
 # If we have build-helper we could be a git repo.
 if os.path.exists(build_helper):
     # Try to generate version.py.
-    rc = subprocess.call([build_helper, 'version'], shell=False)
-    if rc != 0:
+    if subprocess.call([build_helper, 'version'], shell=False) != 0:
         raise DistutilsError("Failed to generate {}".format(version_file))
 else:
     # Otherwise, version.py should be present.
@@ -97,9 +105,10 @@ class ManPages:
     @classmethod
     def build(cls, distribution):
         try:
-            import docutils
+            import docutils  # noqa
         except ImportError:
-            LOG.warning("docutils is not available, no man pages will be generated")
+            LOG.warning(
+                "docutils is not available, no man pages will be generated")
             return
 
         man_pages = collections.defaultdict(list)
@@ -129,9 +138,9 @@ class ManPages:
             pattern = os.path.join(
                 os.path.dirname(path),
                 os.path.splitext(os.path.basename(path))[0] + ".?")
-            for mp in glob.glob(pattern):
-                print("removing %s" % mp)
-                os.remove(mp)
+            for manpage in glob.glob(pattern):
+                print("removing %s" % manpage)
+                os.remove(manpage)
 
 
 class cdist_build(distutils.command.build.build):
@@ -151,25 +160,42 @@ os.chdir("cdist")
 package_data = data_finder("conf")
 os.chdir(cur)
 
+
+def _pypi_can_connect():
+    # PyPI requires an SSL client with SNI and TLSv1.2 support.
+    # https://github.com/pypi/warehouse/issues/3411
+    # https://github.com/pypa/pypi-support/issues/978
+
+    # for setup_require (which uses easy_install in the back),
+    # setuptools >= 36.8.0 is also required, older versions produce:
+    # distutils.errors.DistutilsError: Could not find suitable distribution for Requirement.parse('docutils')
+
+    import ssl
+
+    try:
+        # Python >= 3.7
+        supports_tlsv1_2 = hasattr(ssl.TLSVersion, "TLSv1_2")
+    except AttributeError:
+        # Python < 3.10
+        supports_tlsv1_2 = hasattr(ssl, "PROTOCOL_TLSv1_2")
+
+    return \
+        ssl.HAS_SNI \
+        and supports_tlsv1_2 \
+        and Version(setuptools.__version__) >= Version("36.8.0")
+
+
 if using_setuptools:
     # setuptools specific setup() keywords
     kwargs = dict(
         python_requires=">=3.2",
         )
 
-    from distutils.version import LooseVersion as Version
-    if Version(setuptools.__version__) >= Version("36.8.0"):
-        # https://github.com/pypa/pypi-support/issues/978
-        # on setuptools < 36.8.0 produces:
-        # distutils.errors.DistutilsError: Could not find suitable distribution for Requirement.parse('docutils')
+    if _pypi_can_connect():
         kwargs["setup_requires"] = ["docutils"]
-    else:
-        LOG.warning("You are running an old version of setuptools: %s" % setuptools.__version__)
 else:
     # distutils specific setup() keywords
     kwargs = dict()
-
-    LOG.warning("You are running %s using distutils. Please consider installing setuptools." % __file__)
 
 
 setup(
