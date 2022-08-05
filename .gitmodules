@@ -1,3 +1,0 @@
-[submodule "cdist/conf"]
-	path = cdist/conf
-	url = https://github.com/cdist-community/cdist-conf.git

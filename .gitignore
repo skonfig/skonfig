@@ -17,15 +17,10 @@ Session.vim
 tags
 # Persistent undo
 [._]*.un~
+.DS_Store
 
 # Ignore generated manpages
 docs/src/.marker
-docs/src/man1/*.1
-docs/src/man7/*.7
-docs/src/man7/cdist-type__*.rst
-docs/src/cdist-reference.rst
-docs/src/cdist-types.rst
-docs/src/cdist.cfg.skeleton
 
 # Ignore cdist cache for version control
 /cache/
@@ -37,9 +32,9 @@ cdist/inventory/
 __pycache__/
 *.pyc
 /MANIFEST
-dist/
-cdist/version.py
-cdist.egg-info/
+/dist/
+/cdist/version.py
+/cdist.egg-info/
 
 # sphinx build dirs, cache
 _build/
