@@ -21,3 +21,8 @@ jobs:
         run: |
           make docs-clean
           make docs
+      - name: Archive docs
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+            docs/dist
