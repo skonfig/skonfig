@@ -166,7 +166,6 @@ text:
 man:
 	$(SPHINXBUILD) -b cman $(ALLSPHINXOPTS) $(BUILDDIR)/man
 	mkdir -p $(BUILDDIR)/man/man7
-	mv -f $(BUILDDIR)/man/*.7 $(BUILDDIR)/man/man7/
 	@echo
 	@echo "Build finished. The manual pages are in $(BUILDDIR)/man."
 
