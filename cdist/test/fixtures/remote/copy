@@ -19,5 +19,5 @@
 # along with cdist. If not, see <http://www.gnu.org/licenses/>.
 #
 
-code="$(echo "$@" | sed "s|\([[:space:]]\)$__target_host:|\1|g")"
-cp -L $code
+argv=$(printf '%s\n' "$*" | sed "s/\([[:space:]]\)${__target_host:?}:/\1/g")
+cp -L $argv

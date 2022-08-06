@@ -36,7 +36,7 @@ import cdist.message
 from cdist import core
 import cdist.exec.util as util
 
-CONF_SUBDIRS_LINKED = ["explorer", "files", "manifest", "type", ]
+CONF_SUBDIRS_LINKED = ["explorer", "files", "manifest", "type"]
 
 
 class Local:

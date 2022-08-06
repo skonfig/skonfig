@@ -34,9 +34,8 @@ from cdist import emulator
 from cdist import core
 
 import os.path as op
-my_dir = op.abspath(op.dirname(__file__))
-fixtures = op.join(my_dir, 'fixtures')
-conf_dir = op.join(fixtures, 'conf')
+my_dirs = list(map(op.abspath, map(op.dirname, (test.__file__, __file__))))
+conf_dirs = [op.join(d, 'fixtures', 'conf') for d in my_dirs]
 
 
 class EmulatorTestCase(test.CdistTestCase):
@@ -55,7 +54,7 @@ class EmulatorTestCase(test.CdistTestCase):
             base_root_path=host_base_path,
             host_dir_name=hostdir,
             exec_path=test.cdist_exec_path,
-            add_conf_dirs=[conf_dir])
+            add_conf_dirs=conf_dirs)
         self.local.create_files_dirs()
 
         self.manifest = core.Manifest(self.target_host, self.local)
@@ -77,47 +76,40 @@ class EmulatorTestCase(test.CdistTestCase):
                           argv, env=self.env)
 
     def test_nonexistent_type_requirement(self):
-        argv = ['__file', '/tmp/foobar']
+        argv = ['__cdist_test_type', 'test_nonexistent_type_requirement']
         self.env['require'] = '__does-not-exist/some-id'
         emu = emulator.Emulator(argv, env=self.env)
         self.assertRaises(core.cdist_type.InvalidTypeError, emu.run)
 
     def test_illegal_object_id_requirement(self):
-        argv = ['__file', '/tmp/foobar']
-        self.env['require'] = "__file/bad/id/with/{}/inside".format(
+        argv = ['__cdist_test_type', 'test_illegal_object_id_requirement']
+        self.env['require'] = "__cdist_test_type/bad/id/with/{}/inside".format(
             self.local.object_marker_name)
         emu = emulator.Emulator(argv, env=self.env)
         self.assertRaises(core.IllegalObjectIdError, emu.run)
 
     def test_missing_object_id_requirement(self):
-        argv = ['__file', '/tmp/foobar']
-        self.env['require'] = '__file'
+        argv = ['__cdist_test_type', 'test_missing_object_id_requirement']
+        self.env['require'] = '__cdist_test_type'
         emu = emulator.Emulator(argv, env=self.env)
         self.assertRaises(core.cdist_object.MissingObjectIdError, emu.run)
 
-    def test_no_singleton_no_requirement(self):
-        argv = ['__file', '/tmp/foobar']
-        self.env['require'] = '__test_singleton'
-        emu = emulator.Emulator(argv, env=self.env)
-        emu.run()
-        # If reached here, everything is fine
-
     def test_singleton_object_requirement(self):
-        argv = ['__file', '/tmp/foobar']
-        self.env['require'] = '__issue'
+        argv = ['__cdist_test_type', 'test_singleton_object_requirement']
+        self.env['require'] = '__test_singleton'
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
         # if we get here all is fine
 
     def test_requirement_pattern(self):
-        argv = ['__file', '/tmp/foobar']
-        self.env['require'] = '__file/etc/*'
+        argv = ['__cdist_test_type', '/tmp/foobar']
+        self.env['require'] = '__file_noop/etc/*'
         emulator.Emulator(argv, env=self.env)
         # if we get here all is fine
 
     def test_loglevel(self):
-        argv = ['__file', '/tmp/foobar']
-        self.env['require'] = '__file/etc/*'
+        argv = ['__cdist_test_type', 'test_loglevel']
+        self.env['require'] = '__file_noop/etc/*'
         emu = emulator.Emulator(argv, env=self.env)
         emu_loglevel = emu.log.getEffectiveLevel()
         self.assertEqual(emu_loglevel, logging.WARNING)
@@ -128,8 +120,8 @@ class EmulatorTestCase(test.CdistTestCase):
         del self.env['__cdist_log_level']
 
     def test_invalid_loglevel_value(self):
-        argv = ['__file', '/tmp/foobar']
-        self.env['require'] = '__file/etc/*'
+        argv = ['__cdist_test_type', 'test_invalid_loglevel_value']
+        self.env['require'] = '__file_noop/etc/*'
         emu = emulator.Emulator(argv, env=self.env)
         emu_loglevel = emu.log.getEffectiveLevel()
         self.assertEqual(emu_loglevel, logging.WARNING)
@@ -142,7 +134,7 @@ class EmulatorTestCase(test.CdistTestCase):
 
     def test_requirement_via_order_dependency(self):
         self.env['CDIST_ORDER_DEPENDENCY'] = 'on'
-        argv = ['__planet', 'erde']
+        argv = ['__planet', 'earth']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
         argv = ['__planet', 'mars']
@@ -150,7 +142,7 @@ class EmulatorTestCase(test.CdistTestCase):
         emu.run()
         # In real world, this is not shared over instances
         del self.env['require']
-        argv = ['__file', '/tmp/cdisttest']
+        argv = ['__file_noop', '/tmp/cdisttest']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
         # now load the objects and verify the require parameter of the objects
@@ -159,13 +151,13 @@ class EmulatorTestCase(test.CdistTestCase):
                                        self.local.object_marker_name, 'erde')
         mars_object = core.CdistObject(cdist_type, self.local.object_path,
                                        self.local.object_marker_name, 'mars')
-        cdist_type = core.CdistType(self.local.type_path, '__file')
+        cdist_type = core.CdistType(self.local.type_path, '__file_noop')
         file_object = core.CdistObject(cdist_type, self.local.object_path,
                                        self.local.object_marker_name,
                                        '/tmp/cdisttest')
         # now test the recorded requirements
         self.assertTrue(len(erde_object.requirements) == 0)
-        self.assertEqual(list(mars_object.requirements), ['__planet/erde'])
+        self.assertEqual(list(mars_object.requirements), ['__planet/earth'])
         self.assertEqual(list(file_object.requirements), ['__planet/mars'])
         # if we get here all is fine
 
@@ -224,7 +216,7 @@ class EmulatorConflictingRequirementsTestCase(test.CdistTestCase):
             base_root_path=host_base_path,
             host_dir_name=hostdir,
             exec_path=test.cdist_exec_path,
-            add_conf_dirs=[conf_dir])
+            add_conf_dirs=conf_dirs)
         self.local.create_files_dirs()
 
         self.manifest = core.Manifest(self.target_host, self.local)
@@ -235,69 +227,69 @@ class EmulatorConflictingRequirementsTestCase(test.CdistTestCase):
         shutil.rmtree(self.temp_dir)
 
     def test_object_different_requirements_req_none(self):
-        argv = ['__directory', 'spam']
+        argv = ['__directory_noop', 'spam']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
-        argv = ['__file', 'eggs']
-        self.env['require'] = '__directory/spam'
+        argv = ['__file_noop', 'eggs']
+        self.env['require'] = '__directory_noop/spam'
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
-        argv = ['__file', 'eggs']
+        argv = ['__file_noop', 'eggs']
         if 'require' in self.env:
             del self.env['require']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
 
-        cdist_type = core.CdistType(self.local.type_path, '__file')
+        cdist_type = core.CdistType(self.local.type_path, '__file_noop')
         cdist_object = core.CdistObject(cdist_type, self.local.object_path,
                                         self.local.object_marker_name, 'eggs')
-        reqs = set(('__directory/spam',))
+        reqs = set(('__directory_noop/spam',))
         self.assertEqual(reqs, set(cdist_object.requirements))
 
     def test_object_different_requirements_none_req(self):
-        argv = ['__directory', 'spam']
+        argv = ['__directory_noop', 'spam']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
-        argv = ['__file', 'eggs']
+        argv = ['__file_noop', 'eggs']
         if 'require' in self.env:
             del self.env['require']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
-        argv = ['__file', 'eggs']
-        self.env['require'] = '__directory/spam'
+        argv = ['__file_noop', 'eggs']
+        self.env['require'] = '__directory_noop/spam'
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
 
-        cdist_type = core.CdistType(self.local.type_path, '__file')
+        cdist_type = core.CdistType(self.local.type_path, '__file_noop')
         cdist_object = core.CdistObject(cdist_type, self.local.object_path,
                                         self.local.object_marker_name, 'eggs')
-        reqs = set(('__directory/spam',))
+        reqs = set(('__directory_noop/spam',))
         self.assertEqual(reqs, set(cdist_object.requirements))
 
     def test_object_different_requirements(self):
-        argv = ['__directory', 'spam']
+        argv = ['__directory_noop', 'spam']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
-        argv = ['__directory', 'spameggs']
+        argv = ['__directory_noop', 'spameggs']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
 
-        argv = ['__file', 'eggs']
+        argv = ['__file_noop', 'eggs']
         if 'require' in self.env:
             del self.env['require']
-        self.env['require'] = '__directory/spam'
+        self.env['require'] = '__directory_noop/spam'
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
 
-        argv = ['__file', 'eggs']
-        self.env['require'] = '__directory/spameggs'
+        argv = ['__file_noop', 'eggs']
+        self.env['require'] = '__directory_noop/spameggs'
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
 
-        cdist_type = core.CdistType(self.local.type_path, '__file')
+        cdist_type = core.CdistType(self.local.type_path, '__file_noop')
         cdist_object = core.CdistObject(cdist_type, self.local.object_path,
                                         self.local.object_marker_name, 'eggs')
-        reqs = set(('__directory/spam', '__directory/spameggs',))
+        reqs = set(('__directory_noop/spam', '__directory_noop/spameggs',))
         self.assertEqual(reqs, set(cdist_object.requirements))
 
 
@@ -315,7 +307,7 @@ class AutoRequireEmulatorTestCase(test.CdistTestCase):
             base_root_path=host_base_path,
             host_dir_name=hostdir,
             exec_path=test.cdist_exec_path,
-            add_conf_dirs=[conf_dir])
+            add_conf_dirs=conf_dirs)
         self.local.create_files_dirs()
         self.manifest = core.Manifest(self.target_host, self.local)
 
@@ -349,7 +341,7 @@ class OverrideTestCase(test.CdistTestCase):
             base_root_path=host_base_path,
             host_dir_name=hostdir,
             exec_path=test.cdist_exec_path,
-            add_conf_dirs=[conf_dir])
+            add_conf_dirs=conf_dirs)
         self.local.create_files_dirs()
 
         self.manifest = core.Manifest(self.target_host, self.local)
@@ -360,19 +352,21 @@ class OverrideTestCase(test.CdistTestCase):
         shutil.rmtree(self.temp_dir)
 
     def test_override_negative(self):
-        argv = ['__file', '/tmp/foobar']
+        argv = ['__cdist_test_type', 'test_override_negative']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
-        argv = ['__file', '/tmp/foobar', '--mode', '404']
+        argv = ['__cdist_test_type', 'test_override_negative',
+                '--param1', 'foo']
         emu = emulator.Emulator(argv, env=self.env)
         self.assertRaises(cdist.Error, emu.run)
 
     def test_override_feature(self):
-        argv = ['__file', '/tmp/foobar']
+        argv = ['__cdist_test_type', 'test_override_feature']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
-        argv = ['__file', '/tmp/foobar', '--mode', '404']
-        self.env['CDIST_OVERRIDE'] = 'on'
+        argv = ['__cdist_test_type', 'test_override_feature',
+                '--param1', 'foo']
+        self.env['CDIST_OVERRIDE'] = 'true'
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
 
@@ -393,7 +387,7 @@ class ArgumentsTestCase(test.CdistTestCase):
             base_root_path=host_base_path,
             host_dir_name=hostdir,
             exec_path=test.cdist_exec_path,
-            add_conf_dirs=[conf_dir])
+            add_conf_dirs=conf_dirs)
         self.local.create_files_dirs()
 
         self.manifest = core.Manifest(self.target_host, self.local)
@@ -580,7 +574,7 @@ class StdinTestCase(test.CdistTestCase):
             base_root_path=host_base_path,
             host_dir_name=hostdir,
             exec_path=test.cdist_exec_path,
-            add_conf_dirs=[conf_dir])
+            add_conf_dirs=conf_dirs)
 
         self.local.create_files_dirs()
 
@@ -600,7 +594,7 @@ class StdinTestCase(test.CdistTestCase):
 
         ######################################################################
         # Prepare required args and environment for emulator
-        type_name = '__file'
+        type_name = '__file_noop'
         object_id = "cdist-test-id"
         argv = [type_name, object_id]
 
@@ -647,7 +641,7 @@ class EmulatorAlreadyExistingRequirementsWarnTestCase(test.CdistTestCase):
             base_root_path=host_base_path,
             host_dir_name=hostdir,
             exec_path=test.cdist_exec_path,
-            add_conf_dirs=[conf_dir])
+            add_conf_dirs=conf_dirs)
         self.local.create_files_dirs()
 
         self.manifest = core.Manifest(self.target_host, self.local)
@@ -659,37 +653,37 @@ class EmulatorAlreadyExistingRequirementsWarnTestCase(test.CdistTestCase):
 
     def test_object_existing_requirements_req_none(self):
         """Test to show dependency resolver warning message."""
-        argv = ['__directory', 'spam']
+        argv = ['__directory_noop', 'spam']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
-        argv = ['__file', 'eggs']
-        self.env['require'] = '__directory/spam'
+        argv = ['__file_noop', 'eggs']
+        self.env['require'] = '__directory_noop/spam'
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
-        argv = ['__file', 'eggs']
+        argv = ['__file_noop', 'eggs']
         if 'require' in self.env:
             del self.env['require']
         emu = emulator.Emulator(argv, env=self.env)
 
     def test_object_existing_requirements_none_req(self):
         """Test to show dependency resolver warning message."""
-        argv = ['__directory', 'spam']
+        argv = ['__directory_noop', 'spam']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
-        argv = ['__file', 'eggs']
+        argv = ['__file_noop', 'eggs']
         if 'require' in self.env:
             del self.env['require']
         emu = emulator.Emulator(argv, env=self.env)
         emu.run()
-        argv = ['__file', 'eggs']
-        self.env['require'] = '__directory/spam'
+        argv = ['__file_noop', 'eggs']
+        self.env['require'] = '__directory_noop/spam'
         emu = emulator.Emulator(argv, env=self.env)
 
     def test_parse_require(self):
         require = " \t \n  \t\t\n\t\na\tb\nc d \te\t\nf\ng\t "
         expected = ['', 'a', 'b', 'c', 'd', 'e', 'f', 'g', '', ]
 
-        argv = ['__directory', 'spam']
+        argv = ['__directory_noop', 'spam']
         emu = emulator.Emulator(argv, env=self.env)
         requirements = emu._parse_require(require)
 
