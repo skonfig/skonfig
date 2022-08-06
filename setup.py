@@ -60,27 +60,6 @@ else:
 import cdist  # noqa
 
 
-def data_finder(data_dir):
-    entries = []
-    for name in os.listdir(data_dir):
-        # Skip .gitignore files
-        if name == ".gitignore":
-            continue
-
-        # Skip vim swp files
-        if re.search(r'^\..*\.swp$', name):
-            continue
-
-        # Skip Emacs backups files
-        if re.search(r'(^\.?#|~$)', name):
-            continue
-
-        entry = os.path.join(data_dir, name)
-        entries += data_finder(entry) if os.path.isdir(entry) else [entry]
-
-    return entries
-
-
 class ManPages:
     rst_glob = glob.glob("man/man?/*.rst")
 
@@ -155,12 +134,6 @@ class cdist_clean(distutils.command.clean.clean):
         distutils.command.clean.clean.run(self)
 
 
-cur = os.getcwd()
-os.chdir("cdist")
-package_data = data_finder("conf")
-os.chdir(cur)
-
-
 def _pypi_can_connect():
     # PyPI requires an SSL client with SNI and TLSv1.2 support.
     # https://github.com/pypi/warehouse/issues/3411
@@ -201,7 +174,6 @@ else:
 setup(
     name="cdist",
     packages=["cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
-    package_data={'cdist': package_data},
     scripts=["bin/cdist", "bin/cdist-dump", "bin/skonfig-new-type", "bin/cdist-type-helper"],
     version=cdist.version.VERSION,
     description="A Usable Configuration Management System",
