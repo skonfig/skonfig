@@ -430,81 +430,10 @@ eof
         done
     ;;
 
-    shellcheck-global-explorers)
-        # shellcheck disable=SC2086
-        find cdist/conf/explorer -type f -exec ${SHELLCHECKCMD} {} + | grep -v "${SHELLCHECK_SKIP}" > "${SHELLCHECKTMP}"
-        test ! -s "${SHELLCHECKTMP}" || { cat "${SHELLCHECKTMP}"; exit 1; }
-    ;;
-
-    shellcheck-type-explorers)
-        # shellcheck disable=SC2086
-        find cdist/conf/type -type f -path "*/explorer/*" -exec ${SHELLCHECKCMD} {} + | grep -v "${SHELLCHECK_SKIP}" > "${SHELLCHECKTMP}"
-        test ! -s "${SHELLCHECKTMP}" || { cat "${SHELLCHECKTMP}"; exit 1; }
-    ;;
-
-    shellcheck-manifests)
-        # shellcheck disable=SC2086
-        find cdist/conf/type -type f -name manifest -exec ${SHELLCHECKCMD} {} + | grep -v "${SHELLCHECK_SKIP}" > "${SHELLCHECKTMP}"
-        test ! -s "${SHELLCHECKTMP}" || { cat "${SHELLCHECKTMP}"; exit 1; }
-    ;;
-
-    shellcheck-local-gencodes)
-        # shellcheck disable=SC2086
-        find cdist/conf/type -type f -name gencode-local -exec ${SHELLCHECKCMD} {} + | grep -v "${SHELLCHECK_SKIP}" > "${SHELLCHECKTMP}"
-        test ! -s "${SHELLCHECKTMP}" || { cat "${SHELLCHECKTMP}"; exit 1; }
-    ;;
-
-    shellcheck-remote-gencodes)
-        # shellcheck disable=SC2086
-        find cdist/conf/type -type f -name gencode-remote -exec ${SHELLCHECKCMD} {} + | grep -v "${SHELLCHECK_SKIP}" > "${SHELLCHECKTMP}"
-        test ! -s "${SHELLCHECKTMP}" || { cat "${SHELLCHECKTMP}"; exit 1; }
-    ;;
-
-    # NOTE: shellcheck-scripts is kept for compatibility
-    shellcheck-bin|shellcheck-scripts)
-        # shellcheck disable=SC2086
-        ${SHELLCHECKCMD} bin/cdist-dump bin/cdist-new-type > "${SHELLCHECKTMP}"
-        test ! -s "${SHELLCHECKTMP}" || { cat "${SHELLCHECKTMP}"; exit 1; }
-    ;;
-
-    shellcheck-gencodes)
-        errors=false
-        "$0" shellcheck-local-gencodes || errors=true
-        "$0" shellcheck-remote-gencodes || errors=true
-        ! $errors || exit 1
-    ;;
-
-    shellcheck-types)
-        errors=false
-        "$0" shellcheck-type-explorers || errors=true
-        "$0" shellcheck-manifests || errors=true
-        "$0" shellcheck-gencodes || errors=true
-        ! $errors || exit 1
-    ;;
-
     shellcheck)
-        errors=false
-        "$0" shellcheck-global-explorers || errors=true
-        "$0" shellcheck-types || errors=true
-        "$0" shellcheck-bin || errors=true
-        ! $errors || exit 1
-    ;;
-
-    shellcheck-type-files)
         # shellcheck disable=SC2086
-        find cdist/conf/type -type f -path "*/files/*" -exec ${SHELLCHECKCMD} {} + | grep -v "${SHELLCHECK_SKIP}" > "${SHELLCHECKTMP}"
+        ${SHELLCHECKCMD} bin/cdist-dump bin/cdist-new-type bin/cdist-build-helper > "${SHELLCHECKTMP}"
         test ! -s "${SHELLCHECKTMP}" || { cat "${SHELLCHECKTMP}"; exit 1; }
-    ;;
-
-    shellcheck-with-files)
-        errors=false
-        "$0" shellcheck || errors=true
-        "$0" shellcheck-type-files || errors=true
-        ! $errors || exit 1
-    ;;
-
-    shellcheck-build-helper)
-        ${SHELLCHECKCMD} ./bin/cdist-build-helper
     ;;
 
     check-shellcheck)
