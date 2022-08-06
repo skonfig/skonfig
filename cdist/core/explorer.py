@@ -160,11 +160,15 @@ class Explorer:
 
     def transfer_global_explorers(self):
         """Transfer the global explorers to the remote side."""
-        self.remote.transfer(self.local.global_explorer_path,
-                             self.remote.global_explorer_path,
-                             self.jobs)
-        self.remote.run(["chmod", "0700", "{}/*".format(
-            self.remote.global_explorer_path)])
+        if os.path.isdir(self.local.global_explorer_path) \
+                and os.listdir(self.local.global_explorer_path):
+            # only transfer if there's actually something to transfer,
+            # otherwise chmod(1) will fail.
+            self.remote.transfer(self.local.global_explorer_path,
+                                 self.remote.global_explorer_path,
+                                 self.jobs)
+            self.remote.run(["chmod", "0700", "{}/*".format(
+                self.remote.global_explorer_path)])
 
     def run_global_explorer(self, explorer):
         """Run the given global explorer and return it's output."""

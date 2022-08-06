@@ -1,55 +1,6 @@
-#!/bin/sh
-#
-# 2010-2014 Nico Schottelius (nico-cdist at schottelius.org)
-# 2014      Daniel Heule     (hda at sfs.biz)
-#
-# This file is part of cdist.
-#
-# cdist is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# cdist is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with cdist. If not, see <http://www.gnu.org/licenses/>.
-#
-#
-# Generate manpage that lists available types
-#
-
-__cdist_pwd="$(pwd -P)"
-__cdist_mydir="${0%/*}";
-__cdist_abs_mydir="$(cd "$__cdist_mydir" && pwd -P)"
-__cdist_myname=${0##*/};
-__cdist_abs_myname="$__cdist_abs_mydir/$__cdist_myname"
-
-filename="${__cdist_myname%.sh}"
-dest="$__cdist_abs_mydir/$filename"
-
-cd "$__cdist_abs_mydir"
-
-exec > "$dest"
-cat << eof
 Reference
 =========
 Variable, path and type reference for cdist
-
-Explorers
----------
-The following global explorers are available:
-
-eof
-(
-    cd ../../cdist/conf/explorer
-    for explorer in $(ls * | LC_ALL=C sort); do
-       echo "- $explorer"
-    done
-)
 
 cat << eof
 
@@ -58,10 +9,6 @@ Paths
 \$HOME/.cdist
     The standard cdist configuration directory relative to your home directory.
     This is usually the place you want to store your site specific configuration.
-
-cdist/conf/
-    The distribution configuration directory.
-    This contains types and explorers to be used.
 
 cdist/inventory/
     The distribution inventory directory.
@@ -158,26 +105,6 @@ out/object/<object>
 
 out/object/<object>/explorers
     Output of type specific explorers, per object.
-
-Types
------
-The following types are available:
-
-eof
-
-# If there is no such file then ls prints error to stderr,
-# so redirect stderr to /dev/null.
-for type in $(ls man7/cdist-type__*.rst 2>/dev/null | LC_ALL=C sort); do
-    no_dir="${type#man7/}";
-    no_type="${no_dir#cdist-type}";
-    name="${no_type%.rst}";
-    manref="${no_dir%.rst}"
-    man="${manref}(7)"
-
-    echo "- $name" "(\`${man} <man7/${manref}.html>\`_)"
-done
-
-cat << eof
 
 
 Objects
@@ -375,4 +302,3 @@ CDIST_COLORED_OUTPUT
 
 CDIST_CACHE_PATH_PATTERN
     Custom cache path pattern.
-eof
