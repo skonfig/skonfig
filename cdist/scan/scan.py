@@ -53,20 +53,20 @@ class Host(object):
     def __set(self, key, value):
         fname = os.path.join(self.workdir, key)
         with open(fname, "w") as fd:
-            fd.write(f"{value}")
+            fd.write("%s" % value)
 
     def name(self, default=None):
         if self.name_mapper is None:
             return default
 
         fpath = os.path.join(os.getcwd(), self.name_mapper)
-        if os.path.isfile(fpath) and os.access(fpath, os.X_OK):
+        if os.access(fpath, os.X_OK):
             out = subprocess.run([fpath, self.addr], capture_output=True)
             if out.returncode != 0:
                 return default
             else:
                 value = out.stdout.decode()
-                return (default if len(value) == 0 else value)
+                return value if value else default
         else:
             return default
 
