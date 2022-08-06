@@ -208,12 +208,14 @@ class Remote:
             self._transfer_file(source, destination)
 
     def _transfer_dir(self, source, destination):
+        sources = [os.path.join(source, f) for f in glob.glob1(source, "*")]
+        if not sources:
+            return
         command = self._copy.split()
-        for f in glob.glob1(source, '*'):
-            path = os.path.join(source, f)
-            command.extend([path])
-        command.extend(['{0}:{1}'.format(
-            _wrap_addr(self.target_host[0]), destination)])
+        command += sources
+        command.append("%s:%s" % (
+            _wrap_addr(self.target_host[0]), destination))
+
         self._run_command(command)
 
     def run_script(self, script, env=None, return_output=False, stdout=None,
