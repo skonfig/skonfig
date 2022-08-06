@@ -19,9 +19,6 @@ tags
 [._]*.un~
 .DS_Store
 
-# Ignore generated manpages
-docs/src/.marker
-
 # Ignore cdist cache for version control
 /cache/
 
