@@ -534,12 +534,13 @@ eof
     ;;
 
     version)
-        printf "VERSION = \"%s\"\n" "$(git describe)" > cdist/version.py
+        VERSION=$(git describe --dirty | sed 's/-\([0-9]\{1,\}\)-g\([0-9a-f]\{4,\}\)\(-dirty\)\{0,1\}$/+\2\3/')
+        printf 'VERSION = "%s"\n' "${VERSION}" >cdist/version.py
     ;;
 
     target-version)
         target_version=$($0 changelog-version)
-        printf "VERSION = \"%s\"\n" "${target_version}" > cdist/version.py
+        printf 'VERSION = "%s"\n' "${target_version}" >cdist/version.py
     ;;
 
     clean)
