@@ -167,8 +167,8 @@ man:
 	$(SPHINXBUILD) -b cman $(ALLSPHINXOPTS) $(BUILDDIR)/man
 	mkdir -p $(BUILDDIR)/man/man1
 	mkdir -p $(BUILDDIR)/man/man7
-	mv -f $(BUILDDIR)/man/*.1 $(BUILDDIR)/man/man1/
-	mv -f $(BUILDDIR)/man/*.7 $(BUILDDIR)/man/man7/
+	-mv -f $(BUILDDIR)/man/*.1 $(BUILDDIR)/man/man1/
+	-mv -f $(BUILDDIR)/man/*.7 $(BUILDDIR)/man/man7/
 	@echo
 	@echo "Build finished. The manual pages are in $(BUILDDIR)/man."
 
