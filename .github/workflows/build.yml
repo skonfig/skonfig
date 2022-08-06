@@ -1,0 +1,43 @@
+---
+name: build
+on: [push, pull_request]
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-18.04, macos-latest ]
+        python-version: [ 3.3.7, 3.4.10, 3.5.10, 3.6.15, 3.7.12, 3.8.12, 3.9.9, 3.10.0, pypy-3.6, pypy-3.7 ]
+        exclude:
+          - os: macos-latest
+            python-version: 3.3.7  # not available for macos
+          - os: macos-latest
+            python-version: 3.4.10  # not available for macos
+          - os: macos-latest
+            python-version: pypy-3.6  # does not install
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Information
+        run: |
+          python3 -V
+          python3 -m pip list
+          bin/cdist-build-helper version
+          bin/cdist -V
+      - name: Build
+        run: |
+          python3 setup.py build
+      - name: Install
+        run: |
+          python3 setup.py install
+      - name: Clean
+        run: |
+          python3 setup.py clean
