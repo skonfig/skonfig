@@ -12,7 +12,12 @@ except:
     pass
 
 from distutils import log
-from distutils.version import LooseVersion as Version
+
+try:
+    from packaging.version import Version
+except ImportError:
+    # fallback to distutils.version
+    from distutils.version import LooseVersion as Version
 
 # Import setuptools / distutils
 try:
