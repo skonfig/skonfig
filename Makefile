@@ -45,9 +45,6 @@ help: .FORCE
 	@echo "  unittest-remote ?"
 	@echo ""
 
-cdist/version.py:
-	bin/cdist-build-helper version
-
 
 ###############################################################################
 # docs
@@ -57,10 +54,10 @@ DOCS_SRC_DIR=./docs/src
 
 docs: man html
 
-html: cdist/version.py .FORCE
+html: .FORCE
 	$(MAKE) -C $(DOCS_SRC_DIR) html
 
-man: cdist/version.py .FORCE
+man: .FORCE
 	$(MAKE) -C $(DOCS_SRC_DIR) man
 
 docs-clean: .FORCE
@@ -84,7 +81,7 @@ shellcheck: .FORCE
 		-exec awk 'FNR==1{exit !/^#!\/bin\/sh/}' {} \; \
 		-exec ${SHELLCHECKCMD} {} +
 
-unittest: cdist/version.py .FORCE
+unittest: .FORCE
 	PYTHONPATH=$$(pwd -P) python3 -m cdist.test
 
 ###############################################################################
@@ -92,6 +89,7 @@ unittest: cdist/version.py .FORCE
 #
 
 clean: docs-clean .FORCE
+	python3 setup.py clean --all
 	find . -name __pycache__ | xargs rm -rf
 
 # distutils
@@ -102,9 +100,6 @@ clean: docs-clean .FORCE
 
 # Temporary files
 	rm -f ./*.tmp ./.*.tmp
-
-distclean: clean .FORCE
-	rm -f cdist/version.py
 
 
 ###############################################################################

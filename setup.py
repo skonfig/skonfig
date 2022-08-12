@@ -38,24 +38,6 @@ import distutils.command.build
 import distutils.command.clean
 
 
-# We have it only if it is a git cloned repo.
-build_helper = os.path.join('bin', 'cdist-build-helper')
-# Version file path.
-version_file = os.path.join('cdist', 'version.py')
-# If we have build-helper we could be a git repo.
-if os.path.exists(build_helper):
-    # Try to generate version.py.
-    if subprocess.call([build_helper, 'version'], shell=False) != 0:
-        raise DistutilsError("Failed to generate {}".format(version_file))
-else:
-    # Otherwise, version.py should be present.
-    if not os.path.exists(version_file):
-        raise DistutilsError("Missing version file {}".format(version_file))
-
-
-import cdist  # noqa
-
-
 class ManPages:
     rst_glob = glob.glob("man/man?/*.rst")
 
@@ -121,6 +103,15 @@ class ManPages:
 class cdist_build(distutils.command.build.build):
     def run(self):
         distutils.command.build.build.run(self)
+
+        # Hard code generated version number into built version.py
+        version_build_file = os.path.join(self.build_lib, "cdist", "version.py")
+        log.info("injecting version number into %s", version_build_file)
+        with open(version_build_file, "w") as f:
+            f.write('VERSION = "%s"\n' % (__import__("cdist").__version__))
+
+        # Build man pages
+        log.info("generating man pages")
         ManPages.build(self.distribution)
 
 
@@ -171,7 +162,7 @@ setup(
     name="cdist",
     packages=["cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
     scripts=["bin/cdist", "bin/cdist-dump", "bin/skonfig-new-type", "bin/cdist-type-helper"],
-    version=cdist.version.VERSION,
+    version=__import__("cdist").__version__,
     description="A Usable Configuration Management System",
     author="cdist contributors",
     url="https://cdi.st",

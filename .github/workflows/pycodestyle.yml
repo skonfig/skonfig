@@ -15,7 +15,6 @@ jobs:
       - name: Information
         run: |
           python3 -V
-          bin/cdist-build-helper version
           bin/cdist -V
       - name: Run pycodestyle
         run: |

@@ -34,7 +34,6 @@ usage() {
         release
         test-remote
         version-branch
-        version
         target-version
         \n" "$1"
 }
@@ -319,11 +318,6 @@ eof
 
     version-branch)
         "$0" changelog-version | cut -d. -f '1,2'
-    ;;
-
-    version)
-        VERSION=$(git describe --dirty | sed 's/-\([0-9]\{1,\}\)-g\([0-9a-f]\{4,\}\)\(-dirty\)\{0,1\}$/+\2\3/')
-        printf 'VERSION = "%s"\n' "${VERSION}" >cdist/version.py
     ;;
 
     target-version)
