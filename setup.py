@@ -40,7 +40,9 @@ except ImportError:
 from distutils.errors import DistutilsError
 
 import distutils.command.build
+import distutils.command.build_py
 import distutils.command.clean
+import distutils.command.sdist
 
 
 class ManPages:
@@ -65,7 +67,7 @@ class ManPages:
             })
 
     @classmethod
-    def build(cls, distribution):
+    def build(cls, distribution, dry_run=False):
         try:
             import docutils  # noqa
         except ImportError:
@@ -85,7 +87,8 @@ class ManPages:
                 os.path.dirname(path), "%s.%u" % (pagename, section))
 
             log.info("generating man page %s" % destpath)
-            cls._render_manpage(path, destpath)
+            if not dry_run:
+                cls._render_manpage(path, destpath)
 
             man_pages[section_dir].append(destpath)
 
@@ -95,34 +98,61 @@ class ManPages:
                 ("share/man/" + section, pages))
 
     @classmethod
-    def clean(cls, distribution):
+    def clean(cls, distribution, dry_run=False):
         for path in cls.rst_glob:
             pattern = os.path.join(
                 os.path.dirname(path),
                 os.path.splitext(os.path.basename(path))[0] + ".?")
             for manpage in glob.glob(pattern):
                 log.info("removing %s" % manpage)
-                os.remove(manpage)
+                if not dry_run:
+                    os.remove(manpage)
+
+
+def hardcode_version(file):
+    log.info("injecting version number into %s", file)
+    with open(file, "w") as f:
+        f.write('VERSION = "%s"\n' % (__import__("cdist").__version__))
 
 
 class cdist_build(distutils.command.build.build):
     def run(self):
         distutils.command.build.build.run(self)
 
-        # Hard code generated version number into built version.py
-        version_build_file = os.path.join(self.build_lib, "cdist", "version.py")
-        log.info("injecting version number into %s", version_build_file)
-        with open(version_build_file, "w") as f:
-            f.write('VERSION = "%s"\n' % (__import__("cdist").__version__))
-
         # Build man pages
         log.info("generating man pages")
-        ManPages.build(self.distribution)
+        ManPages.build(self.distribution, dry_run=self.dry_run)
+
+
+class cdist_build_py(distutils.command.build_py.build_py):
+    def build_module(self, module, module_file, package):
+        (dest_name, copied) = super().build_module(
+            module, module_file, package)
+
+        if dest_name == os.path.join(self.build_lib, "cdist", "version.py") \
+                and not self.dry_run:
+            # Hard code generated version number into source distribution
+            if os.path.exists(dest_name):
+                os.remove(dest_name)
+            hardcode_version(dest_name)
+
+        return (dest_name, copied)
+
+
+class cdist_sdist(distutils.command.sdist.sdist):
+    def make_release_tree(self, base_dir, files):
+        distutils.command.sdist.sdist.make_release_tree(self, base_dir, files)
+
+        # Hard code generated version number into source distribution
+        version_file = os.path.join(base_dir, "cdist", "version.py")
+        if os.path.exists(version_file):
+            os.remove(version_file)
+        hardcode_version(version_file)
 
 
 class cdist_clean(distutils.command.clean.clean):
     def run(self):
-        ManPages.clean(self.distribution)
+        ManPages.clean(self.distribution, dry_run=self.dry_run)
         distutils.command.clean.clean.run(self)
 
 
@@ -175,6 +205,8 @@ setup(
     ],
     cmdclass={
         "build": cdist_build,
+        "build_py": cdist_build_py,
+        "sdist": cdist_sdist,
         "clean": cdist_clean,
     },
     classifiers=[
