@@ -23,46 +23,91 @@
 
 help: .FORCE
 	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "man             build only man user documentation"
-	@echo "html            build only html user documentation"
-	@echo "docs            build both man and html user documentation"
-	@echo "install         install in the system site-packages directory"
-	@echo "install-user    install in the user site-packages directory"
-	@echo "docs-clean      clean documentation"
-	@echo "clean           clean"
+	@echo ""
+	@echo "Install:"
+	@echo "  install         install in the system site-packages directory"
+	@echo "  install-user    install in the user site-packages directory"
+	@echo "  clean           clean"
+	@echo "  distclean       distclean"
+	@echo ""
+	@echo "Documentation:"
+	@echo "  docs            build both man and html user documentation"
+	@echo "  man             build only man user documentation"
+	@echo "  html            build only html user documentation"
+	@echo "  docs-clean      clean documentation"
+	@echo ""
+	@echo "Testing:"
+	@echo "  lint            run all of the following linters:"
+	@echo "  pep8            check that the Python source code adheres to PEP 8"
+	@echo "  shellcheck      check the shell scripts for errors"
+	@echo "  test            run all of the following test targets:"
+	@echo "  unittest        run unit tests"
+	@echo "  unittest-remote ?"
+	@echo ""
 
 cdist/version.py:
 	bin/cdist-build-helper version
 
 
-################################################################################
-# Docs
+###############################################################################
+# docs
 #
 
 DOCS_SRC_DIR=./docs/src
 
+docs: man html
+
+html: cdist/version.py .FORCE
+	$(MAKE) -C $(DOCS_SRC_DIR) html
+
 man: cdist/version.py .FORCE
 	$(MAKE) -C $(DOCS_SRC_DIR) man
 
-html: cdist/version.py .FORCE
-	$(SPHINXM)$(MAKE) -C $(DOCS_SRC_DIR) html
-
-docs: man html
-
 docs-clean: .FORCE
-	$(SPHINXH)$(MAKE) -C $(DOCS_SRC_DIR) clean
+	$(MAKE) -C $(DOCS_SRC_DIR) clean
 
 
-################################################################################
-# Misc
+###############################################################################
+# tests and checkers
 #
+
+lint: pep8 shellcheck
+test: unittest unittest-remote
+
+pycodestyle pep8: .FORCE
+	pycodestyle ./cdist ./bin
+
+
+SHELLCHECKCMD = shellcheck -s sh -f gcc -x
+shellcheck: .FORCE
+	find ./bin -type f \
+		-exec awk 'FNR==1{exit !/^#!\/bin\/sh/}' {} \; \
+		-exec ${SHELLCHECKCMD} {} +
+
+unittest: cdist/version.py .FORCE
+	PYTHONPATH=$$(pwd -P) python3 -m cdist.test
+
+###############################################################################
+# clean
+#
+
 clean: docs-clean .FORCE
-	find * -name __pycache__  | xargs rm -rf
+	find . -name __pycache__ | xargs rm -rf
 
-	# distutils
-	rm -rf ./build ./.eggs
+# distutils
+	rm -rf ./build ./.eggs ./dist
 
-################################################################################
+# Signed releases
+	rm -f cdist-*.tar.gz cdist-*.tar.gz.asc
+
+# Temporary files
+	rm -f ./*.tmp ./.*.tmp
+
+distclean: clean .FORCE
+	rm -f cdist/version.py
+
+
+###############################################################################
 # install
 #
 

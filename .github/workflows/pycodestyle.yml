@@ -19,4 +19,4 @@ jobs:
           bin/cdist -V
       - name: Run pycodestyle
         run: |
-          bin/cdist-build-helper pycodestyle
+          make pep8

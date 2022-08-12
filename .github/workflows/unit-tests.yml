@@ -33,4 +33,4 @@ jobs:
           bin/cdist -V
       - name: Run unit tests
         run: |
-          bin/cdist-build-helper test
+          make test

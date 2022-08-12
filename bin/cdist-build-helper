@@ -28,36 +28,15 @@ usage() {
         changelog-changes
         changelog-version
         check-date
-        check-unittest
-        ml-release
-        archlinux-release
         pypi-release
         release-git-tag
         sign-git-release
         release
-        test
         test-remote
-        pycodestyle
-        pep8
-        check-pycodestyle
-        shellcheck-global-explorers
-        shellcheck-type-explorers
-        shellcheck-manifests
-        shellcheck-local-gencodes
-        shellcheck-remote-gencodes
-        shellcheck-bin
-        shellcheck-gencodes
-        shellcheck-types
-        shellcheck
-        shellcheck-type-files
-        shellcheck-with-files
-        shellcheck-build-helper
-        check-shellcheck
         version-branch
         version
         target-version
-        clean
-        distclean\n" "$1"
+        \n" "$1"
 }
 
 basename="${0##*/}"
@@ -69,12 +48,6 @@ then
 fi
 
 option=$1; shift
-
-SHELLCHECKCMD="shellcheck -s sh -f gcc -x"
-# Skip SC2154 for variables starting with __ since such variables are cdist
-# environment variables.
-SHELLCHECK_SKIP=': __.*is referenced but not assigned.*\[SC2154\]'
-SHELLCHECKTMP=".shellcheck.tmp"
 
 # Change to checkout directory
 basedir="${0%/*}/../"
@@ -121,49 +94,6 @@ case "$option" in
             printf "Changelog date: %s\n" "${date_changelog}"
             exit 1
         fi
-    ;;
-
-    check-unittest)
-        "$0" test
-    ;;
-
-    ml-release)
-        if [ $# -ne 1 ]; then
-            printf "%s ml-release version\n" "$0" >&2
-            exit 1
-        fi
-
-        version=$1; shift
-
-        (
-        cat << eof
-Subject: cdist $version has been released
-
-Hello .*,
-
-cdist $version has been released with the following changes:
-
-eof
-
-        "$0" changelog-changes "$version"
-        cat << eof
-
-eof
-        ) > mailinglist.tmp
-    ;;
-
-    archlinux-release)
-        if [ $# -ne 1 ]; then
-            printf "%s archlinux-release version\n" "$0" >&2
-            exit 1
-        fi
-        version=$1; shift
-
-        ARCHLINUXTAR="cdist-${version}-1.src.tar.gz"
-        ./PKGBUILD.in "${version}"
-        umask 022
-        mkaurball
-        burp -c system "${ARCHLINUXTAR}"
     ;;
 
     pypi-release)
@@ -374,23 +304,6 @@ Manual steps post release:
 eof
     ;;
 
-    test)
-        if [ ! -f "cdist/version.py" ]
-        then
-            printf "cdist/version.py is missing, generate it first.\n"
-            exit 1
-        fi
-
-        PYTHONPATH="$(pwd -P)"
-        export PYTHONPATH
-
-        if [ $# -lt 1 ]; then
-            python3 -m cdist.test
-        else
-            python3 -m unittest "$@"
-        fi
-    ;;
-
     test-remote)
         if [ ! -f "cdist/version.py" ]
         then
@@ -402,60 +315,6 @@ eof
         export PYTHONPATH
 
         python3 -m cdist.test.exec.remote
-    ;;
-
-    pycodestyle|pep8)
-        pycodestyle "${basedir}/cdist/" "${basedir}/bin/"
-    ;;
-
-    check-pycodestyle)
-        "$0" pycodestyle
-        printf "\\nPlease review pycodestyle report.\\n"
-        while true
-        do
-            printf "Continue (yes/no)?\n"
-            any=
-            read -r any
-            case "$any" in
-                yes)
-                    break
-                ;;
-                no)
-                    exit 1
-                ;;
-                *)
-                    printf "Please answer with 'yes' or 'no' explicitly.\n"
-                ;;
-        esac
-        done
-    ;;
-
-    shellcheck)
-        # shellcheck disable=SC2086
-        ${SHELLCHECKCMD} bin/cdist-dump bin/cdist-new-type bin/cdist-build-helper > "${SHELLCHECKTMP}"
-        test ! -s "${SHELLCHECKTMP}" || { cat "${SHELLCHECKTMP}"; exit 1; }
-    ;;
-
-    check-shellcheck)
-        "$0" shellcheck
-        printf "\\nPlease review shellcheck report.\\n"
-        while true
-        do
-            printf "Continue (yes/no)?\n"
-            any=
-            read -r any
-            case "$any" in
-                yes)
-                    break
-                ;;
-                no)
-                    exit 1
-                ;;
-                *)
-                    printf "Please answer with 'yes' or 'no' explicitly.\n"
-                ;;
-        esac
-        done
     ;;
 
     version-branch)
@@ -472,29 +331,6 @@ eof
         printf 'VERSION = "%s"\n' "${target_version}" >cdist/version.py
     ;;
 
-    clean)
-        make clean
-
-        # Archlinux
-        rm -f cdist-*.pkg.tar.xz cdist-*.tar.gz
-        rm -rf pkg/ src/
-
-        rm -f MANIFEST PKGBUILD
-        rm -rf dist/
-
-        # Signed release
-        rm -f cdist-*.tar.gz
-        rm -f cdist-*.tar.gz.asc
-
-        # Temp files
-        rm -f ./*.tmp
-        rm -f ./.*.tmp
-    ;;
-
-    distclean)
-        "$0" clean
-        rm -f cdist/version.py
-    ;;
     *)
         printf "Unknown target: '%s'.\n" "${option}" >&2
         usage "${basename}"
