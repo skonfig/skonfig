@@ -53,10 +53,9 @@ join() {
 	shift
 	for _a
 	do
-		set -- "$@" "${_sep}" "$1"
-		shift
+		set -- "$@" "${_sep}" "${_a}"
 	done
-	shift  # shift away first sep
+	shift $(($# + 1))
 	unset _a _sep
 	(IFS=''; printf '%s\n' "$*")
 }
@@ -140,7 +139,7 @@ git_is_clean() {
 }
 
 git_gitdir() {
-	GIT_DIR= git -C "${1:?}" rev-parse --git-dir
+	GIT_DIR='' git -C "${1:?}" rev-parse --git-dir
 }
 
 git_is_working_copy() {
@@ -360,9 +359,10 @@ cmd_make_set() {
 	for _type_glob
 	do
 		# shellcheck disable=SC2086
-		set -- "$@" $1
+		set -- "$@" ${_type_glob}
 		shift
 	done
+	shift $#
 	cd - >/dev/null
 
 	if ${delete_src}
