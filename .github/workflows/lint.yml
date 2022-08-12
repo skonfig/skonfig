@@ -1,13 +1,13 @@
 ---
-name: pycodestyle
+name: lint
 on: [push, pull_request]
 jobs:
-  pycodestyle:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Install dependencies
         run: |
-          sudo apt-get -y install python3 pycodestyle
+          sudo apt-get -y install python3 pycodestyle shellcheck
       - name: Check out repository code
         uses: actions/checkout@v2
         with:
@@ -16,6 +16,9 @@ jobs:
         run: |
           python3 -V
           bin/cdist -V
-      - name: Run pycodestyle
+      - name: Check PEP 8 compliance
         run: |
           make pep8
+      - name: Check shell scripts
+        run: |
+          make shellcheck

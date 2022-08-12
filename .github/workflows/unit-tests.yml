@@ -32,4 +32,4 @@ jobs:
           bin/cdist -V
       - name: Run unit tests
         run: |
-          make test
+          make unittest
