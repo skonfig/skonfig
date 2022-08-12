@@ -84,6 +84,10 @@ shellcheck: .FORCE
 unittest: .FORCE
 	PYTHONPATH=$$(pwd -P) python3 -m cdist.test
 
+unittest-remote: .FORCE
+	PYTHONPATH=$$(pwd -P) python3 -m cdist.test.exec.remote
+
+
 ###############################################################################
 # clean
 #

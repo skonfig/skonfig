@@ -32,7 +32,6 @@ usage() {
         release-git-tag
         sign-git-release
         release
-        test-remote
         version-branch
         target-version
         \n" "$1"
@@ -301,19 +300,6 @@ Manual steps post release:
     - cdist-web
     - send generated mailinglist.tmp mail
 eof
-    ;;
-
-    test-remote)
-        if [ ! -f "cdist/version.py" ]
-        then
-            printf "cdist/version.py is missing, generate it first.\n"
-            exit 1
-        fi
-
-        PYTHONPATH="$(pwd -P)"
-        export PYTHONPATH
-
-        python3 -m cdist.test.exec.remote
     ;;
 
     version-branch)
