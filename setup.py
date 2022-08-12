@@ -4,11 +4,6 @@ import re
 import subprocess
 import glob
 
-# Logging output
-import logging
-logging.basicConfig(level=logging.INFO)
-LOG = logging.getLogger("setup.py")
-
 # Set locale
 try:
     import locale
@@ -16,6 +11,7 @@ try:
 except:
     pass
 
+from distutils import log
 from distutils.version import LooseVersion as Version
 
 # Import setuptools / distutils
@@ -27,13 +23,13 @@ try:
     if Version(setuptools.__version__) < Version("38.6.0"):
         # setuptools 38.6.0 is required for connections to PyPI.
         # cf. also _pypi_can_connect()
-        LOG.warning("You are running an old version of setuptools: %s. "
+        log.warn("You are running an old version of setuptools: %s. "
                     "Consider upgrading." % setuptools.__version__)
 except ImportError:
     from distutils.core import setup
     using_setuptools = False
 
-    LOG.warning("You are running %s using distutils. "
+    log.warn("You are running %s using distutils. "
                 "Please consider installing setuptools." % __file__)
 
 from distutils.errors import DistutilsError
@@ -86,7 +82,7 @@ class ManPages:
         try:
             import docutils  # noqa
         except ImportError:
-            LOG.warning(
+            log.warn(
                 "docutils is not available, no man pages will be generated")
             return
 
@@ -101,7 +97,7 @@ class ManPages:
             destpath = os.path.join(
                 os.path.dirname(path), "%s.%u" % (pagename, section))
 
-            print("generating man page %s" % destpath)
+            log.info("generating man page %s" % destpath)
             cls._render_manpage(path, destpath)
 
             man_pages[section_dir].append(destpath)
@@ -118,7 +114,7 @@ class ManPages:
                 os.path.dirname(path),
                 os.path.splitext(os.path.basename(path))[0] + ".?")
             for manpage in glob.glob(pattern):
-                print("removing %s" % manpage)
+                log.info("removing %s" % manpage)
                 os.remove(manpage)
 
 
