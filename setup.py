@@ -46,7 +46,7 @@ import distutils.command.sdist
 
 
 class ManPages:
-    rst_glob = glob.glob("man/man?/*.rst")
+    rst_glob = glob.glob("docs/man/man?/*.rst")
 
     @classmethod
     def _render_manpage(cls, rst_path, dest_path):

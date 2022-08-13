@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+hostname="$( cat "$__global/explorer/hostname" )"
+
+if [ -f "$__manifest/$__target_host" ]
+then
+    . "$__manifest/$__target_host"
+elif
+    [ -f "$__manifest/$hostname" ]
+then
+    . "$__manifest/$hostname"
+fi
