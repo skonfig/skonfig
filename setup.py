@@ -4,11 +4,6 @@ import re
 import subprocess
 import glob
 
-# Logging output
-import logging
-logging.basicConfig(level=logging.INFO)
-LOG = logging.getLogger("setup.py")
-
 # Set locale
 try:
     import locale
@@ -16,7 +11,13 @@ try:
 except:
     pass
 
-from distutils.version import LooseVersion as Version
+from distutils import log
+
+try:
+    from packaging.version import Version
+except ImportError:
+    # fallback to distutils.version
+    from distutils.version import LooseVersion as Version
 
 # Import setuptools / distutils
 try:
@@ -27,37 +28,21 @@ try:
     if Version(setuptools.__version__) < Version("38.6.0"):
         # setuptools 38.6.0 is required for connections to PyPI.
         # cf. also _pypi_can_connect()
-        LOG.warning("You are running an old version of setuptools: %s. "
+        log.warn("You are running an old version of setuptools: %s. "
                     "Consider upgrading." % setuptools.__version__)
 except ImportError:
     from distutils.core import setup
     using_setuptools = False
 
-    LOG.warning("You are running %s using distutils. "
+    log.warn("You are running %s using distutils. "
                 "Please consider installing setuptools." % __file__)
 
 from distutils.errors import DistutilsError
 
 import distutils.command.build
+import distutils.command.build_py
 import distutils.command.clean
-
-
-# We have it only if it is a git cloned repo.
-build_helper = os.path.join('bin', 'cdist-build-helper')
-# Version file path.
-version_file = os.path.join('cdist', 'version.py')
-# If we have build-helper we could be a git repo.
-if os.path.exists(build_helper):
-    # Try to generate version.py.
-    if subprocess.call([build_helper, 'version'], shell=False) != 0:
-        raise DistutilsError("Failed to generate {}".format(version_file))
-else:
-    # Otherwise, version.py should be present.
-    if not os.path.exists(version_file):
-        raise DistutilsError("Missing version file {}".format(version_file))
-
-
-import cdist  # noqa
+import distutils.command.sdist
 
 
 class ManPages:
@@ -82,11 +67,11 @@ class ManPages:
             })
 
     @classmethod
-    def build(cls, distribution):
+    def build(cls, distribution, dry_run=False):
         try:
             import docutils  # noqa
         except ImportError:
-            LOG.warning(
+            log.warn(
                 "docutils is not available, no man pages will be generated")
             return
 
@@ -101,8 +86,9 @@ class ManPages:
             destpath = os.path.join(
                 os.path.dirname(path), "%s.%u" % (pagename, section))
 
-            print("generating man page %s" % destpath)
-            cls._render_manpage(path, destpath)
+            log.info("generating man page %s" % destpath)
+            if not dry_run:
+                cls._render_manpage(path, destpath)
 
             man_pages[section_dir].append(destpath)
 
@@ -112,25 +98,61 @@ class ManPages:
                 ("share/man/" + section, pages))
 
     @classmethod
-    def clean(cls, distribution):
+    def clean(cls, distribution, dry_run=False):
         for path in cls.rst_glob:
             pattern = os.path.join(
                 os.path.dirname(path),
                 os.path.splitext(os.path.basename(path))[0] + ".?")
             for manpage in glob.glob(pattern):
-                print("removing %s" % manpage)
-                os.remove(manpage)
+                log.info("removing %s" % manpage)
+                if not dry_run:
+                    os.remove(manpage)
+
+
+def hardcode_version(file):
+    log.info("injecting version number into %s", file)
+    with open(file, "w") as f:
+        f.write('VERSION = "%s"\n' % (__import__("cdist").__version__))
 
 
 class cdist_build(distutils.command.build.build):
     def run(self):
         distutils.command.build.build.run(self)
-        ManPages.build(self.distribution)
+
+        # Build man pages
+        log.info("generating man pages")
+        ManPages.build(self.distribution, dry_run=self.dry_run)
+
+
+class cdist_build_py(distutils.command.build_py.build_py):
+    def build_module(self, module, module_file, package):
+        (dest_name, copied) = super().build_module(
+            module, module_file, package)
+
+        if dest_name == os.path.join(self.build_lib, "cdist", "version.py") \
+                and not self.dry_run:
+            # Hard code generated version number into source distribution
+            if os.path.exists(dest_name):
+                os.remove(dest_name)
+            hardcode_version(dest_name)
+
+        return (dest_name, copied)
+
+
+class cdist_sdist(distutils.command.sdist.sdist):
+    def make_release_tree(self, base_dir, files):
+        distutils.command.sdist.sdist.make_release_tree(self, base_dir, files)
+
+        # Hard code generated version number into source distribution
+        version_file = os.path.join(base_dir, "cdist", "version.py")
+        if os.path.exists(version_file):
+            os.remove(version_file)
+        hardcode_version(version_file)
 
 
 class cdist_clean(distutils.command.clean.clean):
     def run(self):
-        ManPages.clean(self.distribution)
+        ManPages.clean(self.distribution, dry_run=self.dry_run)
         distutils.command.clean.clean.run(self)
 
 
@@ -175,7 +197,7 @@ setup(
     name="cdist",
     packages=["cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
     scripts=["bin/cdist", "bin/cdist-dump", "bin/skonfig-new-type", "bin/cdist-type-helper"],
-    version=cdist.version.VERSION,
+    version=__import__("cdist").__version__,
     description="A Usable Configuration Management System",
     author="cdist contributors",
     url="https://cdi.st",
@@ -183,6 +205,8 @@ setup(
     ],
     cmdclass={
         "build": cdist_build,
+        "build_py": cdist_build_py,
+        "sdist": cdist_sdist,
         "clean": cdist_clean,
     },
     classifiers=[

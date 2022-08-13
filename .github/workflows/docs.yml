@@ -16,7 +16,6 @@ jobs:
         run: |
           python3 -V
           sphinx-build --version
-          bin/cdist-build-helper version
       - name: Build docs
         run: |
           make docs-clean

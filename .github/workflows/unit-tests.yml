@@ -29,8 +29,7 @@ jobs:
       - name: Information
         run: |
           python3 -V
-          bin/cdist-build-helper version
           bin/cdist -V
       - name: Run unit tests
         run: |
-          bin/cdist-build-helper test
+          make unittest

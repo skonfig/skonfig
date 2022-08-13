@@ -30,7 +30,6 @@ __pycache__/
 *.pyc
 /MANIFEST
 /dist/
-/cdist/version.py
 /cdist.egg-info/
 
 # sphinx build dirs, cache
@@ -43,12 +42,11 @@ cdist-*.tar.gz
 cdist-*.tar.gz.asc
 
 # Packaging: Archlinux
-/PKGBUILD
 /cdist-*.pkg.tar.xz
 /cdist-*.tar.gz
 /pkg
 /src
-build
+/build
 .lock-*
 .git-current-branch
 .lock*
