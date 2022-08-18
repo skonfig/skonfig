@@ -1,4 +1,4 @@
-[GLOBAL]
+[skonfig]
 # archiving
 #     Use specified archiving. Valid values include:
 #     none, tar, tgz, tbz2 and txz.
@@ -72,7 +72,7 @@
 #
 # remote_out_path
 #     Directory to save cdist output in on the target host.
-# remote_out_path = /var/lib/cdist
+# remote_out_path = /tmp/skonfig
 #
 # remote_shell
 #     Shell command at remote host used for remote execution.

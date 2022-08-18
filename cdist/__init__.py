@@ -23,6 +23,7 @@
 import os
 import hashlib
 import subprocess
+import sys
 
 import cdist.log
 
@@ -274,7 +275,7 @@ def home_dir():
     if 'HOME' in os.environ:
         home = os.environ['HOME']
         if home:
-            rv = os.path.join(home, ".cdist")
+            rv = os.path.join(home, ".skonfig")
         else:
             rv = None
     else:

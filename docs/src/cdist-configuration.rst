@@ -33,9 +33,9 @@ Config file format
 ------------------
 
 cdist configuration file is in the INI file format. Currently it supports
-only [GLOBAL] section.
+only [skonfig] section.
 
 Here you can find configuration file skeleton:
 
-.. literalinclude:: cdist.cfg.skeleton
+.. literalinclude:: config.skeleton
     :language: ini
