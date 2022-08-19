@@ -28,7 +28,6 @@ help: .FORCE
 	@echo "  install         install in the system site-packages directory"
 	@echo "  install-user    install in the user site-packages directory"
 	@echo "  clean           clean"
-	@echo "  distclean       distclean"
 	@echo ""
 	@echo "Documentation:"
 	@echo "  docs            build both man and html user documentation"
@@ -98,9 +97,6 @@ clean: docs-clean .FORCE
 
 # distutils
 	rm -rf ./build ./.eggs ./dist
-
-# Signed releases
-	rm -f cdist-*.tar.gz cdist-*.tar.gz.asc
 
 # Temporary files
 	rm -f ./*.tmp ./.*.tmp
