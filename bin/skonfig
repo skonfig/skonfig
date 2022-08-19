@@ -14,25 +14,6 @@ import skonfig
 
 skonfig.THIS_IS_SKONFIG = True
 
-if os.path.isdir(os.path.join(skonfig_bindir_pardir, ".git")):
-    shash = (
-        subprocess.check_output(
-            ["git", "-C", skonfig_bindir_pardir, "rev-parse", "--short", "HEAD"]
-        )
-        .decode()
-        .strip()
-    )
-    if shash:
-        skonfig.SKONFIG_VERSION += "+{}".format(shash)
-    dirty = (
-        subprocess.check_output(
-            ["git", "-C", skonfig_bindir_pardir, "status", "--porcelain"]
-        )
-        .decode()
-        .strip()
-    )
-    if dirty:
-        skonfig.SKONFIG_VERSION += "-dirty"
 
 try:
     skonfig.run()

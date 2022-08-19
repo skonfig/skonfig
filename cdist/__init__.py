@@ -27,7 +27,7 @@ import sys
 
 import cdist.log
 
-from cdist.version import VERSION as __version__
+from skonfig import __version__
 
 
 BANNER = """

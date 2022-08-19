@@ -112,7 +112,7 @@ class ManPages:
 def hardcode_version(file):
     log.info("injecting version number into %s", file)
     with open(file, "w") as f:
-        f.write('VERSION = "%s"\n' % (__import__("cdist").__version__))
+        f.write('VERSION = "%s"\n' % (__import__("skonfig").__version__))
 
 
 class cdist_build(distutils.command.build.build):
@@ -124,12 +124,12 @@ class cdist_build(distutils.command.build.build):
         ManPages.build(self.distribution, dry_run=self.dry_run)
 
 
-class cdist_build_py(distutils.command.build_py.build_py):
+class skonfig_build_py(distutils.command.build_py.build_py):
     def build_module(self, module, module_file, package):
         (dest_name, copied) = super().build_module(
             module, module_file, package)
 
-        if dest_name == os.path.join(self.build_lib, "cdist", "version.py") \
+        if dest_name == os.path.join(self.build_lib, "skonfig", "version.py") \
                 and not self.dry_run:
             # Hard code generated version number into source distribution
             if os.path.exists(dest_name):
@@ -139,18 +139,18 @@ class cdist_build_py(distutils.command.build_py.build_py):
         return (dest_name, copied)
 
 
-class cdist_sdist(distutils.command.sdist.sdist):
+class skonfig_sdist(distutils.command.sdist.sdist):
     def make_release_tree(self, base_dir, files):
         distutils.command.sdist.sdist.make_release_tree(self, base_dir, files)
 
         # Hard code generated version number into source distribution
-        version_file = os.path.join(base_dir, "cdist", "version.py")
+        version_file = os.path.join(base_dir, "skonfig", "version.py")
         if os.path.exists(version_file):
             os.remove(version_file)
         hardcode_version(version_file)
 
 
-class cdist_clean(distutils.command.clean.clean):
+class skonfig_clean(distutils.command.clean.clean):
     def run(self):
         ManPages.clean(self.distribution, dry_run=self.dry_run)
         distutils.command.clean.clean.run(self)
@@ -197,17 +197,17 @@ setup(
     name="skonfig",
     packages=["cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
     scripts=["bin/cdist", "bin/cdist-dump", "bin/skonfig-new-type", "bin/skonfig-type-helper"],
-    version=__import__("cdist").__version__,
+    version=__import__("skonfig").__version__,
     description="system configuration framework",
     author="skonfig nerds",
     url="https://skonfig.li",
     data_files=[
     ],
     cmdclass={
-        "build": cdist_build,
-        "build_py": cdist_build_py,
-        "sdist": cdist_sdist,
-        "clean": cdist_clean,
+        "build": skonfig_build,
+        "build_py": skonfig_build_py,
+        "sdist": skonfig_sdist,
+        "clean": skonfig_clean,
     },
     classifiers=[
         "Development Status :: 6 - Mature",

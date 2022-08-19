@@ -4,28 +4,26 @@ import logging
 import os
 import sys
 
-import skonfig.cdist
-import skonfig.dump
-
+from skonfig.version import VERSION as __version__
 
 THIS_IS_SKONFIG = False
-SKONFIG_VERSION = "1.0.0"
-
 
 SKONFIG_CONFIGURATION_DIRECTORY = "{}/.skonfig".format(os.getenv("HOME"))
 SKONFIG_CONFIGURATION_FILE_PATH = "{}/config".format(SKONFIG_CONFIGURATION_DIRECTORY)
-
 
 logger = logging.getLogger("skonfig")
 
 
 def run():
+    import skonfig.cdist
+
     if os.path.basename(sys.argv[0])[:2] == "__":
         return skonfig.cdist.run_emulator()
     arguments = get_arguments()
     if arguments.verbose > 1:
         logger.setLevel(logging.DEBUG)
     if arguments.dump:
+        import skonfig.dump
         return skonfig.dump.run(arguments.host)
     for argument, value in vars(arguments).items():
         skonfig.logger.debug("arguments: %s: %s", argument, value)
@@ -63,7 +61,7 @@ def get_arguments():
     parser.add_argument("host", nargs="?", help="host to configure")
     arguments = parser.parse_args()
     if arguments.version:
-        print("skonfig", SKONFIG_VERSION)
+        print("skonfig", __version__)
         sys.exit(0)
     if not arguments.host and not arguments.dump:
         parser.print_help()

@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(
 
 # Import cdist after sys.path fixup above.
 
-import cdist.version  # nopep8 - ignore error that import is not at top
+import skonfig  # nopep8 - ignore error that import is not at top
 
 # -- General configuration ------------------------------------------------
 
@@ -63,7 +63,7 @@ copyright = '2022 skonfig nerds'
 # built documents.
 #
 # The short X.Y version.
-version = cdist.version.VERSION
+version = skonfig.__version__
 # The full version, including alpha/beta/rc tags.
 release = version
 
