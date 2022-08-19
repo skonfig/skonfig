@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+hostname="$( cat "$__global/explorer/hostname" )"
+
+for hosttype in "__host_$__target_host" "__host_$hostname"
+do
+    if command -v "$hosttype" > /dev/null
+    then
+        "$hosttype"
+        break
+    fi
+done

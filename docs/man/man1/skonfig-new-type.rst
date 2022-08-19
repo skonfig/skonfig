@@ -1,36 +1,39 @@
-skonfig-new-type(1)
-===================
+================
+skonfig-new-type
+================
 
-NAME
-----
-skonfig-new-type - Create new skonfig type skeleton
+----------------------------------
+create a new skonfig type skeleton
+----------------------------------
+
+:Manual section: 1
+:Manual group: System administration commands
 
 
 SYNOPSIS
---------
+========
 
 ::
 
    skonfig-new-type TYPE-NAME AUTHOR-NAME AUTHOR-EMAIL [TYPE-BASE-PATH]
 
 
-
 DESCRIPTION
------------
-skonfig-new-type is a helper script that creates new type skeleton.
+===========
+skonfig-new-type is a helper script that creates a new skonfig type skeleton.
 It is then up to the type author to finish the type.
 
 It creates skeletons for the following files:
 
-* man.rst
-* manifest
-* gencode-remote.
+* ``man.rst``,
+* ``manifest``
+* ``gencode-remote``.
 
 Upon creation it prints the path to the newly created type directory.
 
 
 ARGUMENTS
----------
+=========
 **TYPE-NAME**
    Name of the new type.
 
@@ -41,12 +44,12 @@ ARGUMENTS
    Type author's email.
 
 **TYPE-BASE-PATH**
-    Path to the base directory of the type. If not set it defaults
-    to '$PWD/type'.
+   Path to the base directory of the type. If not set it defaults
+   to ``$PWD/type``.
 
 
 EXAMPLES
---------
+========
 
 .. code-block:: sh
 
@@ -57,17 +60,17 @@ EXAMPLES
 
 
 SEE ALSO
---------
+========
 :strong:`skonfig`\ (1)
 
 
 AUTHORS
--------
+=======
 | Dennis Camera <skonfig--@--dtnr.ch>
 
 
 COPYING
--------
+=======
 Copyright \(C) 2022 Dennis Camera.
 You can redistribute it and/or modify it under the terms of the GNU General
 Public License as published by the Free Software Foundation, either version 3 of

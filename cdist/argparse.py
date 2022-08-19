@@ -142,10 +142,10 @@ def get_parsers():
 
     # Main subcommand parser
     parser['main'] = argparse.ArgumentParser(
-            description='cdist ' + cdist.VERSION)
+            description='%(prog)s ' + cdist.__version__)
     parser['main'].add_argument(
             '-V', '--version', help='Show version.', action='version',
-            version='%(prog)s ' + cdist.VERSION)
+            version='%(prog)s ' + cdist.__version__)
     parser['sub'] = parser['main'].add_subparsers(
             title="Commands", dest="command")
 
@@ -541,7 +541,7 @@ def parse_and_configure(argv, singleton=True):
 
     log = logging.getLogger("cdist")
 
-    log.verbose("version %s", cdist.VERSION)
+    log.verbose("version %s", cdist.__version__)
     log.trace('command line args: %s', cfg.command_line_args)
     log.trace('configuration: %s', cfg.get_config())
     log.trace('configured args: %s', args)

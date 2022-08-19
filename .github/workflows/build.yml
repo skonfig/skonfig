@@ -1,8 +1,8 @@
 ---
-name: unit-tests
+name: build
 on: [push, pull_request]
 jobs:
-  unit-tests:
+  build:
     strategy:
       fail-fast: false
       matrix:
@@ -29,7 +29,14 @@ jobs:
       - name: Information
         run: |
           python3 -V
+          python3 -W ignore -m pip --disable-pip-version-check list
           bin/cdist -V
-      - name: Run unit tests
+      - name: Build
         run: |
-          make unittest
+          python3 setup.py build
+      - name: Install
+        run: |
+          python3 setup.py install
+      - name: Clean
+        run: |
+          python3 setup.py clean --all

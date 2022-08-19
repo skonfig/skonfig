@@ -36,7 +36,7 @@ import cdist.message
 from cdist import core
 import cdist.exec.util as util
 
-CONF_SUBDIRS_LINKED = ["explorer", "files", "manifest", "type", ]
+CONF_SUBDIRS_LINKED = ["explorer", "files", "manifest", "type"]
 
 
 class Local:
@@ -162,7 +162,7 @@ class Local:
         if cache_dir:
             self.cache_path = cache_dir
         elif home_dir:
-            self.cache_path = os.path.join(home_dir, "cache")
+            self.cache_path = os.path.join(home_dir, "dump")
         else:
             raise cdist.Error(
                 "No homedir setup and no cache dir location given")

@@ -35,8 +35,8 @@ import cdist.core.cdist_object
 import os.path as op
 my_dir = op.abspath(op.dirname(__file__))
 fixtures = op.join(my_dir, 'fixtures')
-type_base_path = op.join(fixtures, 'type')
-add_conf_dir = op.join(fixtures, 'conf')
+conf_dir = op.join(fixtures, 'conf')
+type_base_path = op.join(conf_dir, 'type')
 
 expected_object_names = sorted([
     '__first/man',
@@ -205,7 +205,7 @@ class ConfigRunTestCase(test.CdistTestCase):
                 my_dir, '../../../bin/cdist')),
             initial_manifest=os.path.join(fixtures,
                                           'manifest/dryrun_manifest'),
-            add_conf_dirs=[fixtures])
+            add_conf_dirs=[conf_dir])
 
         dryrun = cdist.config.Config(drylocal, self.remote, dry_run=True)
         dryrun.run()
@@ -222,7 +222,7 @@ class ConfigRunTestCase(test.CdistTestCase):
                 my_dir, '../../../bin/cdist')),
             initial_manifest=os.path.join(
                 fixtures, 'manifest/init-deps-resolver'),
-            add_conf_dirs=[fixtures])
+            add_conf_dirs=[conf_dir])
 
         # dry_run is ok for dependency testing
         config = cdist.config.Config(local, self.remote, dry_run=True)

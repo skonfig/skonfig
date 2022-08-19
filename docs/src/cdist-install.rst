@@ -9,15 +9,15 @@ Source Host
 
 This is the machine from which you will configure target hosts.
 
- * /bin/sh: A POSIX like shell (for instance bash, dash, zsh)
- * Python >= 3.5
+ * ``/bin/sh``: A POSIX like shell (for instance bash, dash, zsh)
+ * Python >= 3.2
  * SSH client
  * sphinx with the rtd theme (for building html docs and/or the man pages)
 
 Target Hosts
 ~~~~~~~~~~~~
 
- * /bin/sh: A POSIX like shell (for instance bash, dash, zsh)
+ * ``/bin/sh``: A POSIX like shell (for instance bash, dash, zsh)
  * SSH server
 
 Install cdist
@@ -34,49 +34,39 @@ To install cdist, execute the following commands:
 
 .. code-block:: sh
 
-    git clone https://code.ungleich.ch/ungleich-public/cdist.git
-    cd cdist
-    export PATH=$PATH:$(pwd -P)/bin
+   git clone https://github.com/skonfig/skonfig.git
+   cd skonfig
+   export PATH=$PATH:$(pwd -P)/bin
 
 From version 4.2.0 cdist tags and releases are signed.
 You can get GPG public key used for signing `here <_static/pgp-key-EFD2AE4EC36B6901.asc>`_.
 It is assumed that you are familiar with *git* ways of signing and verification.
 
-You can also get cdist from `github mirror <https://github.com/ungleich/cdist>`_.
-
-To install cdist with distutils from cloned repository, first you have to
-create version.py:
-
-.. code-block:: sh
-
-    ./bin/cdist-build-helper version
-
-Then you install it with:
+Then install skonfig using:
 
 .. code-block:: sh
 
    make install
 
-or with:
+or:
 
 .. code-block:: sh
 
    make install-user
 
 to install it into user *site-packages* directory.
-Or directly with distutils:
+
+Or directly with pip:
 
 .. code-block:: sh
 
-    python setup.py install
-
-Note that `bin/cdist-build-helper` script is intended for cdist maintainers.
+   pip install .
 
 
 Available versions in git
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
- * The active development takes place in the **master** branch
+ * The active development takes place in the **main** branch
  * The released versions can be found in the tags
 
 Other branches may be available for features or bugfixes, but they
@@ -84,8 +74,8 @@ may vanish at any point. To select a specific branch use
 
 .. code-block:: sh
 
-    # Generic code
-    git checkout -b <localbranchname> origin/<branchname>
+   # generic code
+   git checkout -b <localbranchname> origin/<branchname>
 
 So for instance if you want to use and stay with version 4.1, you can use
 
@@ -100,7 +90,7 @@ If you want to build and use the documentation, run:
 
 .. code-block:: sh
 
-    make docs
+   make docs
 
 Documentation comes in two formats, man pages and full HTML
 documentation. Documentation is built into distribution's
@@ -111,7 +101,7 @@ If you want to use man pages, run:
 
 .. code-block:: sh
 
-    export MANPATH=$MANPATH:$(pwd -P)/docs/dist/man
+   export MANPATH=$MANPATH:$(pwd -P)/docs/dist/man
 
 Or you can move man pages from docs/dist/man directory to some
 other directory and add it to MANPATH.
@@ -123,39 +113,13 @@ only man pages run:
 
 .. code-block:: sh
 
-    make man
+   make man
 
 for only html documentation run:
 
 .. code-block:: sh
 
-    make html
-
-You can also build man pages for types in your ~/.cdist directory:
-
-.. code-block:: sh
-
-    make dotman
-
-Built man pages are now in docs/dist/man directory. If you have
-some other custom .cdist directory, e.g. /opt/cdist then use:
-
-.. code-block:: sh
-
-    make DOT_CDIST_PATH=/opt/cdist dotman
-
-Note that `dotman`-target has to be built before a `make docs`-run, otherwise
-the custom man-pages are not picked up.
-
-Python package
-~~~~~~~~~~~~~~
-
-Cdist is available as a python package at
-`PyPi <http://pypi.python.org/pypi/cdist/>`_. You can install it using
-
-.. code-block:: sh
-
-    pip install cdist
+   make html
 
 Installing from source with signature verification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
