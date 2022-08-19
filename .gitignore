@@ -19,35 +19,16 @@ tags
 [._]*.un~
 .DS_Store
 
-# Ignore cdist cache for version control
-/cache/
+# Sphinx build dirs, cache
+_build/
+docs/dist
 
-# Ignore inventory basedir
-cdist/inventory/
-
-# Python: cache, distutils, distribution in general
+# Build
+docs/man/man?/*.[0-9]
+/build/
 __pycache__/
 *.pyc
 /MANIFEST
 /dist/
-/cdist.egg-info/
+/skonfig.egg-info/
 
-# sphinx build dirs, cache
-_build/
-docs/dist
-
-# Ignore temp files used for signing
-cdist-*.tar
-cdist-*.tar.gz
-cdist-*.tar.gz.asc
-
-# Packaging: Archlinux
-/cdist-*.pkg.tar.xz
-/cdist-*.tar.gz
-/pkg
-/src
-/build
-.lock-*
-.git-current-branch
-.lock*
-.pypi-release
