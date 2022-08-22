@@ -10,14 +10,9 @@ if __name__ == "__main__":
         sys.path.insert(0, skonfig_bindir_pardir)
 
     import skonfig
+    skonfig.THIS_IS_SKONFIG = True
 
     try:
-        skonfig.THIS_IS_SKONFIG = True
-        skonfig.run()
-        sys.exit(0)
-    except Exception:
-        import traceback
-        print(traceback.format_exc(), file=sys.stderr)
-        sys.exit(1)
+        sys.exit(skonfig.run())
     except KeyboardInterrupt:
         sys.exit(2)
