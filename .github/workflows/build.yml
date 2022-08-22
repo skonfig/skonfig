@@ -30,7 +30,7 @@ jobs:
         run: |
           python3 -V
           python3 -W ignore -m pip --disable-pip-version-check list
-          bin/cdist -V
+          bin/skonfig -V
       - name: Build
         run: |
           python3 setup.py build

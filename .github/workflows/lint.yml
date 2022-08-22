@@ -15,7 +15,7 @@ jobs:
       - name: Information
         run: |
           python3 -V
-          bin/cdist -V
+          bin/skonfig -V
       - name: Check PEP 8 compliance
         run: |
           make pep8
