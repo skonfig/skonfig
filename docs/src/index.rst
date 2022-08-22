@@ -1,10 +1,10 @@
-cdist - usable configuration management
-=======================================
+skonfig - system configuration framework
+========================================
 
-cdist is a usable configuration management system.
-It adheres to the KISS principle and
-is being used in small up to enterprise grade environments.
-It natively supports IPv6 since the first release.
+skonfig, the system configuration framework.
+
+It adheres to the KISS principle and is being used in small up to enterprise
+grade environments.
 
 
 .. toctree::
