@@ -25,7 +25,6 @@ It natively supports IPv6 since the first release.
    cdist-configuration
    cdist-manifest
    cdist-type
-   cdist-types
    cdist-explorer
    cdist-messaging
    cdist-parallelization
