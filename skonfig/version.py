@@ -12,8 +12,11 @@ def __guess_git_version():
         # Try to use Git to generate the version
         try:
             def run(cmd):
-                return subprocess.check_output(
-                    cmd, cwd=project_dir, shell=False).decode().rstrip()
+                # NOTE: subprocess.DEVNULL was added with Python 3.3
+                with os.open(os.devnull, os.O_RDONLY) as devnull:
+                    return subprocess.check_output(
+                        cmd, cwd=project_dir, stderr=devnull,
+                        shell=False).decode().rstrip()
 
             return re.sub(
                 r"(?:-([0-9]+)-g([0-9a-f]{7}))?(-dirty)?$",
@@ -27,9 +30,8 @@ def __guess_git_version():
                     + ("."+m.group(3)[1:] if m.group(3) else "")
                     if any(m.group(2, 3))
                     else "",
-                run(["git", "describe", "--tags", "--dirty", "--abbrev=7"]))
-        except e:
-            print(e)
+                run(["git", "describe", "--tags", "--dirty", "--abbrev=7", "--match=[0-9]*"]))
+        except:
             pass
 
     return "unknown version"
