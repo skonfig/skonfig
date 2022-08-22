@@ -30,8 +30,9 @@ def __guess_git_version():
                     + ("."+m.group(3)[1:] if m.group(3) else "")
                     if any(m.group(2, 3))
                     else "",
-                run(["git", "describe", "--tags", "--dirty", "--abbrev=7", "--match=[0-9]*"]))
-        except:
+                run(["git", "describe", "--tags", "--dirty",
+                     "--abbrev=7", "--match=[0-9]*"]))
+        except Exception:
             pass
 
     return "unknown version"

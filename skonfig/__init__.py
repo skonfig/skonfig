@@ -9,7 +9,7 @@ from skonfig.version import VERSION as __version__
 THIS_IS_SKONFIG = False
 
 SKONFIG_CONFIGURATION_DIRECTORY = "{}/.skonfig".format(os.getenv("HOME"))
-SKONFIG_CONFIGURATION_FILE_PATH = "{}/config".format(SKONFIG_CONFIGURATION_DIRECTORY)
+SKONFIG_CONFIGURATION_FILE_PATH = SKONFIG_CONFIGURATION_DIRECTORY + "/config"
 
 logger = logging.getLogger("skonfig")
 
@@ -32,7 +32,12 @@ def run():
 
 def get_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-V", dest="version", action="store_true", help="print version")
+    parser.add_argument(
+        "-V",
+        dest="version",
+        action="store_true",
+        help="print version"
+    )
     parser.add_argument(
         "-d",
         dest="dump",
@@ -102,8 +107,12 @@ def _set_conf_dirs(configuration):
     else:
         configuration["conf_dir"] = []
     configuration["conf_dir"].insert(0, SKONFIG_CONFIGURATION_DIRECTORY)
+
+    # find sets and insert them into PATH
     sets_dir = os.path.join(SKONFIG_CONFIGURATION_DIRECTORY, "set")
     if os.path.isdir(sets_dir):
-        for set_dirname in os.listdir(sets_dir):
-            configuration["conf_dir"].append(os.path.join(sets_dir, set_dirname))
+        configuration["conf_dir"] += [
+            os.path.join(sets_dir, s) for s in os.listdir(sets_dir)
+        ]
+
     configuration["conf_dir"].reverse()
