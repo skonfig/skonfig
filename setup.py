@@ -116,7 +116,7 @@ def hardcode_version(file):
         f.write('VERSION = "%s"\n' % (__import__("skonfig").__version__))
 
 
-class cdist_build(distutils.command.build.build):
+class skonfig_build(distutils.command.build.build):
     def run(self):
         distutils.command.build.build.run(self)
 
@@ -196,8 +196,8 @@ else:
 
 setup(
     name="skonfig",
-    packages=["cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
-    scripts=glob.glob(os.path.join(os.dirname(__file__), "bin", "*")),
+    packages=["skonfig", "cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
+    scripts=glob.glob(os.path.join(os.path.dirname(__file__), "bin", "*")),
     version=__import__("skonfig").__version__,
     description="system configuration framework",
     author="skonfig nerds",
