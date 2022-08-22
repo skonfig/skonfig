@@ -194,6 +194,24 @@ else:
     kwargs = dict()
 
 
+data_files = [
+        ("share/doc/skonfig", [
+            "README.md",
+            "docs/src/config.skeleton",
+            "docs/changelog"
+        ]),
+    ]
+
+# include examples recursively
+for dirname, _, files in os.walk(
+        os.path.join(os.path.dirname(__file__), "docs", "examples")):
+    data_files.append(
+        (os.path.join(
+            "share/doc/skonfig/examples",
+            dirname.split("examples")[1].lstrip("/")),
+         [os.path.join(dirname, f) for f in files]))
+
+
 setup(
     name="skonfig",
     packages=["skonfig", "cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
@@ -202,13 +220,7 @@ setup(
     description="system configuration framework",
     author="skonfig nerds",
     url="https://skonfig.li",
-    data_files=[
-        ("share/doc/skonfig", [
-            "README.md",
-            "docs/src/config.skeleton",
-            "docs/changelog"
-        ]),
-    ],
+    data_files=data_files,
     cmdclass={
         "build": skonfig_build,
         "build_py": skonfig_build_py,
