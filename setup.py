@@ -196,7 +196,7 @@ else:
 setup(
     name="skonfig",
     packages=["cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
-    scripts=["bin/cdist", "bin/cdist-dump", "bin/skonfig-new-type", "bin/skonfig-type-helper"],
+    scripts=glob.glob(os.path.join(os.dirname(__file__), "bin", "*")),
     version=__import__("skonfig").__version__,
     description="system configuration framework",
     author="skonfig nerds",
