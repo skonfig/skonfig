@@ -46,7 +46,8 @@ import distutils.command.sdist
 
 
 class ManPages:
-    rst_glob = glob.glob("docs/man/man?/*.rst")
+    rst_glob = glob.glob(os.path.join(
+        os.path.dirname(__file__), "docs", "man", "man?", "*.rst"))
 
     @classmethod
     def _render_manpage(cls, rst_path, dest_path):
@@ -95,7 +96,7 @@ class ManPages:
         # add man pages to data_files so that they are installed
         for (section, pages) in man_pages.items():
             distribution.data_files.append(
-                ("share/man/" + section, pages))
+                (os.path.join(("share", "man", section)), pages))
 
     @classmethod
     def clean(cls, distribution, dry_run=False):
@@ -202,6 +203,11 @@ setup(
     author="skonfig nerds",
     url="https://skonfig.li",
     data_files=[
+        ("share/doc/skonfig", [
+            "README.md",
+            "docs/src/config.skeleton",
+            "docs/changelog"
+        ]),
     ],
     cmdclass={
         "build": skonfig_build,
