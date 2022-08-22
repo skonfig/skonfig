@@ -76,6 +76,8 @@ class ManPages:
                 "docutils is not available, no man pages will be generated")
             return
 
+        log.info("generating man pages")
+
         man_pages = collections.defaultdict(list)
 
         # convert man pages
@@ -96,7 +98,7 @@ class ManPages:
         # add man pages to data_files so that they are installed
         for (section, pages) in man_pages.items():
             distribution.data_files.append(
-                (os.path.join(("share", "man", section)), pages))
+                (os.path.join("share", "man", section), pages))
 
     @classmethod
     def clean(cls, distribution, dry_run=False):
@@ -121,7 +123,6 @@ class skonfig_build(distutils.command.build.build):
         distutils.command.build.build.run(self)
 
         # Build man pages
-        log.info("generating man pages")
         ManPages.build(self.distribution, dry_run=self.dry_run)
 
 
