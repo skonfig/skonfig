@@ -1,13 +1,12 @@
 #!/bin/sh
 
-VERSION="0.0.1"
+VERSION=1.0
 RELEASE=""
 
 set -u
-# set -x
 
 hosts=
-cache_dir=~/.cdist/cache
+cache_dir=~/.skonfig/dump
 
 do_all=1
 do_global_explorer=
