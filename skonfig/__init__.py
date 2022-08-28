@@ -107,12 +107,10 @@ def _set_conf_dirs(configuration):
     else:
         configuration["conf_dir"] = []
     configuration["conf_dir"].insert(0, SKONFIG_CONFIGURATION_DIRECTORY)
-
     # find sets and insert them into PATH
     sets_dir = os.path.join(SKONFIG_CONFIGURATION_DIRECTORY, "set")
     if os.path.isdir(sets_dir):
         configuration["conf_dir"] += [
             os.path.join(sets_dir, s) for s in os.listdir(sets_dir)
         ]
-
     configuration["conf_dir"].reverse()
