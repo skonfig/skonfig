@@ -20,17 +20,20 @@ Our chat room is `#skonfig:matrix.org` (you need [Matrix client](https://matrix.
 pip3 install skonfig@git+https://github.com/skonfig/skonfig
 ```
 
-### Step 2: Clone base and extra sets repositories
+### Step 2: Clone sets repositories
 
+Clone the sets you are planning to use. To get started installing the `base` and
+`extra` sets is recommended, because they provide the most frequently used types.
+Also, most other sets depend on the types provided by the `base` set.
 ```sh
 mkdir -p ~/.skonfig/set
 git clone https://github.com/skonfig/base ~/.skonfig/set/base
 git clone https://github.com/skonfig/extra ~/.skonfig/set/extra
 ```
 
-### Step 3: Create configuration directory and initial manifest
+### Step 3: Create initial manifest
 
 ```sh
 mkdir -p ~/.skonfig/manifest
-cp "$(pip show skonfig | sed -n -e 's;^Location: \(.*\)/lib.*$;\1;p')/share/doc/skonfig/examples/init-manifest" ~/.skonfig/manifest/init
+cp "$(pip3 show skonfig | sed -n -e 's;^Location: \(.*\)/lib.*$;\1;p')/share/doc/skonfig/examples/init-manifest" ~/.skonfig/manifest/init
 ```
