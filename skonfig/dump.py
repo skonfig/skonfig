@@ -45,7 +45,7 @@ def _print_dumped_hosts(dumps):
 
 def _print_dump(dump_directory):
     for dump_file in _get_dump_files(dump_directory):
-        line_prefix = dump_file[len(dump_directory) + 1 :]
+        line_prefix = dump_file[(len(dump_directory) + 1):]
         dump_file_content = _read_file(os.path.join(dump_directory, dump_file))
         if not dump_file_content:
             continue

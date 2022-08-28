@@ -15,8 +15,8 @@ with good usability are far better than the opposite.
 Reporting bugs
 --------------
 If you believe you've found a bug and verified that it is
-in the latest version, drop a mail to the cdist mailing list,
-subject prefixed with "[BUG] " or create an issue on code.ungleich.ch.
+in the latest version, create an issue on
+`GitHub <https://github.com/skonfig/skonfig>`_.
 
 
 Coding conventions (everywhere)
@@ -24,7 +24,7 @@ Coding conventions (everywhere)
 If something should be improved or needs to be fixed, add the word FIXME
 nearby, so grepping for FIXME gives all positions that need to be fixed.
 
-Indentation is 4 spaces (welcome to the python world).
+Indentation is 4 spaces (welcome to the Python world).
 
 
 How to submit stuff for inclusion into upstream cdist
@@ -37,21 +37,18 @@ work nor kill the authors brain:
 
 - All files should contain the usual header (Author, Copying, etc.)
 - Code submission must be done via git
-- Do not add cdist/conf/manifest/init - This file should only be touched in your
-  private branch!
-- Code to be included should be branched of the upstream "master" branch
+- Code to be included should be branched off the upstream ``main`` branch
 
    - Exception: Bugfixes to a version branch
 
-- On a merge request, always name the branch I should pull from
+- On a pull request, always name the branch I should pull from
 - Always ensure **all** manpages build. Use **./build man** to test.
 - If you developed more than **one** feature, consider submitting them in
   separate branches. This way one feature can already be included, even if
   the other needs to be improved.
 
-As soon as your work meets these requirements, write a mail
-for inclusion to the mailinglist **cdist-configuration-management at googlegroups.com**
-or open a merge request at https://code.ungleich.ch/ungleich-public/cdist.
+As soon as your work meets these requirements, open a pull request at
+https://github.com/ungleich-public/cdist.
 
 
 How to submit a new type
@@ -66,7 +63,7 @@ AND the manpage builds (`make man`).
 Warning: Submitting "exec" or "run" types that simply echo their parameter in
 **gencode** will not be accepted, because they are of no use. Every type can output
 code and thus such a type introduces redundant functionality that is given by
-core cdist already.
+skonfig itself already.
 
 
 Example git workflow
@@ -75,23 +72,20 @@ The following workflow works fine for most developers
 
 .. code-block:: sh
 
-    # get latest upstream master branch
-    git clone https://code.ungleich.ch/ungleich-public/cdist.git
+   # get latest upstream master branch
+   git clone https://github.com/skonfig/skonfig.git
 
-    # update if already existing
-    cd cdist; git fetch -v; git merge origin/master
+   # update if already existing
+   cd skonfig
+   git fetch -v
+   git merge --ff-only origin/main
 
-    # create a new branch for your feature/bugfix
-    cd cdist # if you haven't done before
-    git checkout -b documentation_cleanup
+   # create a new branch for your feature/bugfix
+   cd skonfig # if you haven't done before
+   git checkout -b documentation-cleanup
 
     # *hack*
     *hack*
-
-    # clone the cdist repository on code.ungleich.ch if you haven't done so
-
-    # configure your repo to know about your clone (only once)
-    git remote add ungleich git@code.ungleich.ch:YOURUSERNAME/cdist.git
 
     # push the new branch to ungleich gitlab
     git push ungleich documentation_cleanup

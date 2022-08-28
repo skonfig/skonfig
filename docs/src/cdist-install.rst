@@ -38,10 +38,6 @@ To install cdist, execute the following commands:
    cd skonfig
    export PATH=$PATH:$(pwd -P)/bin
 
-From version 4.2.0 cdist tags and releases are signed.
-You can get GPG public key used for signing `here <_static/pgp-key-EFD2AE4EC36B6901.asc>`_.
-It is assumed that you are familiar with *git* ways of signing and verification.
-
 Then install skonfig using:
 
 .. code-block:: sh
@@ -120,27 +116,3 @@ for only html documentation run:
 .. code-block:: sh
 
    make html
-
-Installing from source with signature verification
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you want to install cdist from signed source and verify it, first you need to
-download cdist archive and its detached signature.
-
-Get both, *cdist-x.y.z.tar.gz* and *cdist-x.y.z.tar.gz.asc* from release
-notes of the desired tag *x.y.z* at
-`cdist git repository <https://code.ungleich.ch/ungleich-public/cdist/-/tags>`_.
-
-Get GPG public key used for signing `here <_static/pgp-key-EFD2AE4EC36B6901.asc>`_
-and import it into GPG.
-
-Now cdist source archive can be verified using `gpg`, e.g. to verify `cdist-6.2.0`:
-
-.. code-block:: sh
-
-    $ gpg --verify cdist-6.2.0.tar.gz.asc cdist-6.2.0.targ.gz
-    gpg: Signature made Sat Nov 30 23:14:19 2019 CET
-    gpg:                using RSA key 69767822F3ECC3C349C1EFFFEFD2AE4EC36B6901
-    gpg: Good signature from "ungleich GmbH (ungleich FOSS) <foss@ungleich.ch>" [ultimate]
-
-Further steps are the same as for `installing from git <cdist-install.html#from-git>`_.

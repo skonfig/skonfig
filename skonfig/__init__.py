@@ -4,28 +4,26 @@ import logging
 import os
 import sys
 
-import skonfig.cdist
-import skonfig.dump
-
+from skonfig.version import VERSION as __version__
 
 THIS_IS_SKONFIG = False
-SKONFIG_VERSION = "1.0.0"
-
 
 SKONFIG_CONFIGURATION_DIRECTORY = "{}/.skonfig".format(os.getenv("HOME"))
-SKONFIG_CONFIGURATION_FILE_PATH = "{}/config".format(SKONFIG_CONFIGURATION_DIRECTORY)
-
+SKONFIG_CONFIGURATION_FILE_PATH = SKONFIG_CONFIGURATION_DIRECTORY + "/config"
 
 logger = logging.getLogger("skonfig")
 
 
 def run():
+    import skonfig.cdist
+
     if os.path.basename(sys.argv[0])[:2] == "__":
         return skonfig.cdist.run_emulator()
     arguments = get_arguments()
     if arguments.verbose > 1:
         logger.setLevel(logging.DEBUG)
     if arguments.dump:
+        import skonfig.dump
         return skonfig.dump.run(arguments.host)
     for argument, value in vars(arguments).items():
         skonfig.logger.debug("arguments: %s: %s", argument, value)
@@ -34,7 +32,12 @@ def run():
 
 def get_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-V", dest="version", action="store_true", help="print version")
+    parser.add_argument(
+        "-V",
+        dest="version",
+        action="store_true",
+        help="print version"
+    )
     parser.add_argument(
         "-d",
         dest="dump",
@@ -63,7 +66,7 @@ def get_arguments():
     parser.add_argument("host", nargs="?", help="host to configure")
     arguments = parser.parse_args()
     if arguments.version:
-        print("skonfig", SKONFIG_VERSION)
+        print("skonfig", __version__)
         sys.exit(0)
     if not arguments.host and not arguments.dump:
         parser.print_help()
@@ -104,8 +107,10 @@ def _set_conf_dirs(configuration):
     else:
         configuration["conf_dir"] = []
     configuration["conf_dir"].insert(0, SKONFIG_CONFIGURATION_DIRECTORY)
+    # find sets and insert them into PATH
     sets_dir = os.path.join(SKONFIG_CONFIGURATION_DIRECTORY, "set")
     if os.path.isdir(sets_dir):
-        for set_dirname in os.listdir(sets_dir):
-            configuration["conf_dir"].append(os.path.join(sets_dir, set_dirname))
+        configuration["conf_dir"] += [
+            os.path.join(sets_dir, s) for s in os.listdir(sets_dir)
+        ]
     configuration["conf_dir"].reverse()

@@ -14,8 +14,8 @@
 # cache_path_pattern = %h
 #
 # colored_output
-#     Colorize cdist's output. If enabled, cdist will use different colors for
-#     different log levels.
+#     Colorize skonfig's output. If enabled, skonfig will use different colors
+#     for different log levels.
 #     Recognized values are 'always', 'never', and 'auto'.
 #     If the value is 'auto', colors are enabled if stdout is a TTY unless
 #     the NO_COLOR (https://no-color.org/) environment variable is defined.
@@ -42,7 +42,7 @@
 #
 # jobs
 #     Specify number of jobs for parallel processing. If -1 then the default,
-#     number of CPU's in the system is used. If 0 then parallel processing in
+#     number of CPUs in this system is used. If 0 then parallel processing in
 #     jobs is disabled. If set to positive number then specified maximum
 #     number of processes will be used.
 # jobs = 0
@@ -52,7 +52,7 @@
 # local_shell = /bin/sh
 #
 # out_path
-#     Directory to save cdist output in.
+#     Working directory for skonfig on this machine.
 # out_path =
 #
 # parallel
@@ -71,7 +71,7 @@
 # remote_exec =
 #
 # remote_out_path
-#     Directory to save cdist output in on the target host.
+#     Working directory for skonfig on the remote host.
 # remote_out_path = /tmp/skonfig
 #
 # remote_shell

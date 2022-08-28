@@ -46,7 +46,8 @@ import distutils.command.sdist
 
 
 class ManPages:
-    rst_glob = glob.glob("docs/man/man?/*.rst")
+    rst_glob = glob.glob(os.path.join(
+        os.path.dirname(__file__), "docs", "man", "man?", "*.rst"))
 
     @classmethod
     def _render_manpage(cls, rst_path, dest_path):
@@ -75,6 +76,8 @@ class ManPages:
                 "docutils is not available, no man pages will be generated")
             return
 
+        log.info("generating man pages")
+
         man_pages = collections.defaultdict(list)
 
         # convert man pages
@@ -95,7 +98,7 @@ class ManPages:
         # add man pages to data_files so that they are installed
         for (section, pages) in man_pages.items():
             distribution.data_files.append(
-                ("share/man/" + section, pages))
+                (os.path.join("share", "man", section), pages))
 
     @classmethod
     def clean(cls, distribution, dry_run=False):
@@ -112,24 +115,23 @@ class ManPages:
 def hardcode_version(file):
     log.info("injecting version number into %s", file)
     with open(file, "w") as f:
-        f.write('VERSION = "%s"\n' % (__import__("cdist").__version__))
+        f.write('VERSION = "%s"\n' % (__import__("skonfig").__version__))
 
 
-class cdist_build(distutils.command.build.build):
+class skonfig_build(distutils.command.build.build):
     def run(self):
         distutils.command.build.build.run(self)
 
         # Build man pages
-        log.info("generating man pages")
         ManPages.build(self.distribution, dry_run=self.dry_run)
 
 
-class cdist_build_py(distutils.command.build_py.build_py):
+class skonfig_build_py(distutils.command.build_py.build_py):
     def build_module(self, module, module_file, package):
         (dest_name, copied) = super().build_module(
             module, module_file, package)
 
-        if dest_name == os.path.join(self.build_lib, "cdist", "version.py") \
+        if dest_name == os.path.join(self.build_lib, "skonfig", "version.py") \
                 and not self.dry_run:
             # Hard code generated version number into source distribution
             if os.path.exists(dest_name):
@@ -139,18 +141,18 @@ class cdist_build_py(distutils.command.build_py.build_py):
         return (dest_name, copied)
 
 
-class cdist_sdist(distutils.command.sdist.sdist):
+class skonfig_sdist(distutils.command.sdist.sdist):
     def make_release_tree(self, base_dir, files):
         distutils.command.sdist.sdist.make_release_tree(self, base_dir, files)
 
         # Hard code generated version number into source distribution
-        version_file = os.path.join(base_dir, "cdist", "version.py")
+        version_file = os.path.join(base_dir, "skonfig", "version.py")
         if os.path.exists(version_file):
             os.remove(version_file)
         hardcode_version(version_file)
 
 
-class cdist_clean(distutils.command.clean.clean):
+class skonfig_clean(distutils.command.clean.clean):
     def run(self):
         ManPages.clean(self.distribution, dry_run=self.dry_run)
         distutils.command.clean.clean.run(self)
@@ -193,21 +195,38 @@ else:
     kwargs = dict()
 
 
+data_files = [
+        ("share/doc/skonfig", [
+            "README.md",
+            "docs/src/config.skeleton",
+            "docs/changelog"
+        ]),
+    ]
+
+# include examples recursively
+for dirname, _, files in os.walk(
+        os.path.join(os.path.dirname(__file__), "docs", "examples")):
+    data_files.append(
+        (os.path.join(
+            "share/doc/skonfig/examples",
+            dirname.split("examples")[1].lstrip("/")),
+         [os.path.join(dirname, f) for f in files]))
+
+
 setup(
-    name="cdist",
-    packages=["cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
-    scripts=["bin/cdist", "bin/cdist-dump", "bin/skonfig-new-type", "bin/cdist-type-helper"],
-    version=__import__("cdist").__version__,
-    description="A Usable Configuration Management System",
-    author="cdist contributors",
-    url="https://cdi.st",
-    data_files=[
-    ],
+    name="skonfig",
+    packages=["skonfig", "cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
+    scripts=glob.glob(os.path.join(os.path.dirname(__file__), "bin", "*")),
+    version=__import__("skonfig").__version__,
+    description="system configuration framework",
+    author="skonfig nerds",
+    url="https://skonfig.li",
+    data_files=data_files,
     cmdclass={
-        "build": cdist_build,
-        "build_py": cdist_build_py,
-        "sdist": cdist_sdist,
-        "clean": cdist_clean,
+        "build": skonfig_build,
+        "build_py": skonfig_build_py,
+        "sdist": skonfig_sdist,
+        "clean": skonfig_clean,
     },
     classifiers=[
         "Development Status :: 6 - Mature",
@@ -227,12 +246,5 @@ setup(
         "Topic :: System :: Software Distribution",
         "Topic :: Utilities"
     ],
-    long_description='''
-        cdist is a usable configuration management system.
-        It adheres to the KISS principle and is being used in small up to
-        enterprise grade environments.
-        cdist is an alternative to other configuration management systems like
-        cfengine, bcfg2, chef and puppet.
-    ''',
     **kwargs
 )

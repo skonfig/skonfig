@@ -1,5 +1,4 @@
 #
-# 2013 Nico Schottelius (nico-cdist at schottelius.org)
 # 2022 Dennis Camera (skonfig at dtnr.ch)
 #
 # This file is part of cdist.
@@ -28,7 +27,6 @@ help: .FORCE
 	@echo "  install         install in the system site-packages directory"
 	@echo "  install-user    install in the user site-packages directory"
 	@echo "  clean           clean"
-	@echo "  distclean       distclean"
 	@echo ""
 	@echo "Documentation:"
 	@echo "  docs            build both man and html user documentation"
@@ -42,7 +40,7 @@ help: .FORCE
 	@echo "  shellcheck      check the shell scripts for errors"
 	@echo "  test            run all of the following test targets:"
 	@echo "  unittest        run unit tests"
-	@echo "  unittest-remote ?"
+	@echo "  unittest-remote "
 	@echo ""
 
 
@@ -50,7 +48,7 @@ help: .FORCE
 # docs
 #
 
-DOCS_SRC_DIR=./docs/src
+DOCS_SRC_DIR=docs/src
 
 docs: man html
 
@@ -72,7 +70,7 @@ lint: pep8 shellcheck
 test: unittest unittest-remote
 
 pycodestyle pep8: .FORCE
-	pycodestyle ./cdist ./bin
+	pycodestyle bin/ skonfig/ cdist/
 
 
 SHELLCHECKCMD = shellcheck -s sh -f gcc -x
@@ -98,9 +96,6 @@ clean: docs-clean .FORCE
 
 # distutils
 	rm -rf ./build ./.eggs ./dist
-
-# Signed releases
-	rm -f cdist-*.tar.gz cdist-*.tar.gz.asc
 
 # Temporary files
 	rm -f ./*.tmp ./.*.tmp

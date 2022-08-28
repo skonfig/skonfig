@@ -41,9 +41,8 @@ def get_configuration(cdist_arguments):
     if cdist_arguments.verbose:
         skonfig_configuration["verbosity"] = cdist_arguments.verbose
     for option in skonfig_configuration:
-        cdist_configuration_init.config["GLOBAL"][option] = skonfig_configuration[
-            option
-        ]
+        cdist_configuration_init.config["GLOBAL"][option] = \
+            skonfig_configuration[option]
     cdist_configuration_args = cdist_configuration_init.get_args()
     cdist.argparse.handle_loglevel(cdist_configuration_args)
     cdist.argparse.handle_log_colors(cdist_configuration_args)
@@ -74,7 +73,7 @@ def run_config(skonfig_arguments):
         cdist_arguments,
         parallel=False,
         configuration=cdist_configuration,
-        remove_remote_files_dirs=True if skonfig_arguments.verbose < 2 else False,
+        remove_remote_files_dirs=(skonfig_arguments.verbose < 2),
     )
     shutil.rmtree(base_root_path)
 
