@@ -1,7 +1,5 @@
 import os
 
-import skonfig
-
 
 def run(host):
     dumps = _get_dumps()
@@ -9,11 +7,13 @@ def run(host):
         _print_dumped_hosts(dumps)
     elif host in dumps:
         _print_dump(dumps[host])
+    return True
 
 
 def _get_dumps():
     dumps = {}
-    dumps_directory = "{}/dump".format(skonfig.SKONFIG_CONFIGURATION_DIRECTORY)
+    from skonfig.configuration import CONFIGURATION_DIRECTORY
+    dumps_directory = "{}/dump".format(CONFIGURATION_DIRECTORY)
     if not os.path.isdir(dumps_directory):
         return dumps
     for dump_basename in os.listdir(dumps_directory):
