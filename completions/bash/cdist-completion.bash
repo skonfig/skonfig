@@ -21,32 +21,32 @@ _cdist()
          inventory)
             case "${prev}" in
                 list)
-                    opts="-h --help -q --quiet -v --verbose -b --beta \
-                        -I --invento/y -a --all -f --file -H --host-only \
+                    opts="-h --help -q --quiet -v --verbose \
+                        -I --inventory -a --all -f --file -H --host-only \
                         -t --tag"
                     COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                     return 0
                     ;;
                 add-host)
-                    opts="-h --help -q --quiet -v --verbose -b --beta \
+                    opts="-h --help -q --quiet -v --verbose \
                         -I --inventory -f --file"
                     COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                     return 0
                     ;;
                 del-host)
-                    opts="-h --help -q --quiet -v --verbose -b --beta \
+                    opts="-h --help -q --quiet -v --verbose \
                         -I --inventory -a --all -f --file"
                     COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                     return 0
                     ;;
                 add-tag)
-                    opts="-h --help -q --quiet -v --verbose -b --beta \
+                    opts="-h --help -q --quiet -v --verbose \
                         -I --inventory -f --file -T --tag-file -t --taglist"
                     COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                     return 0
                     ;;
                 del-tag)
-                    opts="-h --help -q --quiet -v --verbose -b --beta \
+                    opts="-h --help -q --quiet -v --verbose \
                         -I --inventory -a --all -f --file -T --tag-file -t --taglist"
                     COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                     return 0
@@ -71,7 +71,7 @@ _cdist()
             return 0
             ;;
         config|install)
-            opts="-h --help -q --quiet -v --verbose -b --beta \
+            opts="-h --help -q --quiet -v --verbose \
                 -I --inventory -C --cache-path-pattern -c --conf-dir \
                 -f --file -i --initial-manifest -A --all-tagged \
                 -j --jobs -n --dry-run -o --out-dir -p --parallel \
@@ -90,7 +90,7 @@ _cdist()
             ;;
     esac
 
-    if [[ ${cur} == -* ]]; then 
+    if [[ ${cur} == -* ]]; then
     	COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
     	return 0
     fi

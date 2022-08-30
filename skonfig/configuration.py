@@ -10,7 +10,6 @@ CONFIGURATION_FILE_PATH = CONFIGURATION_DIRECTORY + "/config"
 
 
 def _set_defaults(configuration):
-    configuration["beta"] = True
     configuration["cache_path_pattern"] = "%N"
     defaults = {
         "archiving": "tar",

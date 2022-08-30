@@ -65,29 +65,6 @@ class UnresolvableRequirementsError(cdist.Error):
     pass
 
 
-class CdistBetaRequired(cdist.Error):
-    """Beta functionality is used but beta is not enabled"""
-
-    def __init__(self, command, arg=None):
-        self.command = command
-        self.arg = arg
-
-    def __str__(self):
-        if self.arg is None:
-            err_msg = ("\'{}\' command is beta, but beta is "
-                       "not enabled. If you want to use it please enable beta "
-                       "functionalities by using the -b/--beta command "
-                       "line flag or setting CDIST_BETA env var.")
-            fmt_args = [self.command, ]
-        else:
-            err_msg = ("\'{}\' argument of \'{}\' command is beta, but beta "
-                       "is not enabled. If you want to use it please enable "
-                       "beta functionalities by using the -b/--beta "
-                       "command line flag or setting CDIST_BETA env var.")
-            fmt_args = [self.arg, self.command, ]
-        return err_msg.format(*fmt_args)
-
-
 class CdistEntityError(Error):
     """Something went wrong while executing cdist entity"""
     def __init__(self, entity_name, entity_params, stdout_paths,

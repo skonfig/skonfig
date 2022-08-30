@@ -11,12 +11,6 @@ import cdist.info
 import cdist.scan.commandline
 
 
-# set of beta sub-commands
-BETA_COMMANDS = set(('install', 'inventory', 'scan', ))
-# set of beta arguments for sub-commands
-BETA_ARGS = {
-    'config': set(('tag', 'all_tagged_hosts', 'use_archiving', )),
-}
 # Parser others can reuse
 parser = None
 
@@ -46,35 +40,6 @@ for level in _verbosity_level:
 # All verbosity levels above 4 are TRACE.
 _verbosity_level = collections.defaultdict(
     lambda: logging.TRACE, _verbosity_level)
-
-
-def add_beta_command(cmd):
-    BETA_COMMANDS.add(cmd)
-
-
-def add_beta_arg(cmd, arg):
-    if cmd in BETA_ARGS:
-        if arg not in BETA_ARGS[cmd]:
-            BETA_ARGS[cmd].append(arg)
-    else:
-        BETA_ARGS[cmd] = set((arg, ))
-
-
-def check_beta(args_dict):
-    if 'beta' not in args_dict:
-        args_dict['beta'] = False
-    # Check only if beta is not enabled: if beta option is specified then
-    # raise error.
-    if not args_dict['beta']:
-        cmd = args_dict['command']
-        # first check if command is beta
-        if cmd in BETA_COMMANDS:
-            raise cdist.CdistBetaRequired(cmd)
-        # then check if some command's argument is beta
-        if cmd in BETA_ARGS:
-            for arg in BETA_ARGS[cmd]:
-                if arg in args_dict and args_dict[arg]:
-                    raise cdist.CdistBetaRequired(cmd, arg)
 
 
 def check_lower_bounded_int(value, lower_bound, name):
@@ -133,12 +98,6 @@ def get_parsers():
                  "WHEN is 'always', 'never', or 'auto'.",
             action='store', dest='colored_output', required=False,
             choices=cdist.configuration.ColoredOutputOption.CHOICES)
-
-    parser['beta'] = argparse.ArgumentParser(add_help=False)
-    parser['beta'].add_argument(
-           '-b', '--beta',
-           help=('Enable beta functionality. '),
-           action='store_true', dest='beta', default=None)
 
     # Main subcommand parser
     parser['main'] = argparse.ArgumentParser(
@@ -230,8 +189,7 @@ def get_parsers():
            help=('Operate by using archiving with compression where '
                  'appropriate. Supported values are: tar - tar archive, '
                  'tgz - gzip tar archive (the default), '
-                 'tbz2 - bzip2 tar archive and txz - lzma tar archive. '
-                 'Currently in beta.'),
+                 'tbz2 - bzip2 tar archive and txz - lzma tar archive. '),
            action='store', dest='use_archiving',
            const='tgz')
 
@@ -262,7 +220,7 @@ def get_parsers():
     parser['config_args'] = argparse.ArgumentParser(add_help=False)
     parser['config_args'].add_argument(
              '-A', '--all-tagged',
-             help=('Use all hosts present in tags db. Currently in beta.'),
+             help=('Use all hosts present in tags DB.'),
              action="store_true", dest="all_tagged_hosts", default=False)
     parser['config_args'].add_argument(
              '-a', '--all',
@@ -291,13 +249,12 @@ def get_parsers():
     parser['config_args'].add_argument(
              '-t', '--tag',
              help=('Host is specified by tag, not hostname/address; '
-                   'list all hosts that contain any of specified tags. '
-                   'Currently in beta.'),
+                   'list all hosts that contain any of specified tags.'),
              dest='tag', required=False, action="store_true", default=False)
     parser['config_args'].add_argument(
             'host', nargs='*', help='Host(s) to operate on.')
     parser['config'] = parser['sub'].add_parser(
-            'config', parents=[parser['loglevel'], parser['beta'],
+            'config', parents=[parser['loglevel'],
                                parser['colored_output'],
                                parser['common'],
                                parser['config_main'],
@@ -316,7 +273,7 @@ def get_parsers():
             title="Inventory commands", dest="subcommand")
 
     parser['add-host'] = parser['invsub'].add_parser(
-            'add-host', parents=[parser['loglevel'], parser['beta'],
+            'add-host', parents=[parser['loglevel'],
                                  parser['colored_output'],
                                  parser['common'],
                                  parser['inventory_common']])
@@ -329,7 +286,7 @@ def get_parsers():
            dest='hostfile', required=False)
 
     parser['add-tag'] = parser['invsub'].add_parser(
-            'add-tag', parents=[parser['loglevel'], parser['beta'],
+            'add-tag', parents=[parser['loglevel'],
                                 parser['colored_output'],
                                 parser['common'],
                                 parser['inventory_common']])
@@ -353,7 +310,7 @@ def get_parsers():
            dest="taglist", required=False)
 
     parser['del-host'] = parser['invsub'].add_parser(
-            'del-host', parents=[parser['loglevel'], parser['beta'],
+            'del-host', parents=[parser['loglevel'],
                                  parser['colored_output'],
                                  parser['common'],
                                  parser['inventory_common']])
@@ -369,7 +326,7 @@ def get_parsers():
             dest='hostfile', required=False)
 
     parser['del-tag'] = parser['invsub'].add_parser(
-            'del-tag', parents=[parser['loglevel'], parser['beta'],
+            'del-tag', parents=[parser['loglevel'],
                                 parser['colored_output'],
                                 parser['common'],
                                 parser['inventory_common']])
@@ -398,7 +355,7 @@ def get_parsers():
             dest="taglist", required=False)
 
     parser['list'] = parser['invsub'].add_parser(
-            'list', parents=[parser['loglevel'], parser['beta'],
+            'list', parents=[parser['loglevel'],
                              parser['colored_output'],
                              parser['common'],
                              parser['inventory_common']])
@@ -476,7 +433,6 @@ def get_parsers():
 
     parser['scan'] = parser['sub'].add_parser(
             'scan', parents=[parser['loglevel'],
-                             parser['beta'],
                              parser['colored_output'],
                              parser['common'],
                              parser['config_main']])
@@ -545,7 +501,5 @@ def parse_and_configure(argv, singleton=True):
     log.trace('command line args: %s', cfg.command_line_args)
     log.trace('configuration: %s', cfg.get_config())
     log.trace('configured args: %s', args)
-
-    check_beta(vars(args))
 
     return parser, cfg

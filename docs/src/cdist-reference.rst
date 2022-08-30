@@ -292,9 +292,6 @@ CDIST_REMOTE_COPY
 CDIST_INVENTORY_DIR
     Use this directory as inventory directory.
 
-CDIST_BETA
-    Enable beta functionalities.
-
 CDIST_COLORED_OUTPUT
     Colorize cdist's output. If enabled, cdist will use different colors for
     different log levels.

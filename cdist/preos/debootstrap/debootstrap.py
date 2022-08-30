@@ -62,7 +62,7 @@ class Debian:
         cdist_parser = cdist.argparse.get_parsers()
         parser = argparse.ArgumentParser(
                 prog='cdist preos {}'.format(cls._preos_name),
-                parents=[cdist_parser['loglevel'], cdist_parser['beta']])
+                parents=[cdist_parser['loglevel']])
         parser.add_argument('target_dir', nargs=1,
                             help=("target directory where PreOS will be "
                                   "bootstrapped"))
@@ -150,7 +150,6 @@ class Debian:
                               "mirror option")
 
         args.command = cls._preos_name
-        cdist.argparse.check_beta(vars(args))
 
         cdist.preos.check_root()
 

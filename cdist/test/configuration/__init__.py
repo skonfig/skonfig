@@ -150,7 +150,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         # Create test config file.
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'off',
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'inventory_dir': '',
@@ -182,7 +181,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         self.expected_config_dict = {
             'GLOBAL': {
-                'beta': False,
                 'local_shell': '/bin/sh',
                 'remote_shell': '/bin/sh',
                 'inventory_dir': None,
@@ -283,26 +281,21 @@ class ConfigurationTestCase(test.CdistTestCase):
         config = cc.Configuration(None, env={}, config_files=())
         env = {
             'a': 'a',
-            'CDIST_BETA': '1',
             'CDIST_PATH': '/usr/local/cdist:~/.cdist',
         }
         expected = {
-            'beta': True,
             'conf_dir': ['/usr/local/cdist', '~/.cdist', ],
         }
         section = 'GLOBAL'
         d = config._read_env_var_config(env, section)
         self.assertEqual(d, expected)
 
-        del env['CDIST_BETA']
-        del expected['beta']
         d = config._read_env_var_config(env, section)
         self.assertEqual(d, expected)
 
     def test_read_args_config(self):
         config = cc.Configuration(None, env={}, config_files=())
         args = argparse.Namespace()
-        args.beta = False
         args.conf_dir = ['/usr/local/cdist1', ]
         args.verbose = 3
         args.tag = 'test'
@@ -310,7 +303,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         expected = {
             'conf_dir': ['/usr/local/cdist1', ],
             'verbosity': 3,
-            'beta': False,
         }
         args_dict = vars(args)
         d = config._read_args_config(args_dict)
@@ -418,7 +410,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'off',
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'inventory_dir': '',
@@ -441,7 +432,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         expected_config_dict = {
             'GLOBAL': {
-                'beta': False,
                 'local_shell': '/bin/sh',
                 'remote_shell': '/bin/sh',
                 'inventory_dir': None,
@@ -477,7 +467,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'off',
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'inventory_dir': '',
@@ -500,7 +489,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'on',
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
             'inventory_dir': '/var/db/cdist/inventory',
@@ -517,7 +505,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         expected_config_dict = {
             'GLOBAL': {
-                'beta': True,
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'inventory_dir': '/var/db/cdist/inventory',
@@ -551,7 +538,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'CDIST_PATH': '/opt/cdist/conf:/usr/local/share/cdist/conf',
             'REMOTE_COPY': 'scp',
             'REMOTE_EXEC': 'ssh',
-            'CDIST_BETA': '1',
             'CDIST_LOCAL_SHELL': '/usr/bin/sh',
             'CDIST_REMOTE_SHELL': '/usr/bin/sh',
         }
@@ -559,7 +545,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'off',
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'inventory_dir': '',
@@ -583,7 +568,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         expected_config_dict = {
             'GLOBAL': {
-                'beta': True,
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'inventory_dir': None,
@@ -621,7 +605,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'CDIST_PATH': '/opt/cdist/conf:/usr/local/share/cdist/conf',
             'REMOTE_COPY': 'scp',
             'REMOTE_EXEC': 'ssh',
-            'CDIST_BETA': '1',
             'CDIST_LOCAL_SHELL': '/usr/bin/sh',
             'CDIST_REMOTE_SHELL': '/usr/bin/sh',
         }
@@ -629,7 +612,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'off',
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'inventory_dir': '',
@@ -653,7 +635,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'on',
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
             'inventory_dir': '/var/db/cdist/inventory',
@@ -671,7 +652,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         expected_config_dict = {
             'GLOBAL': {
-                'beta': True,
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'inventory_dir': '/var/db/cdist/inventory',
@@ -724,7 +704,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'CDIST_PATH': '/opt/cdist/conf:/usr/local/share/cdist/conf',
             'REMOTE_COPY': 'scp',
             'REMOTE_EXEC': 'ssh',
-            'CDIST_BETA': '1',
             'CDIST_LOCAL_SHELL': '/usr/bin/sh',
             'CDIST_REMOTE_SHELL': '/usr/bin/sh',
         }
@@ -732,7 +711,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'off',
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'inventory_dir': '',
@@ -755,7 +733,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'on',
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
             'inventory_dir': '/var/db/cdist/inventory',
@@ -778,7 +755,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         expected_config_dict = {
             'GLOBAL': {
-                'beta': True,
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'inventory_dir': '/opt/sysadmin/cdist/inventory',
@@ -816,7 +792,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'CDIST_PATH': '/opt/cdist/conf:/usr/local/share/cdist/conf',
             'REMOTE_COPY': 'scp',
             'REMOTE_EXEC': 'ssh',
-            'CDIST_BETA': '1',
             'CDIST_LOCAL_SHELL': '/usr/bin/sh',
             'CDIST_REMOTE_SHELL': '/usr/bin/sh',
         }
@@ -824,7 +799,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'off',
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'inventory_dir': '',
@@ -847,7 +821,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'on',
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
             'inventory_dir': '/var/db/cdist/inventory',
@@ -877,7 +850,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         expected_config_dict = {
             'GLOBAL': {
-                'beta': True,
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'inventory_dir': '/var/db/cdist/inventory',
@@ -916,7 +888,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'CDIST_PATH': '/opt/cdist/conf:/usr/local/share/cdist/conf',
             'REMOTE_COPY': 'scp',
             'REMOTE_EXEC': 'ssh',
-            'CDIST_BETA': '1',
             'CDIST_LOCAL_SHELL': '/usr/bin/sh',
             'CDIST_REMOTE_SHELL': '/usr/bin/sh',
         }
@@ -924,7 +895,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'off',
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'inventory_dir': '',
@@ -947,7 +917,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'on',
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
             'inventory_dir': '/var/db/cdist/inventory',
@@ -977,7 +946,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         expected_config_dict = {
             'GLOBAL': {
-                'beta': True,
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'inventory_dir': '/var/db/cdist/inventory',
@@ -1016,7 +984,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'CDIST_PATH': '/opt/cdist/conf:/usr/local/share/cdist/conf',
             'REMOTE_COPY': 'scp',
             'REMOTE_EXEC': 'ssh',
-            'CDIST_BETA': '1',
             'CDIST_LOCAL_SHELL': '/usr/bin/sh',
             'CDIST_REMOTE_SHELL': '/usr/bin/sh',
         }
@@ -1024,7 +991,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'off',
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'inventory_dir': '',
@@ -1047,7 +1013,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         config = newConfigParser()
         config['GLOBAL'] = {
-            'beta': 'on',
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
             'inventory_dir': '/var/db/cdist/inventory',
@@ -1077,7 +1042,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         expected_config_dict = {
             'GLOBAL': {
-                'beta': True,
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'inventory_dir': '/var/db/cdist/inventory',
@@ -1112,7 +1076,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         args = configuration.get_args()
         dargs = vars(args)
         expected_args = {
-            'beta': True,
             'inventory_dir': '/var/db/cdist/inventory',
             'cache_path_pattern': None,
             'colored_output': colored_output_default,
