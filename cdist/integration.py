@@ -23,13 +23,11 @@ import cdist
 # needed for cdist.argparse
 import cdist.banner
 import cdist.config
-import cdist.install
 import cdist.shell
 import cdist.inventory
 import cdist.argparse
 import cdist.log
 import cdist.config
-import cdist.install
 import sys
 import os
 import os.path
@@ -142,12 +140,5 @@ def configure_hosts_simple(host, manifest,
 def install_hosts_simple(host, manifest,
                          verbose=cdist.argparse.VERBOSE_INFO,
                          cdist_path=None):
-    """Install hosts with specified manifest using default other cdist
-       options. host parameter can be a string or iterbale of hosts. verbose
-       is a desired verbosity level which defaults to VERBOSE_INFO.
-       cdist_path is path to cdist executable, if it is None then integration
-       lib tries to find it.
-    """
-    _process_hosts_simple(action=ACTION_INSTALL, host=host,
-                          manifest=manifest, verbose=verbose,
-                          cdist_path=cdist_path)
+    """Installing hosts is not supported by skonfig."""
+    raise cdist.Error('The install command is not supported by skonfig.')

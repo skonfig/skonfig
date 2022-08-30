@@ -60,8 +60,10 @@ with config command.
 
 Install types
 -------------
-If a type is flagged with 'install' flag then it is used only with install command.
+If a type is flagged with 'install' flag then it is used only with the :strong:`cdist`\ (1) install command.
 With other commands, i.e. config, these types are skipped if used.
+
+Install types are not supported by skonfig.
 
 
 Nonparallel types
@@ -354,18 +356,6 @@ This will also change the way your type must be called:
 
 As you can see, the object ID is omitted, because it does not make any sense,
 if your type can be used only once.
-
-
-Install - type with install command
------------------------------------
-If you want a type to be used with install command, you must mark it as
-install: create the (empty) file "install" in your type directory:
-
-.. code-block:: sh
-
-    touch cdist/conf/type/__install_NAME/install
-
-With other commands, i.e. config, it will be skipped if used.
 
 
 Nonparallel - only one instance can be run at a time
