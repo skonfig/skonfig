@@ -72,7 +72,7 @@ class Remote:
         if base_path:
             self.base_path = base_path
         else:
-            self.base_path = "/var/tmp/skonfig"
+            self.base_path = "/var/lib/skonfig"
         self.quiet_mode = quiet_mode
         self.archiving_mode = archiving_mode
         if configuration:
