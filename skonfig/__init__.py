@@ -17,6 +17,9 @@ def run():
         from skonfig import __version__
         print("skonfig", __version__)
         return True
+    from skonfig.configuration import bootstrap
+    if not bootstrap():
+        return False
     if not arguments.host and not arguments.dump:
         parser.print_help()
         return True

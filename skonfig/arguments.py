@@ -41,8 +41,9 @@ def get():
     )
     parser.add_argument("host", nargs="?", help="host to configure")
     arguments = parser.parse_args()
-    if arguments.verbose >= 2:
-        logging.basicConfig(level=logging.DEBUG)
+    if arguments.verbose > 3:
+        arguments.verbose = 3
+    logging.basicConfig(level=[20, 15, 10, 5][arguments.verbose])
     for argument, value in vars(arguments).items():
         _logger.debug("%s: %s", argument, value)
     return parser, arguments
