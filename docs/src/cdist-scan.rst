@@ -8,9 +8,6 @@ periodically. It is especially useful in netboot-based environment where hosts
 boot unconfigured, and to ensure your infrastructure stays in sync with your
 configuration.
 
-This feature is still consider to be in **beta** stage, and only operate on
-IPv6 (including link-local).
-
 Usage (Examples)
 ----------------
 
@@ -19,7 +16,7 @@ the name mapper script.
 
 .. code-block:: sh
 
-    $ cdist scan --beta --interface eth0 \
+    $ cdist scan --interface eth0 \
       --mode scan --name-mapper path/to/script \
       --mode trigger --mode config
 
@@ -27,7 +24,7 @@ List known hosts and exit.
 
 .. code-block:: sh
 
-    $ cdist scan --beta --list --name-mapper path/to/script
+    $ cdist scan --list --name-mapper path/to/script
 
 Please refer to `cdist(1)` for a detailed list of parameters.
 

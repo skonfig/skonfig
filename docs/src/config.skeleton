@@ -4,11 +4,6 @@
 #     none, tar, tgz, tbz2 and txz.
 # archiving = tar
 #
-# beta
-#     Enable beta functionality. It recognizes boolean values from
-#     yes/no, on/off, true/false and 1/0
-# beta = no
-#
 # cache_path_pattern
 #     Specify cache path pattern.
 # cache_path_pattern = %h

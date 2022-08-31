@@ -36,29 +36,29 @@ _cdist()
                     esac
                     ;;
                 config)
-                    opts=(-h --help -q --quiet -v --verbose -a --all -b --beta -C --cache-path-pattern -c --conf-dir -f --file -i --initial-manifest -j --jobs -n --dry-run -o --out-dir -p --parallel -r --remote-out-dir -s --sequential --remote-copy --remote-exec -t --tag -I --inventory -A --all-tagged)
+                    opts=(-h --help -q --quiet -v --verbose -a --all -C --cache-path-pattern -c --conf-dir -f --file -i --initial-manifest -j --jobs -n --dry-run -o --out-dir -p --parallel -r --remote-out-dir -s --sequential --remote-copy --remote-exec -t --tag -I --inventory -A --all-tagged)
                     compadd "$@" -- $opts
                     ;;
                 inventory)
                     case $words[3] in
                         list)
-                            opts=(-h --help -q --quiet -v --verbose -b --beta -I --inventory -a --all -f --file -H --host-only -t --tag)
+                            opts=(-h --help -q --quiet -v --verbose -I --inventory -a --all -f --file -H --host-only -t --tag)
                             compadd "$@" -- $opts
                             ;;
                         add-host)
-                            opts=(-h --help -q --quiet -v --verbose -b --beta -I --inventory -f --file)
+                            opts=(-h --help -q --quiet -v --verbose -I --inventory -f --file)
                             compadd "$@" -- $opts
                             ;;
                         del-host)
-                            opts=(-h --help -q --quiet -v --verbose -b --beta -I --inventory -a --all -f --file)
+                            opts=(-h --help -q --quiet -v --verbose -I --inventory -a --all -f --file)
                             compadd "$@" -- $opts
                             ;;
                         add-tag)
-                            opts=(-h --help -q --quiet -v --verbose -b --beta -I --inventory -f --file -T --tag-file -t --taglist)
+                            opts=(-h --help -q --quiet -v --verbose -I --inventory -f --file -T --tag-file -t --taglist)
                             compadd "$@" -- $opts
                             ;;
                         del-tag)
-                            opts=(-h --help -q --quiet -v --verbose -b --beta -I --inventory -a --all -f --file -T --tag-file -t --taglist)
+                            opts=(-h --help -q --quiet -v --verbose -I --inventory -a --all -f --file -T --tag-file -t --taglist)
                             compadd "$@" -- $opts
                             ;;
                         *)

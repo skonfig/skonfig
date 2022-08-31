@@ -165,7 +165,7 @@ All commands accept the following options:
    Operate by using archiving with compression where
    appropriate. Supported values are: tar - tar archive,
    tgz - gzip tar archive (the default), tbz2 - bzip2 tar
-   archive and txz - lzma tar archive. Currently in beta.
+   archive and txz - lzma tar archive.
 
 ``-r REMOTE_OUT_PATH``, ``--remote-out-dir REMOTE_OUT_PATH``
    Directory to save cdist output in on the target host.
@@ -185,7 +185,6 @@ All commands accept the following options:
 ``-t``, ``--tag``
    Host is specified by tag, not hostname/address; list
    all hosts that contain any of specified tags.
-   Currently in beta.
 
 HOSTFILE FORMAT
 ---------------
@@ -221,7 +220,6 @@ current host cache data are saved.
 INVENTORY
 =========
 Manage inventory database.
-Currently in beta with all sub-commands.
 
 
 INVENTORY ADD-HOST
@@ -230,9 +228,6 @@ Add host(s) to inventory database.
 
 ``host``
    Host(s) to add.
-
-``-b``, ``--beta``
-   Enable beta functionality.
 
 ``-f HOSTFILE``, ``--file HOSTFILE``
    Read additional hosts to add from specified file or
@@ -257,9 +252,6 @@ Add tag(s) to inventory database.
 
 ``host``
    List of host(s) for which tags are added.
-
-``-b``, ``--beta``
-   Enable beta functionality.
 
 ``-f HOSTFILE``, ``--file HOSTFILE``
    Read additional hosts to add tags from specified file
@@ -297,9 +289,6 @@ Delete host(s) from inventory database.
 ``-a``, ``--all``
    Delete all hosts.
 
-``-b``, ``--beta``
-   Enable beta functionality.
-
 ``-f HOSTFILE``, ``--file HOSTFILE``
    Read additional hosts to delete from specified file or
    from stdin if '-' (each host on separate line).
@@ -326,9 +315,6 @@ Delete tag(s) from inventory database.
 
 ``-a``, ``--all``
    Delete all tags for specified host(s).
-
-``-b``, ``--beta``
-   Enable beta functionality.
 
 ``-f HOSTFILE``, ``--file HOSTFILE``
    Read additional hosts to delete tags for from
@@ -367,9 +353,6 @@ List inventory database.
 ``-a``, ``--all``
    List hosts that have all specified tags, if -t/--tag
    is specified.
-
-``-b``, ``--beta``
-   Enable beta functionality.
 
 ``-f HOSTFILE``, ``--file HOSTFILE``
    Read additional hosts to list from specified file or
@@ -488,10 +471,6 @@ The possible keywords and their meanings are as follows:
 :strong:`archiving`
    Use specified archiving. Valid values include:
    'none', 'tar', 'tgz', 'tbz2' and 'txz'.
-
-:strong:`beta`
-   Enable beta functionality. It recognizes boolean values from
-   'yes'/'no', 'on'/'off', 'true'/'false' and '1'/'0'.
 
 :strong:`cache_path_pattern`
    Specify cache path pattern.
@@ -650,9 +629,6 @@ ENVIRONMENT
 
 ``CDIST_INVENTORY_DIR``
    Use this directory as inventory directory.
-
-``CDIST_BETA``
-   Enable beta functionality.
 
 ``CDIST_CACHE_PATH_PATTERN``
    Custom cache path pattern.
