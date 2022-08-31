@@ -56,7 +56,7 @@ def __guess_git_version():
         except Exception:
             pass
 
-    return "unknown version"
+    return "0+unknown"
 
 
 VERSION = __guess_git_version()

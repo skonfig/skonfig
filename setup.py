@@ -215,7 +215,7 @@ for dirname, _, files in os.walk(
 
 setup(
     name="skonfig",
-    packages=["skonfig", "cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
+    packages=["skonfig", "skonfig.cdist", "cdist", "cdist.core", "cdist.exec", "cdist.scan", "cdist.util"],
     scripts=glob.glob(os.path.join(os.path.dirname(__file__), "bin", "*")),
     version=__import__("skonfig").__version__,
     description="system configuration framework",
