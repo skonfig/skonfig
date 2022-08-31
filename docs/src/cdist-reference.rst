@@ -2,11 +2,9 @@ Reference
 =========
 Variable, path and type reference for cdist
 
-cat << eof
-
 Paths
 -----
-\$HOME/.cdist
+$HOME/.cdist
     The standard cdist configuration directory relative to your home directory.
     This is usually the place you want to store your site specific configuration.
 
@@ -14,14 +12,11 @@ cdist/inventory/
     The distribution inventory directory.
     This path is relative to cdist installation directory.
 
-cdist/preos/
-    The distribution PreOS plugins directory.
-
 confdir
     Cdist will use all available configuration directories and create
     a temporary confdir containing links to the real configuration directories.
     This way it is possible to merge configuration directories.
-    By default it consists of everything in \$HOME/.cdist and cdist/conf/.
+    By default it consists of everything in $HOME/.cdist and cdist/conf/.
     For more details see cdist(1).
 
 confdir/files/
@@ -42,11 +37,11 @@ confdir/manifest/*
     maintain different groups of hosts.
 
 confdir/explorer/<name>
-    Contains explorers to be run on the target hosts, see \`cdist explorer <cdist-explorer.html>\`_.
+    Contains explorers to be run on the target hosts, see `cdist explorer <cdist-explorer.html>`_.
 
 confdir/type/
     Contains all available types, which are used to provide
-    some kind of functionality. See \`cdist type <cdist-type.html>\`_.
+    some kind of functionality. See `cdist type <cdist-type.html>`_.
 
 confdir/type/<name>/
     Home of the type <name>.
@@ -81,7 +76,7 @@ confdir/type/<name>/parameter/boolean
 confdir/type/<name>/explorer
     Location of the type specific explorers.
     This directory is referenced by the variable __type_explorer (see below).
-    See \`cdist explorer <cdist-explorer.html>\`_.
+    See `cdist explorer <cdist-explorer.html>`_.
 
 confdir/type/<name>/files
     This directory is reserved for user data and will not be used
@@ -239,7 +234,7 @@ Environment variables (for writing)
 The following environment variables influence the behaviour of cdist:
 
 require
-    Setup dependencies between objects (see \`cdist manifest <cdist-manifest.html>\`_).
+    Setup dependencies between objects (see `cdist manifest <cdist-manifest.html>`_).
 
 __cdist_log_level
     cdist log level value. One of:
@@ -277,10 +272,10 @@ CDIST_REMOTE_SHELL
     Use this shell remotely instead of /bin/sh to execute scripts.
 
 CDIST_OVERRIDE
-    Allow overwriting type parameters (see  \`cdist manifest <cdist-manifest.html>\`_).
+    Allow overwriting type parameters (see `cdist manifest <cdist-manifest.html>`_).
 
 CDIST_ORDER_DEPENDENCY
-    Create dependencies based on the execution order (see  \`cdist manifest <cdist-manifest.html>\`_).
+    Create dependencies based on the execution order (see  `cdist manifest <cdist-manifest.html>`_).
     Note that in version 6.2.0 semantic of this processing mode is finally fixed and well defined.
 
 CDIST_REMOTE_EXEC

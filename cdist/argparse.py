@@ -6,7 +6,6 @@ import collections
 import functools
 import cdist.configuration
 import cdist.log
-import cdist.preos
 import cdist.info
 import cdist.scan.commandline
 
@@ -170,8 +169,7 @@ def get_parsers():
            action='store_true',
            help=('Start a log server for sub processes to use. '
                  'This is mainly useful when running cdist nested '
-                 'from a code-local script. Log server is alwasy '
-                 'implicitly started for \'install\' command.'))
+                 'from a code-local script.'))
     parser['config_main'].add_argument(
            '-n', '--dry-run',
            help='Do not execute code.', action='store_true')
@@ -261,11 +259,6 @@ def get_parsers():
                                parser['inventory_common'],
                                parser['config_args']])
     parser['config'].set_defaults(func=cdist.config.Config.commandline)
-
-    # Install
-    parser['install'] = parser['sub'].add_parser('install', add_help=False,
-                                                 parents=[parser['config']])
-    parser['install'].set_defaults(func=cdist.install.Install.commandline)
 
     # Inventory
     parser['inventory'] = parser['sub'].add_parser('inventory')
@@ -383,9 +376,6 @@ def get_parsers():
 
     parser['inventory'].set_defaults(
             func=cdist.inventory.Inventory.commandline)
-
-    # PreOS
-    parser['preos'] = parser['sub'].add_parser('preos', add_help=False)
 
     # Shell
     parser['shell'] = parser['sub'].add_parser(

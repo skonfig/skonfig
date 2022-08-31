@@ -6,7 +6,7 @@ _cdist()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     prevprev="${COMP_WORDS[COMP_CWORD-2]}"
     opts="-h --help -q --quiet -v --verbose -V --version"
-    cmds="banner config install inventory preos shell"
+    cmds="banner config inventory shell"
 
     case "${prevprev}" in
         shell)
@@ -70,7 +70,7 @@ _cdist()
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
-        config|install)
+        config)
             opts="-h --help -q --quiet -v --verbose \
                 -I --inventory -C --cache-path-pattern -c --conf-dir \
                 -f --file -i --initial-manifest -A --all-tagged \
