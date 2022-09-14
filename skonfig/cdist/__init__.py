@@ -10,8 +10,12 @@ import cdist.integration
 def run(skonfig_arguments):
     import skonfig.cdist.arguments
     cdist_arguments = skonfig.cdist.arguments.get(skonfig_arguments)
+    if not cdist_arguments:
+        return False
     import skonfig.cdist.configuration
     cdist_configuration = skonfig.cdist.configuration.get(cdist_arguments)
+    if not cdist_configuration:
+        return False
     target_host = cdist_arguments.host[0]
     cdist_config = cdist.config.Config
     cdist_config.construct_remote_exec_copy_patterns(cdist_arguments)

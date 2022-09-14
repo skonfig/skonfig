@@ -1,12 +1,11 @@
 import logging
 import os
-import sys
 
 
 _logger = logging.getLogger(__name__)
 
-CONFIGURATION_DIRECTORY = "{}/.skonfig".format(os.getenv("HOME"))
-CONFIGURATION_FILE_PATH = CONFIGURATION_DIRECTORY + "/config"
+CONFIGURATION_HOME_PATH = os.path.join(os.getenv("HOME"), ".skonfig")
+CONFIGURATION_FILE_PATH = os.path.join(CONFIGURATION_HOME_PATH, "config")
 
 
 def _set_defaults(configuration):
@@ -27,12 +26,17 @@ def _set_conf_dirs(configuration):
     #   ~/.skonfig/config:conf_dirs = ...
     #   ~/.skonfig/
     if "conf_dir" in configuration:
-        configuration["conf_dir"] = configuration["conf_dir"].split(os.pathsep)
+        configuration["conf_dir"] = [
+            conf_dir
+            for conf_dir in configuration["conf_dir"].split(os.pathsep)
+            if os.path.isdir(conf_dir)
+        ]
     else:
         configuration["conf_dir"] = []
-    configuration["conf_dir"].insert(0, CONFIGURATION_DIRECTORY)
+    if os.path.isdir(CONFIGURATION_HOME_PATH):
+        configuration["conf_dir"].insert(0, CONFIGURATION_HOME_PATH)
     # find sets and insert them into PATH
-    sets_dir = os.path.join(CONFIGURATION_DIRECTORY, "set")
+    sets_dir = os.path.join(CONFIGURATION_HOME_PATH, "set")
     if os.path.isdir(sets_dir):
         configuration["conf_dir"] += [
             os.path.join(sets_dir, s) for s in os.listdir(sets_dir)
@@ -50,6 +54,14 @@ def get():
         configuration = {}
     _set_defaults(configuration)
     _set_conf_dirs(configuration)
+    if not configuration["conf_dir"]:
+        # since we expect everything is in ~/.skonfig,
+        # then no conf_dirs implies no conf home
+        _logger.error(
+            "no configuration found, %s does not exist",
+            CONFIGURATION_HOME_PATH
+        )
+        return False
     for option in configuration:
         _logger.debug("%s: %s", option, configuration[option])
     return configuration

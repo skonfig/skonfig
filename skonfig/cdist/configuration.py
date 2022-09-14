@@ -13,6 +13,8 @@ def get(cdist_arguments):
     )
     import skonfig.configuration
     skonfig_configuration = skonfig.configuration.get()
+    if not skonfig_configuration:
+        return False
     if cdist_arguments.verbose:
         skonfig_configuration["verbosity"] = cdist_arguments.verbose
     for option in skonfig_configuration:
