@@ -12,8 +12,8 @@ def run(host):
 
 def _get_dumps():
     dumps = {}
-    from skonfig.configuration import CONFIGURATION_DIRECTORY
-    dumps_directory = "{}/dump".format(CONFIGURATION_DIRECTORY)
+    from skonfig.configuration import CONFIGURATION_HOME_PATH
+    dumps_directory = os.path.join(CONFIGURATION_HOME_PATH, "dump")
     if not os.path.isdir(dumps_directory):
         return dumps
     for dump_basename in os.listdir(dumps_directory):

@@ -6,6 +6,23 @@ import sys
 _logger = logging.getLogger(__name__)
 
 
+def _set_logging_level(argument_level):
+    levels_pre_py34 = getattr(logging, "_levelNames", {})
+    levels_available = getattr(logging, "_levelToName", levels_pre_py34)
+    levels_used = []
+    for level, level_name in levels_available.items():
+        if not isinstance(level, int):
+            continue
+        if level > logging.getLevelName("INFO"):
+            continue
+        if level_name == "NOTSET":
+            continue
+        levels_used.append(level)
+    levels = list(reversed(sorted(levels_used)))
+    level = levels[min(argument_level, len(levels)-1)]
+    logging.basicConfig(level=level)
+
+
 def get():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -41,8 +58,7 @@ def get():
     )
     parser.add_argument("host", nargs="?", help="host to configure")
     arguments = parser.parse_args()
-    if arguments.verbose >= 2:
-        logging.basicConfig(level=logging.DEBUG)
+    _set_logging_level(arguments.verbose)
     for argument, value in vars(arguments).items():
         _logger.debug("%s: %s", argument, value)
     return parser, arguments
