@@ -241,15 +241,3 @@ def str_hash(s):
         return hashlib.md5(s.encode('utf-8')).hexdigest()
     else:
         raise Error("Param should be string")
-
-
-def home_dir():
-    if 'HOME' in os.environ:
-        home = os.environ['HOME']
-        if home:
-            rv = os.path.join(home, ".skonfig")
-        else:
-            rv = None
-    else:
-        rv = None
-    return rv

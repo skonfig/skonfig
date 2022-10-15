@@ -67,16 +67,10 @@ class LocalTestCase(test.CdistTestCase):
             exec_path=test.cdist_exec_path
         )
 
-        self.home_dir = os.path.join(os.environ['HOME'], ".skonfig")
-
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
 
     # test api
-
-    def test_cache_path(self):
-        self.assertEqual(self.local.cache_path,
-                         os.path.join(self.home_dir, "dump"))
 
     def test_conf_path(self):
         self.assertEqual(self.local.conf_path,

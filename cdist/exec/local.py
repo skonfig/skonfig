@@ -158,14 +158,8 @@ class Local:
                        self.object_marker_name, self.object_marker_file)
 
     def _init_cache_dir(self, cache_dir):
-        home_dir = cdist.home_dir()
-        if cache_dir:
-            self.cache_path = cache_dir
-        elif home_dir:
-            self.cache_path = os.path.join(home_dir, "dump")
-        else:
-            raise cdist.Error(
-                "No homedir setup and no cache dir location given")
+        from skonfig.configuration import get_cache_dir
+        self.cache_path = get_cache_dir()
 
     def rmdir(self, path):
         """Remove directory on the local side."""

@@ -186,19 +186,8 @@ else:
                                                    stdfd.read().decode()))
 
 
-def dist_conf_dir():
-    return os.path.abspath(os.path.join(os.path.dirname(cdist.__file__),
-                                        "conf"))
-
-
 def resolve_conf_dirs(configuration, add_conf_dirs):
     conf_dirs = []
-
-    conf_dirs.append(dist_conf_dir())
-
-    home_dir = cdist.home_dir()
-    if home_dir:
-        conf_dirs.append(home_dir)
 
     if 'conf_dir' in configuration:
         x = configuration['conf_dir']
