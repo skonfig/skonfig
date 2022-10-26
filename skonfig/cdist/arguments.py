@@ -9,6 +9,13 @@ def get(skonfig_arguments):
     if skonfig_arguments.manifest:
         cdist_argv.append("-i")
         cdist_argv.append(skonfig_arguments.manifest)
+    # how cdist parses -j flag:
+    # no -j = single job
+    # only -j = use cpu count
+    # -j n = n jobs
+    cdist_argv.append("-j")
+    if skonfig_arguments.jobs:
+        cdist_argv.append(skonfig_arguments.jobs)
     if skonfig_arguments.dry_run:
         cdist_argv.append("-n")
     # skonfig default verbosity level is INFO, which in cdist is one -v,
