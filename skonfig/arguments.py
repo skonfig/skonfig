@@ -44,6 +44,12 @@ def get():
         help="initial manifest or '-' to read from stdin",
     )
     parser.add_argument(
+        "-j",
+        dest="jobs",
+        metavar="jobs",
+        help="maximum number of jobs (defaults to host CPU count)"
+    )
+    parser.add_argument(
         "-n",
         dest="dry_run",
         action="store_true",

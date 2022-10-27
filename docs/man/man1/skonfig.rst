@@ -20,6 +20,7 @@ SYNOPSIS
       -V          print version
       -d          print dumped hosts, -d <host> = print dump
       -i path     initial manifest or '-' to read from stdin
+      -j jobs     maximum number of jobs (defaults to host CPU count)
       -n          dry-run, do not execute generated code
       -v          -v = VERBOSE, -vv = DEBUG, -vvv = TRACE
 
