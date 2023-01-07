@@ -7,7 +7,6 @@ import functools
 import cdist.configuration
 import cdist.log
 import cdist.info
-import cdist.scan.commandline
 
 
 # Parser others can reuse
@@ -416,46 +415,6 @@ def get_parsers():
     parser['info'].add_argument(
             'pattern', nargs='?', help='Glob pattern.')
     parser['info'].set_defaults(func=cdist.info.Info.commandline)
-
-    # Scan = config + further
-    parser['scan'] = parser['sub'].add_parser('scan', add_help=False,
-                                              parents=[parser['config']])
-
-    parser['scan'] = parser['sub'].add_parser(
-            'scan', parents=[parser['loglevel'],
-                             parser['colored_output'],
-                             parser['common'],
-                             parser['config_main']])
-
-    parser['scan'].add_argument(
-        '-m', '--mode', help='Which modes should run',
-        action='append', default=[],
-        choices=['scan', 'trigger', 'config'])
-    parser['scan'].add_argument(
-        '--list',
-        action='store_true',
-        help='List the known hosts and exit')
-    parser['scan'].add_argument(
-        '--config',
-        action='store_true',
-        help='Try to configure detected hosts')
-    parser['scan'].add_argument(
-        '-I', '--interface',
-        action='append',  default=[], required=True,
-        help='On which interfaces to scan/trigger')
-    parser['scan'].add_argument(
-        '--name-mapper',
-        action='store',  default=None,
-        help='Map addresses to names, required for config mode')
-    parser['scan'].add_argument(
-        '-d', '--config-delay',
-        action='store',  default=3600, type=int,
-        help='How long (seconds) to wait before reconfiguring after last try')
-    parser['scan'].add_argument(
-        '-t', '--trigger-delay',
-        action='store',  default=5, type=int,
-        help='How long (seconds) to wait between ICMPv6 echo requests')
-    parser['scan'].set_defaults(func=cdist.scan.commandline.commandline)
 
     return parser
 

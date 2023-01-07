@@ -29,7 +29,6 @@ grade environments.
    cdist-messaging
    cdist-parallelization
    cdist-inventory
-   cdist-scan
    cdist-integration
    cdist-reference
    cdist-best-practice
