@@ -106,11 +106,6 @@ def get_parsers():
     parser['sub'] = parser['main'].add_subparsers(
             title="Commands", dest="command")
 
-    # Banner
-    parser['banner'] = parser['sub'].add_parser(
-            'banner', parents=[parser['loglevel']])
-    parser['banner'].set_defaults(func=cdist.banner.banner)
-
     parser['inventory_common'] = argparse.ArgumentParser(add_help=False)
     parser['inventory_common'].add_argument(
            '-I', '--inventory',

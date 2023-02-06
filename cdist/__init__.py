@@ -30,16 +30,6 @@ import cdist.log
 from skonfig import __version__
 
 
-BANNER = """
- 0 1 1 1 0 0 1 1
- 0 1 1 0 1 0 1 1
- 0 1 1 0 1 1 1 1
- 0 1 1 0 1 1 1 0
- 0 1 1 0 0 1 1 0
- 0 1 1 0 1 0 0 1
- 0 1 1 0 0 1 1 1
-"""
-
 REMOTE_COPY = "scp -o User=root -q"
 REMOTE_EXEC = "ssh -o User=root"
 REMOTE_CMDS_CLEANUP_PATTERN = "ssh -o User=root -O exit -S {}"

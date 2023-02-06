@@ -21,7 +21,6 @@
 
 import cdist
 # needed for cdist.argparse
-import cdist.banner
 import cdist.config
 import cdist.shell
 import cdist.inventory
