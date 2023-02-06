@@ -2,8 +2,6 @@ import logging
 import shutil
 import sys
 
-import cdist.integration
-
 
 _logger = logging.getLogger(__name__)
 

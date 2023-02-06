@@ -4,6 +4,7 @@ import multiprocessing
 import logging
 import collections
 import functools
+import cdist.config
 import cdist.configuration
 import cdist.log
 
