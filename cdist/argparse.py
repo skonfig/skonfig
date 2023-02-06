@@ -371,15 +371,6 @@ def get_parsers():
     parser['inventory'].set_defaults(
             func=cdist.inventory.Inventory.commandline)
 
-    # Shell
-    parser['shell'] = parser['sub'].add_parser(
-            'shell', parents=[parser['loglevel'], parser['colored_output']])
-    parser['shell'].add_argument(
-            '-s', '--shell',
-            help=('Select shell to use, defaults to current shell. Used shell'
-                  ' should be POSIX compatible shell.'))
-    parser['shell'].set_defaults(func=cdist.shell.Shell.commandline)
-
     # Info
     parser['info'] = parser['sub'].add_parser('info')
     parser['info'].add_argument(
