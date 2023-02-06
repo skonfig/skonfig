@@ -368,20 +368,6 @@ class Config:
         log = logging.getLogger(host)
 
         try:
-            if args.log_server:
-                if sys.version_info[:3] < (3, 5):
-                    print(
-                        "Python >= 3.5 is required on the source host to use "
-                        "the log server.", file=sys.stderr)
-                    sys.exit(1)
-
-                # Start a log server so that nested `cdist config` runs
-                # have a place to send their logs to.
-                log_server_socket_dir = tempfile.mkdtemp()
-                cls._register_path_for_removal(log_server_socket_dir)
-                from cdist.log_server import setupLogServer
-                setupLogServer(log_server_socket_dir, log)
-
             remote_exec, remote_copy, cleanup_cmd = cls._resolve_remote_cmds(
                 args)
             log.debug("remote_exec for host \"%s\": %s", host, remote_exec)
