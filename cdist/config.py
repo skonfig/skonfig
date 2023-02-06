@@ -33,7 +33,7 @@ import shutil
 import socket
 
 from cdist.mputil import mp_pool_run, mp_sig_handler
-from cdist import core, inventory
+from cdist import core
 from cdist.util.remoteutil import inspect_ssh_mux_opts
 
 import cdist
@@ -233,21 +233,7 @@ class Config:
         cfg = cdist.configuration.Configuration(args)
         configuration = cfg.get_config(section='GLOBAL')
 
-        if args.tag or args.all_tagged_hosts:
-            inventory.determine_default_inventory_dir(args, configuration)
-            if args.all_tagged_hosts:
-                inv_list = inventory.InventoryList(
-                    hosts=None, istag=True, hostfile=None,
-                    db_basedir=args.inventory_dir)
-            else:
-                inv_list = inventory.InventoryList(
-                    hosts=args.host, istag=True, hostfile=args.hostfile,
-                    db_basedir=args.inventory_dir,
-                    has_all_tags=args.has_all_tags)
-            it = inv_list.entries()
-        else:
-            it = itertools.chain(cls.hosts(args.host),
-                                 cls.hosts(args.hostfile))
+        it = itertools.chain(cls.hosts(args.host), cls.hosts(args.hostfile))
 
         process_args = []
         if args.parallel:
@@ -262,16 +248,7 @@ class Config:
             else:
                 # if configuring by host then check inventory for tags
                 host = entry
-                inventory.determine_default_inventory_dir(args, configuration)
-                inv_list = inventory.InventoryList(
-                    hosts=(host,), db_basedir=args.inventory_dir)
-                inv = tuple(inv_list.entries())
-                if inv:
-                    # host is present in inventory and has tags
-                    host_tags = inv[0][1]
-                else:
-                    # host is not present in inventory or has no tags
-                    host_tags = None
+                host_tags = None
             host_base_path, hostdir = cls.create_host_base_dirs(
                 host, base_root_path)
             log.debug("Base root path for target host \"%s\" is \"%s\"",

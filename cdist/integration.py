@@ -22,7 +22,6 @@
 import cdist
 # needed for cdist.argparse
 import cdist.config
-import cdist.inventory
 import cdist.argparse
 import cdist.log
 import cdist.config
