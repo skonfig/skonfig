@@ -1,0 +1,39 @@
+---
+name: Optional unit tests
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+jobs:
+  unit-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macos-latest"]
+        python-version: ["3.3", "3.4", "3.5", "3.6", "pypy-3.6", "pypy-3.7", "pypy-3.8", "pypy-3.9"]
+        exclude:
+          - os: macos-latest
+            python-version: "3.3"  # not available for macos
+          - os: macos-latest
+            python-version: "3.4"  # not available for macos
+          - os: macos-latest
+            python-version: "pypy-3.6"  # does not install
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Information
+        run: |
+          python3 -V
+          bin/skonfig -V
+      - name: Run unit tests
+        run: |
+          make unittest
