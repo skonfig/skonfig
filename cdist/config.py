@@ -497,8 +497,8 @@ class Config:
             raise cdist.InitialManifestError(self.local.initial_manifest,
                                              stdout_path, stderr_path, e)
         self.iterate_until_finished()
-        self.cleanup()
         self._remove_files_dirs()
+        self.cleanup()
 
         self.local.save_cache(start_time)
         self.log.info("Finished %s run in %.2f seconds",
