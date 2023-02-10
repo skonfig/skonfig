@@ -1,20 +1,17 @@
 ---
-name: unit-tests
-on: [push, pull_request]
+name: Required unit tests
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 jobs:
   unit-tests:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-18.04, macos-latest ]
-        python-version: [ 3.3.7, 3.4.10, 3.5.10, 3.6.15, 3.7.12, 3.8.12, 3.9.9, 3.10.0, pypy-3.6, pypy-3.7 ]
-        exclude:
-          - os: macos-latest
-            python-version: 3.3.7  # not available for macos
-          - os: macos-latest
-            python-version: 3.4.10  # not available for macos
-          - os: macos-latest
-            python-version: pypy-3.6  # does not install
+        os: ["ubuntu-latest", "macos-latest"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository code
