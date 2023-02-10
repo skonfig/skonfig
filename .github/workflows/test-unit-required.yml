@@ -1,8 +1,8 @@
 ---
-name: Optional unit tests
+name: test-unit-required
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches:
       - main
 jobs:
@@ -11,14 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "macos-latest"]
-        python-version: ["3.3", "3.4", "3.5", "3.6", "pypy-3.6", "pypy-3.7", "pypy-3.8", "pypy-3.9"]
-        exclude:
-          - os: macos-latest
-            python-version: "3.3"  # not available for macos
-          - os: macos-latest
-            python-version: "3.4"  # not available for macos
-          - os: macos-latest
-            python-version: "pypy-3.6"  # does not install
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository code

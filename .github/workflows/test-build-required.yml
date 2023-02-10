@@ -1,12 +1,12 @@
 ---
-name: Required unit tests
+name: test-build-required
 on:
   workflow_dispatch:
   pull_request:
     branches:
       - main
 jobs:
-  unit-tests:
+  build:
     strategy:
       fail-fast: false
       matrix:
@@ -26,7 +26,14 @@ jobs:
       - name: Information
         run: |
           python3 -V
+          python3 -W ignore -m pip --disable-pip-version-check list
           bin/skonfig -V
-      - name: Run unit tests
+      - name: Build
         run: |
-          make unittest
+          python3 setup.py build
+      - name: Install
+        run: |
+          python3 setup.py install
+      - name: Clean
+        run: |
+          python3 setup.py clean --all
