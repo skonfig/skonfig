@@ -14,7 +14,6 @@ def run():
     import skonfig.arguments
     parser, arguments = skonfig.arguments.get()
     if arguments.version:
-        from skonfig import __version__
         print("skonfig", __version__)
         return True
     if not arguments.host and not arguments.dump:

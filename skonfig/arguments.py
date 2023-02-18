@@ -1,6 +1,5 @@
 import argparse
 import logging
-import sys
 
 
 _logger = logging.getLogger(__name__)
