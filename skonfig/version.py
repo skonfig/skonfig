@@ -9,7 +9,7 @@ def __silent_check_output(cmd, cwd):
             shell=False).decode().rstrip()
     except InterruptedError:
         # retry
-        return run(cmd)
+        return subprocess.run(cmd)
     finally:
         os.close(devnull)
 
