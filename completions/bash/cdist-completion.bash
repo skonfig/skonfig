@@ -15,11 +15,11 @@ _cdist()
             ;;
         config)
             opts="-h --help -q --quiet -v --verbose \
-                -I --inventory -C --cache-path-pattern -c --conf-dir \
-                -f --file -i --initial-manifest -A --all-tagged \
+                -C --cache-path-pattern -c --conf-dir \
+                -f --file -i --initial-manifest \
                 -j --jobs -n --dry-run -o --out-dir -p --parallel \
                 -r --remote-out-dir \
-                -s --sequential --remote-copy --remote-exec -t --tag -a --all"
+                -s --sequential --remote-copy --remote-exec"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;

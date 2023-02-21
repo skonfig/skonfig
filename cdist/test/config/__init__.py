@@ -72,7 +72,6 @@ class ConfigRunTestCase(test.CdistTestCase):
         os.makedirs(self.host_base_path)
         self.local = cdist.exec.local.Local(
             target_host=self.target_host,
-            target_host_tags=self.target_host_tags,
             base_root_path=self.host_base_path,
             host_dir_name=self.hostdir)
 
@@ -197,7 +196,6 @@ class ConfigRunTestCase(test.CdistTestCase):
         """Test if the dryrun option is working like expected"""
         drylocal = cdist.exec.local.Local(
             target_host=self.target_host,
-            target_host_tags=self.target_host_tags,
             base_root_path=self.host_base_path,
             host_dir_name=self.hostdir,
             # exec_path can not derivated from sys.argv in case of unittest
@@ -215,7 +213,6 @@ class ConfigRunTestCase(test.CdistTestCase):
         """Test to show dependency resolver warning message."""
         local = cdist.exec.local.Local(
             target_host=self.target_host,
-            target_host_tags=self.target_host_tags,
             base_root_path=self.host_base_path,
             host_dir_name=self.hostdir,
             exec_path=os.path.abspath(os.path.join(

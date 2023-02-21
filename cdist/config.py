@@ -130,8 +130,7 @@ class Config:
     @staticmethod
     def hosts(source):
         try:
-            for x in cdist.hostsource.HostSource(source)():
-                yield x
+            return cdist.hostsource.HostSource(source).hosts()
         except (IOError, OSError, UnicodeError) as e:
             raise cdist.Error(
                     "Error reading hosts from \'{}\': {}".format(
@@ -177,10 +176,7 @@ class Config:
                                "from stdin"))
 
         if not (args.hostfile or args.host):
-            if args.tag or args.all_tagged_hosts:
-                raise cdist.Error(("Target host tag(s) missing"))
-            else:
-                raise cdist.Error(("Target host(s) missing"))
+            raise cdist.Error(("Target host(s) missing"))
 
         if args.manifest == '-':
             # read initial manifest from stdin
@@ -241,14 +237,7 @@ class Config:
         else:
             log.trace("Processing hosts sequentially")
         for entry in it:
-            if isinstance(entry, tuple):
-                # if configuring by specified tags
-                host = entry[0]
-                host_tags = entry[1]
-            else:
-                # if configuring by host then check inventory for tags
-                host = entry
-                host_tags = None
+            host = entry
             host_base_path, hostdir = cls.create_host_base_dirs(
                 host, base_root_path)
             log.debug("Base root path for target host \"%s\" is \"%s\"",
@@ -256,14 +245,14 @@ class Config:
 
             hostcnt += 1
             if args.parallel:
-                pargs = (host, host_tags, host_base_path, hostdir, args, True,
+                pargs = (host, host_base_path, hostdir, args, True,
                          configuration)
                 log.trace("Args for multiprocessing operation for host %s: %s",
                           host, pargs)
                 process_args.append(pargs)
             else:
                 try:
-                    cls.onehost(host, host_tags, host_base_path, hostdir,
+                    cls.onehost(host, host_base_path, hostdir,
                                 args, parallel=False,
                                 configuration=configuration)
                 except cdist.Error:
@@ -359,7 +348,7 @@ class Config:
                                ": {}").format(host, e))
 
     @classmethod
-    def onehost(cls, host, host_tags, host_base_path, host_dir_name, args,
+    def onehost(cls, host, host_base_path, host_dir_name, args,
                 parallel, configuration, remove_remote_files_dirs=False):
         """Configure ONE system.
            If operating in parallel then return tuple (host, True|False, )
@@ -380,7 +369,6 @@ class Config:
 
             local = cdist.exec.local.Local(
                 target_host=target_host,
-                target_host_tags=host_tags,
                 base_root_path=host_base_path,
                 host_dir_name=host_dir_name,
                 initial_manifest=args.manifest,

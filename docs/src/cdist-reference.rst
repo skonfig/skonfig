@@ -213,7 +213,10 @@ __target_fqdn
 
     Available for: explorer, initial manifest, type explorer, type manifest, type gencode.
 __target_host_tags
-    Comma separated list of target host tags.
+    Set to the empty string. This environment variable is only kept for
+    backwards compatibility with cdist.
+
+    The inventory feature has been removed from skonfig.
 
     Available for: explorer, initial manifest, type explorer, type manifest, type gencode.
 __type

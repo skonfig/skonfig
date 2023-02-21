@@ -20,7 +20,7 @@ _cdist()
                     compadd "$@" -- $opts
                     ;;
                 config)
-                    opts=(-h --help -q --quiet -v --verbose -a --all -C --cache-path-pattern -c --conf-dir -f --file -i --initial-manifest -j --jobs -n --dry-run -o --out-dir -p --parallel -r --remote-out-dir -s --sequential --remote-copy --remote-exec -t --tag -I --inventory -A --all-tagged)
+                    opts=(-h --help -q --quiet -v --verbose -C --cache-path-pattern -c --conf-dir -f --file -i --initial-manifest -j --jobs -n --dry-run -o --out-dir -p --parallel -r --remote-out-dir -s --sequential --remote-copy --remote-exec)
                     compadd "$@" -- $opts
                     ;;
                 *)
