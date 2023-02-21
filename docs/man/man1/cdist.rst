@@ -14,49 +14,15 @@ SYNOPSIS
 
 ::
 
-    cdist [-h] [-V] {banner,config,inventory,shell,info} ...
+    cdist [-h] [-V] config ...
 
-    cdist banner [-h] [-l LOGLEVEL] [-q] [-v]
-
-    cdist config [-h] [-l LOGLEVEL] [-q] [-v] [-b] [--colors WHEN]
+    cdist config [-h] [-l LOGLEVEL] [-q] [-v] [--colors WHEN]
                  [-g CONFIG_FILE] [-4] [-6] [-C CACHE_PATH_PATTERN]
-                 [-c CONF_DIR] [-i MANIFEST] [-j [JOBS]] [--log-server]
-                 [-n] [-o OUT_PATH] [-P] [-R [{tar,tgz,tbz2,txz}]]
-                 [-r REMOTE_OUT_PATH] [--remote-copy REMOTE_COPY]
-                 [--remote-exec REMOTE_EXEC] [-S] [-I INVENTORY_DIR] [-A]
-                 [-a] [-f HOSTFILE] [-p [HOST_MAX]] [-s] [-t]
+                 [-c CONF_DIR] [-i MANIFEST] [-j [JOBS]] [-n] [-o OUT_PATH]
+                 [-P] [-R [{tar,tgz,tbz2,txz}]] [-r REMOTE_OUT_PATH]
+                 [--remote-copy REMOTE_COPY] [--remote-exec REMOTE_EXEC]
+                 [-S] [-f HOSTFILE] [-p [HOST_MAX]] [-s]
                  [host [host ...]]
-
-    cdist inventory [-h] {add-host,add-tag,del-host,del-tag,list} ...
-
-    cdist inventory add-host [-h] [-l LOGLEVEL] [-q] [-v] [-b] [--colors WHEN]
-                             [-g CONFIG_FILE] [-I INVENTORY_DIR] [-f HOSTFILE]
-                             [host [host ...]]
-
-    cdist inventory add-tag [-h] [-l LOGLEVEL] [-q] [-v] [-b] [--colors WHEN]
-                            [-g CONFIG_FILE] [-I INVENTORY_DIR] [-f HOSTFILE]
-                            [-T TAGFILE] [-t TAGLIST]
-                            [host [host ...]]
-
-    cdist inventory del-host [-h] [-l LOGLEVEL] [-q] [-v] [-b] [--colors WHEN]
-                             [-g CONFIG_FILE] [-I INVENTORY_DIR] [-a]
-                             [-f HOSTFILE]
-                             [host [host ...]]
-
-    cdist inventory del-tag [-h] [-l LOGLEVEL] [-q] [-v] [-b] [--colors WHEN]
-                            [-g CONFIG_FILE] [-I INVENTORY_DIR] [-a]
-                            [-f HOSTFILE] [-T TAGFILE] [-t TAGLIST]
-                            [host [host ...]]
-
-    cdist inventory list [-h] [-l LOGLEVEL] [-q] [-v] [-b] [--colors WHEN]
-                         [-g CONFIG_FILE] [-I INVENTORY_DIR] [-a] [-f HOSTFILE]
-                         [-H] [-t]
-                         [host [host ...]]
-
-    cdist shell [-h] [-l LOGLEVEL] [-q] [-v] [--colors WHEN] [-s SHELL]
-
-    cdist info [-h] [-a] [-c CONF_DIR] [-e] [-F] [-f] [-g CONFIG_FILE] [-t]
-               [pattern]
 
 
 DESCRIPTION
@@ -121,14 +87,6 @@ All commands accept the following options:
 ``-g CONFIG_FILE``, ``--config-file CONFIG_FILE``
    Use specified custom configuration file.
 
-``-I INVENTORY_DIR``, ``--inventory INVENTORY_DIR``
-   Use specified custom inventory directory. Inventory
-   directory is set up by the following rules: if cdist
-   configuration resolves this value then specified
-   directory is used, if HOME env var is set then
-   ~/.cdit/inventory is used, otherwise distribution
-   inventory directory is used.
-
 ``-i MANIFEST``, ``--initial-manifest MANIFEST``
    Path to a cdist manifest or - to read from stdin.
 
@@ -179,10 +137,6 @@ All commands accept the following options:
 ``--remote-exec REMOTE_EXEC``
    Command to use for remote execution (should behave like ssh).
 
-``-t``, ``--tag``
-   Host is specified by tag, not hostname/address; list
-   all hosts that contain any of specified tags.
-
 HOSTFILE FORMAT
 ---------------
 The HOSTFILE contains one host per line.
@@ -212,213 +166,6 @@ Calculated host directory is a hash of a host cdist operates on.
 
 Resulting path is used to specify cache path subdirectory under which
 current host cache data are saved.
-
-
-INVENTORY
-=========
-Manage inventory database.
-
-
-INVENTORY ADD-HOST
-------------------
-Add host(s) to inventory database.
-
-``host``
-   Host(s) to add.
-
-``-f HOSTFILE``, ``--file HOSTFILE``
-   Read additional hosts to add from specified file or
-   from stdin if '-' (each host on separate line).
-   Hostfile format is the same as config hostfile format.
-
-``-g CONFIG_FILE``, ``--config-file CONFIG_FILE``
-   Use specified custom configuration file.
-
-``-I INVENTORY_DIR``, ``--inventory INVENTORY_DIR``
-   Use specified custom inventory directory. Inventory
-   directory is set up by the following rules: if cdist
-   configuration resolves this value then specified
-   directory is used, if the HOME env var is set then
-   ``~/.skonfig/inventory`` is used, otherwise distribution
-   inventory directory is used.
-
-
-INVENTORY ADD-TAG
------------------
-Add tag(s) to inventory database.
-
-``host``
-   List of host(s) for which tags are added.
-
-``-f HOSTFILE``, ``--file HOSTFILE``
-   Read additional hosts to add tags from specified file
-   or from stdin if '-' (each host on separate line).
-   Hostfile format is the same as config hostfile format.
-
-``-g CONFIG_FILE``, ``--config-file CONFIG_FILE``
-   Use specified custom configuration file.
-
-``-I INVENTORY_DIR``, ``--inventory INVENTORY_DIR``
-   Use specified custom inventory directory. Inventory
-   directory is set up by the following rules: if cdist
-   configuration resolves this value then specified
-   directory is used, if HOME env var is set then
-   ~/.cdit/inventory is used, otherwise distribution
-   inventory directory is used.
-
-``-T TAGFILE``, ``--tag-file TAGFILE``
-   Read additional tags to add from specified file or
-   from stdin if '-' (each tag on separate line).
-   Tagfile format is the same as config hostfile format.
-
-``-t TAGLIST``, ``--taglist TAGLIST``
-   Tag list to be added for specified host(s), comma
-   separated values.
-
-
-INVENTORY DEL-HOST
-------------------
-Delete host(s) from inventory database.
-
-``host``
-   Host(s) to delete.
-
-``-a``, ``--all``
-   Delete all hosts.
-
-``-f HOSTFILE``, ``--file HOSTFILE``
-   Read additional hosts to delete from specified file or
-   from stdin if '-' (each host on separate line).
-   Hostfile format is the same as config hostfile format.
-
-``-g CONFIG_FILE``, ``--config-file CONFIG_FILE``
-   Use specified custom configuration file.
-
-``-I INVENTORY_DIR``, ``--inventory INVENTORY_DIR``
-   Use specified custom inventory directory. Inventory
-   directory is set up by the following rules: if cdist
-   configuration resolves this value then specified
-   directory is used, if HOME env var is set then
-   ``~/.skonfig/inventory`` is used, otherwise distribution
-   inventory directory is used.
-
-
-INVENTORY DEL-TAG
------------------
-Delete tag(s) from inventory database.
-
-``host``
-   List of host(s) for which tags are deleted.
-
-``-a``, ``--all``
-   Delete all tags for specified host(s).
-
-``-f HOSTFILE``, ``--file HOSTFILE``
-   Read additional hosts to delete tags for from
-   specified file or from stdin if ``-`` (each host on
-   separate line). Hostfile format is the same as
-   config hostfile format.
-
-``-g CONFIG_FILE``, ``--config-file CONFIG_FILE``
-   Use specified custom configuration file.
-
-``-I INVENTORY_DIR``, ``--inventory INVENTORY_DIR``
-   Use specified custom inventory directory. Inventory
-   directory is set up by the following rules: if cdist
-   configuration resolves this value then specified
-   directory is used, if ``HOME`` env var is set then
-   ``~/.skonfig/inventory`` is used, otherwise distribution
-   inventory directory is used.
-
-``-T TAGFILE``, ``--tag-file TAGFILE``
-   Read additional tags from specified file or from stdin
-   if ``-`` (each tag on separate line).
-   Tagfile format is the same as config hostfile format.
-
-``-t TAGLIST``, ``--taglist TAGLIST``
-   Tag list to be deleted for specified host(s), comma
-   separated values.
-
-
-INVENTORY LIST
---------------
-List inventory database.
-
-``host``
-   Host(s) to list.
-
-``-a``, ``--all``
-   List hosts that have all specified tags, if -t/--tag
-   is specified.
-
-``-f HOSTFILE``, ``--file HOSTFILE``
-   Read additional hosts to list from specified file or
-   from stdin if '-' (each host on separate line). If no
-   host or host file is specified then, by default, list
-   all. Hostfile format is the same as config hostfile format.
-
-``-g CONFIG_FILE``, ``--config-file CONFIG_FILE``
-   Use specified custom configuration file.
-
-``-H``, ``--host-only``
-   Suppress tags listing.
-
-``-I INVENTORY_DIR``, ``--inventory INVENTORY_DIR``
-   Use specified custom inventory directory. Inventory
-   directory is set up by the following rules: if cdist
-   configuration resolves this value then specified
-   directory is used, if HOME env var is set then
-   ~/.cdit/inventory is used, otherwise distribution
-   inventory directory is used.
-
-``-t``, ``--tag``
-   Host is specified by tag, not hostname/address; list
-   all hosts that contain any of specified tags.
-
-
-SHELL
-=====
-This command allows you to spawn a shell that enables access
-to the types as commands. It can be thought as an
-"interactive manifest" environment. See below for example
-usage. Its primary use is for debugging type parameters.
-
-``-s SHELL``, ``--shell SHELL``
-   Select shell to use, defaults to current shell. Used shell should
-   be POSIX compatible shell.
-
-
-INFO
-====
-Display information for cdist (global explorers, types).
-
-``pattern``
-   Glob pattern. If it contains special characters('?', '*', '[') then it is
-   used as specified, otherwise it is translated to `*pattern*`.
-
-``-h``, ``--help``
-   Show help message and exit.
-
-``-a``, ``--all``
-   Display all info. This is the default.
-
-``-c CONF_DIR``, ``--conf-dir CONF_DIR``
-   Add configuration directory (can be repeated).
-
-``-e``, ``--global-explorers``
-   Display info for global explorers.
-
-``-F``, ``--fixed-string``
-   Interpret pattern as a fixed string.
-
-``-f``, ``--full``
-   Display full details.
-
-``-g CONFIG_FILE``, ``--config-file CONFIG_FILE``
-   Use specified custom configuration file.
-
-``-t``, ``--types``
-   Display info for types.
 
 
 CONFIGURATION
@@ -458,9 +205,6 @@ The possible keywords and their meanings are as follows:
 
 :strong:`init_manifest`
    Specify default initial manifest.
-
-:strong:`inventory_dir`
-   Specify inventory directory.
 
 :strong:`jobs`
    Specify number of jobs for parallel processing. If -1 then the default,
@@ -511,9 +255,6 @@ FILES
 ``~/.skonfig``
    Your personal skonfig config directory. If exists it will be
    automatically used.
-``~/.skonfig/inventory``
-   The home inventory directory. If ~/.skonfig exists it will be used as
-   default inventory directory.
 ``/etc/skonfig/config``
    Global skonfig configuration file, if exists.
 ``~/.skonfig/config`` or ``$XDG_CONFIG_HOME/skonfig/config``
@@ -530,41 +271,8 @@ EXAMPLES
 
 .. code-block:: sh
 
-   # List inventory content
-   $ cdist inventory list -b
-
-   # List inventory for specified host localhost
-   $ cdist inventory list -b localhost
-
-   # List inventory for specified tag loadbalancer
-   $ cdist inventory list -b -t loadbalancer
-
-   # Add hosts to inventory
-   $ cdist inventory add-host -b web1 web2 web3
-
-   # Delete hosts from file old-hosts from inventory
-   $ cdist inventory del-host -b -f old-hosts
-
-   # Add tags to specified hosts
-   $ cdist inventory add-tag -b -t europe,croatia,web,static web1 web2
-
-   # Add tag to all hosts in inventory
-   $ cdist inventory add-tag -b -t vm
-
-   # Delete all tags from specified host
-   $ cdist inventory del-tag -b -a localhost
-
-   # Delete tags read from stdin from hosts specified by file hosts
-   $ cdist inventory del-tag -b -T - -f hosts
-
-   # Configure hosts from inventory with any of specified tags
-   $ cdist config -b -t web dynamic
-
-   # Configure hosts from inventory with all specified tags
-   $ cdist config -b -t -a web dynamic
-
-   # Configure all hosts from inventory db
-   $ cdist config -b -A
+   # Configure hosts www.example.com
+   $ cdist config www.example.com
 
 
 ENVIRONMENT
@@ -597,9 +305,6 @@ ENVIRONMENT
 
 ``CDIST_REMOTE_COPY``
    Use this command for remote copy (should behave like scp).
-
-``CDIST_INVENTORY_DIR``
-   Use this directory as inventory directory.
 
 ``CDIST_CACHE_PATH_PATTERN``
    Custom cache path pattern.
