@@ -46,8 +46,8 @@ import distutils.command.sdist
 
 
 class ManPages:
-    rst_glob = glob.glob(os.path.join(
-        os.path.dirname(__file__), "docs", "man", "man?", "*.rst"))
+    man_dir = os.path.join(os.path.dirname(__file__), "docs", "man")
+    rst_glob = glob.glob(os.path.join(man_dir, "man*", "*.rst"))
 
     @classmethod
     def _render_manpage(cls, rst_path, dest_path):
@@ -84,10 +84,10 @@ class ManPages:
         for path in cls.rst_glob:
             pagename = os.path.splitext(os.path.basename(path))[0]
             section_dir = os.path.basename(os.path.dirname(path))
-            section = int(section_dir.replace("man", ""))
+            section = section_dir.replace("man", "", 1)
 
             destpath = os.path.join(
-                os.path.dirname(path), "%s.%u" % (pagename, section))
+                os.path.dirname(path), "%s.%s" % (pagename, section))
 
             log.info("generating man page %s" % destpath)
             if not dry_run:
@@ -96,20 +96,44 @@ class ManPages:
             man_pages[section_dir].append(destpath)
 
         # add man pages to data_files so that they are installed
-        for (section, pages) in man_pages.items():
-            distribution.data_files.append(
-                (os.path.join("share", "man", section), pages))
+        cls.update_data_files(distribution.data_files)
+
+    @classmethod
+    def find(cls, group_by_section=False):
+        for section_path in glob.glob(os.path.join(cls.man_dir, "man*/")):
+            section_name = os.path.basename(section_path.rstrip("/"))
+
+            manglob = os.path.join(
+                section_path, "*." + section_name.replace("man", "", 1))
+
+            if group_by_section:
+                yield (section_name, list(glob.glob(manglob)))
+            else:
+                for manpage in glob.glob(manglob):
+                    yield manpage
+
+    @classmethod
+    def update_data_files(cls, data_files):
+        for section_name, manpages in cls.find(group_by_section=True):
+            inst_dir = os.path.join("share/man", section_name)
+
+            for d, files in data_files:
+                if d == inst_dir:
+                    break
+            else:
+                files = []
+                data_files.append((inst_dir, files))
+
+            for manpage in manpages:
+                if manpage not in files:
+                    files.append(manpage)
 
     @classmethod
     def clean(cls, distribution, dry_run=False):
-        for path in cls.rst_glob:
-            pattern = os.path.join(
-                os.path.dirname(path),
-                os.path.splitext(os.path.basename(path))[0] + ".?")
-            for manpage in glob.glob(pattern):
-                log.info("removing %s" % manpage)
-                if not dry_run:
-                    os.remove(manpage)
+        for manpage in cls.find(group_by_section=False):
+            log.info("removing %s" % manpage)
+            if not dry_run:
+                os.remove(manpage)
 
 
 def hardcode_version(file):
@@ -139,6 +163,11 @@ class skonfig_build_py(distutils.command.build_py.build_py):
             hardcode_version(dest_name)
 
         return (dest_name, copied)
+
+
+class skonfig_build_manpages(distutils.command.build.build):
+    def run(self):
+        ManPages.build(self.distribution, dry_run=self.dry_run)
 
 
 class skonfig_sdist(distutils.command.sdist.sdist):
@@ -197,9 +226,11 @@ else:
 
 data_files = [
         ("share/doc/skonfig", [
-            "README.md",
-            "docs/src/config.skeleton",
-            "docs/changelog"
+            os.path.join(os.path.dirname(__file__), s) for s in [
+                "README.md",
+                "docs/src/config.skeleton",
+                "docs/changelog"
+            ]
         ]),
     ]
 
@@ -209,8 +240,11 @@ for dirname, _, files in os.walk(
     data_files.append(
         (os.path.join(
             "share/doc/skonfig/examples",
-            dirname.split("examples")[1].lstrip("/")),
+            dirname.split("/examples", 1)[1].lstrip("/")).rstrip("/"),
          [os.path.join(dirname, f) for f in files]))
+
+# include man pages
+ManPages.update_data_files(data_files)
 
 
 setup(
@@ -227,6 +261,9 @@ setup(
         "build_py": skonfig_build_py,
         "sdist": skonfig_sdist,
         "clean": skonfig_clean,
+
+        # custom commands
+        "build_manpages": skonfig_build_manpages,
     },
     classifiers=[
         "Development Status :: 6 - Mature",
