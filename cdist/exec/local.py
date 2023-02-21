@@ -38,7 +38,7 @@ import cdist.message
 from cdist import core
 import cdist.exec.util as util
 
-CONF_SUBDIRS_LINKED = ["explorer", "files", "manifest", "type", ]
+CONF_SUBDIRS_LINKED = ["explorer", "files", "manifest", "type"]
 
 
 class Local:
@@ -50,7 +50,6 @@ class Local:
     """
     def __init__(self,
                  target_host,
-                 target_host_tags,
                  base_root_path,
                  host_dir_name,
                  exec_path=sys.argv[0],
@@ -62,10 +61,6 @@ class Local:
                  save_output_streams=True):
 
         self.target_host = target_host
-        if target_host_tags is None:
-            self.target_host_tags = ""
-        else:
-            self.target_host_tags = ",".join(target_host_tags)
         self.hostdir = host_dir_name
         self.base_path = os.path.join(base_root_path, "data")
 
@@ -160,14 +155,8 @@ class Local:
                        self.object_marker_name, self.object_marker_file)
 
     def _init_cache_dir(self, cache_dir):
-        home_dir = cdist.home_dir()
-        if cache_dir:
-            self.cache_path = cache_dir
-        elif home_dir:
-            self.cache_path = os.path.join(home_dir, "cache")
-        else:
-            raise cdist.Error(
-                "No homedir setup and no cache dir location given")
+        from skonfig.configuration import get_cache_dir
+        self.cache_path = get_cache_dir()
 
     def rmdir(self, path):
         """Remove directory on the local side."""

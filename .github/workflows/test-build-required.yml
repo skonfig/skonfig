@@ -1,0 +1,39 @@
+---
+name: test-build-required
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macos-latest"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Information
+        run: |
+          python3 -V
+          python3 -W ignore -m pip --disable-pip-version-check list
+          bin/skonfig -V
+      - name: Build
+        run: |
+          python3 setup.py build
+      - name: Install
+        run: |
+          python3 setup.py install
+      - name: Clean
+        run: |
+          python3 setup.py clean --all

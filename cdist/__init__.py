@@ -23,39 +23,10 @@
 import hashlib
 import os
 
+import cdist.log
 
-VERSION = 'unknown version'
+from skonfig import __version__
 
-try:
-    import cdist.version
-    VERSION = cdist.version.VERSION
-except ModuleNotFoundError:
-    cdist_dir = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), os.pardir))
-    if os.path.isdir(os.path.join(cdist_dir, '.git')):
-        try:
-            import subprocess
-            VERSION = subprocess.check_output(
-                ['git', 'describe', '--always'],
-                cwd=cdist_dir,
-                universal_newlines=True)
-        except Exception:
-            pass
-
-BANNER = """
-             ..          .       .x+=:.        s
-           dF           @88>    z`    ^%      :8
-          '88bu.        %8P        .   <k    .88
-      .   '*88888bu      .       .@8Ned8"   :888ooo
- .udR88N    ^"*8888N   .@88u   .@^%8888"  -*8888888
-<888'888k  beWE "888L ''888E` x88:  `)8b.   8888
-9888 'Y"   888E  888E   888E  8888N=*8888   8888
-9888       888E  888E   888E   %8"    R88   8888
-9888       888E  888F   888E    @8Wou 9%   .8888Lu=
-?8888u../ .888N..888    888&  .888888P`    ^%888*
- "8888P'   `"888*""     R888" `   ^"F        'Y"
-   "P'        ""         ""
-"""
 
 REMOTE_COPY = "scp -o User=root -q"
 REMOTE_EXEC = "ssh -o User=root"
@@ -80,29 +51,6 @@ class Error(Exception):
 class UnresolvableRequirementsError(cdist.Error):
     """Resolving requirements failed"""
     pass
-
-
-class CdistBetaRequired(cdist.Error):
-    """Beta functionality is used but beta is not enabled"""
-
-    def __init__(self, command, arg=None):
-        self.command = command
-        self.arg = arg
-
-    def __str__(self):
-        if self.arg is None:
-            err_msg = ("\'{}\' command is beta, but beta is "
-                       "not enabled. If you want to use it please enable beta "
-                       "functionalities by using the -b/--beta command "
-                       "line flag or setting CDIST_BETA env var.")
-            fmt_args = [self.command, ]
-        else:
-            err_msg = ("\'{}\' argument of \'{}\' command is beta, but beta "
-                       "is not enabled. If you want to use it please enable "
-                       "beta functionalities by using the -b/--beta "
-                       "command line flag or setting CDIST_BETA env var.")
-            fmt_args = [self.arg, self.command, ]
-        return err_msg.format(*fmt_args)
 
 
 class CdistEntityError(Error):
@@ -281,15 +229,3 @@ def str_hash(s):
         return hashlib.md5(s.encode('utf-8')).hexdigest()
     else:
         raise Error("Param should be string")
-
-
-def home_dir():
-    if 'HOME' in os.environ:
-        home = os.environ['HOME']
-        if home:
-            rv = os.path.join(home, ".cdist")
-        else:
-            rv = None
-    else:
-        rv = None
-    return rv

@@ -35,8 +35,8 @@ import cdist.core.cdist_object
 import os.path as op
 my_dir = op.abspath(op.dirname(__file__))
 fixtures = op.join(my_dir, 'fixtures')
-type_base_path = op.join(fixtures, 'type')
-add_conf_dir = op.join(fixtures, 'conf')
+conf_dir = op.join(fixtures, 'conf')
+type_base_path = op.join(conf_dir, 'type')
 
 expected_object_names = sorted([
     '__first/man',
@@ -72,7 +72,6 @@ class ConfigRunTestCase(test.CdistTestCase):
         os.makedirs(self.host_base_path)
         self.local = cdist.exec.local.Local(
             target_host=self.target_host,
-            target_host_tags=self.target_host_tags,
             base_root_path=self.host_base_path,
             host_dir_name=self.hostdir)
 
@@ -197,7 +196,6 @@ class ConfigRunTestCase(test.CdistTestCase):
         """Test if the dryrun option is working like expected"""
         drylocal = cdist.exec.local.Local(
             target_host=self.target_host,
-            target_host_tags=self.target_host_tags,
             base_root_path=self.host_base_path,
             host_dir_name=self.hostdir,
             # exec_path can not derivated from sys.argv in case of unittest
@@ -205,7 +203,7 @@ class ConfigRunTestCase(test.CdistTestCase):
                 my_dir, '../../../bin/cdist')),
             initial_manifest=os.path.join(fixtures,
                                           'manifest/dryrun_manifest'),
-            add_conf_dirs=[fixtures])
+            add_conf_dirs=[conf_dir])
 
         dryrun = cdist.config.Config(drylocal, self.remote, dry_run=True)
         dryrun.run()
@@ -215,14 +213,13 @@ class ConfigRunTestCase(test.CdistTestCase):
         """Test to show dependency resolver warning message."""
         local = cdist.exec.local.Local(
             target_host=self.target_host,
-            target_host_tags=self.target_host_tags,
             base_root_path=self.host_base_path,
             host_dir_name=self.hostdir,
             exec_path=os.path.abspath(os.path.join(
                 my_dir, '../../../bin/cdist')),
             initial_manifest=os.path.join(
                 fixtures, 'manifest/init-deps-resolver'),
-            add_conf_dirs=[fixtures])
+            add_conf_dirs=[conf_dir])
 
         # dry_run is ok for dependency testing
         config = cdist.config.Config(local, self.remote, dry_run=True)

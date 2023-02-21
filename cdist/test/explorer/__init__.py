@@ -23,6 +23,7 @@
 import os
 import shutil
 import getpass
+import glob
 import multiprocessing
 
 import cdist
@@ -51,7 +52,6 @@ class ExplorerClassTestCase(test.CdistTestCase):
 
         self.local = local.Local(
             target_host=self.target_host,
-            target_host_tags=self.target_host_tags,
             base_root_path=base_root_path,
             host_dir_name=hostdir,
             exec_path=test.cdist_exec_path,
@@ -88,8 +88,12 @@ class ExplorerClassTestCase(test.CdistTestCase):
         self.explorer.transfer_global_explorers()
         source = self.local.global_explorer_path
         destination = self.remote.global_explorer_path
-        self.assertEqual(sorted(os.listdir(source)),
-                         sorted(os.listdir(destination)))
+        self.assertEqual(
+            sorted(glob.glob1(source, "*")),
+            sorted(glob.glob1(destination, "*")))
+
+        self.assertFalse(
+            os.path.exists(os.path.join(destination, ".hidden")))
 
     def test_run_global_explorer(self):
         """Check that running ONE global explorer works"""
@@ -121,7 +125,9 @@ class ExplorerClassTestCase(test.CdistTestCase):
         source = os.path.join(self.local.type_path, cdist_type.explorer_path)
         destination = os.path.join(self.remote.type_path,
                                    cdist_type.explorer_path)
-        self.assertEqual(os.listdir(source), os.listdir(destination))
+        self.assertEqual(
+            sorted(glob.glob1(source, "*")),
+            sorted(glob.glob1(destination, "*")))
 
     def test_transfer_type_explorers_only_once(self):
         cdist_type = core.CdistType(self.local.type_path, '__test_type')
@@ -130,7 +136,9 @@ class ExplorerClassTestCase(test.CdistTestCase):
         source = os.path.join(self.local.type_path, cdist_type.explorer_path)
         destination = os.path.join(self.remote.type_path,
                                    cdist_type.explorer_path)
-        self.assertEqual(os.listdir(source), os.listdir(destination))
+        self.assertEqual(
+            sorted(glob.glob1(source, "*")),
+            sorted(glob.glob1(destination, "*")))
         # nuke destination folder content, but recreate directory
         shutil.rmtree(destination)
         os.makedirs(destination)
@@ -153,8 +161,9 @@ class ExplorerClassTestCase(test.CdistTestCase):
                               cdist_object.parameter_path)
         destination = os.path.join(self.remote.object_path,
                                    cdist_object.parameter_path)
-        self.assertEqual(sorted(os.listdir(source)),
-                         sorted(os.listdir(destination)))
+        self.assertEqual(
+            sorted(glob.glob1(source, "*")),
+            sorted(glob.glob1(destination, "*")))
 
     def test_run_type_explorer(self):
         cdist_type = core.CdistType(self.local.type_path, '__test_type')
@@ -194,8 +203,9 @@ class ExplorerClassTestCase(test.CdistTestCase):
         expl.transfer_global_explorers()
         source = self.local.global_explorer_path
         destination = self.remote.global_explorer_path
-        self.assertEqual(sorted(os.listdir(source)),
-                         sorted(os.listdir(destination)))
+        self.assertEqual(
+            sorted(glob.glob1(source, "*")),
+            sorted(glob.glob1(destination, "*")))
 
     def test_run_parallel_jobs(self):
         expl = explorer.Explorer(
@@ -208,6 +218,7 @@ class ExplorerClassTestCase(test.CdistTestCase):
 
         expl.run_global_explorers(out_path)
         names = sorted(expl.list_global_explorer_names())
+        # hidden files should not be copied, so os.listdir() is fine
         output = sorted(os.listdir(out_path))
 
         self.assertEqual(names, output)
@@ -234,8 +245,7 @@ class ExplorerClassTestCase(test.CdistTestCase):
                          self.local.target_host[2])
         self.assertEqual(output_dict['__explorer'],
                          self.remote.global_explorer_path)
-        self.assertEqual(output_dict['__target_host_tags'],
-                         self.local.target_host_tags)
+        self.assertEqual(output_dict['__target_host_tags'], '')
         self.assertEqual(output_dict['__cdist_log_level'],
                          str(logging.WARNING))
         self.assertEqual(output_dict['__cdist_log_level_name'], 'WARNING')

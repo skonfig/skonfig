@@ -269,7 +269,6 @@ ColoredOutputOption.DEFAULT = ColoredOutputOption.translate(
 
 
 _ARG_OPTION_MAPPING = {
-    'beta': 'beta',
     'cache_path_pattern': 'cache_path_pattern',
     'colored_output': 'colored_output',
     'conf_dir': 'conf_dir',
@@ -278,7 +277,6 @@ _ARG_OPTION_MAPPING = {
     'remote_out_path': 'remote_out_path',
     'remote_copy': 'remote_copy',
     'remote_exec': 'remote_exec',
-    'inventory_dir': 'inventory_dir',
     'jobs': 'jobs',
     'parallel': 'parallel',
     'verbose': 'verbosity',
@@ -312,7 +310,6 @@ class Configuration(metaclass=Singleton):
 
     CONFIG_FILE_OPTIONS = {
         'GLOBAL': {
-            'beta': BooleanOption('beta'),
             'local_shell': StringOption('local_shell'),
             'remote_shell': StringOption('remote_shell'),
             'cache_path_pattern': StringOption('cache_path_pattern'),
@@ -323,7 +320,6 @@ class Configuration(metaclass=Singleton):
             'remote_out_path': StringOption('remote_out_path'),
             'remote_copy': StringOption('remote_copy'),
             'remote_exec': StringOption('remote_exec'),
-            'inventory_dir': StringOption('inventory_dir'),
             'jobs': JobsOption('jobs'),
             'parallel': JobsOption('parallel'),
             'verbosity': VerbosityOption(),
@@ -336,19 +332,17 @@ class Configuration(metaclass=Singleton):
     }
 
     ENV_VAR_OPTION_MAPPING = {
-        'CDIST_BETA': 'beta',
         'CDIST_PATH': 'conf_dir',
         'CDIST_LOCAL_SHELL': 'local_shell',
         'CDIST_REMOTE_SHELL': 'remote_shell',
         'CDIST_REMOTE_EXEC': 'remote_exec',
         'CDIST_REMOTE_COPY': 'remote_copy',
-        'CDIST_INVENTORY_DIR': 'inventory_dir',
         'CDIST_CACHE_PATH_PATTERN': 'cache_path_pattern',
         'CDIST_COLORED_OUTPUT': 'colored_output',
         '__cdist_log_level': 'verbosity',
         'CDIST_CHECK_PYTHON_VERSION': 'check_python_version',
     }
-    ENV_VAR_BOOLEAN_OPTIONS = ('CDIST_BETA', )
+    ENV_VAR_BOOLEAN_OPTIONS = ()
     ENV_VAR_OPTIONS = {
         '__cdist_log_level': LogLevelOption(),
     }

@@ -17,47 +17,18 @@ Session.vim
 tags
 # Persistent undo
 [._]*.un~
+.DS_Store
 
-# Ignore generated manpages
-docs/src/.marker
-docs/src/man1/*.1
-docs/src/man7/*.7
-docs/src/man7/cdist-type__*.rst
-docs/src/cdist-reference.rst
-docs/src/cdist-types.rst
-docs/src/cdist.cfg.skeleton
-
-# Ignore cdist cache for version control
-/cache/
-
-# Ignore inventory basedir
-cdist/inventory/
-
-# Python: cache, distutils, distribution in general
-__pycache__/
-*.pyc
-/MANIFEST
-dist/
-cdist/version.py
-cdist.egg-info/
-
-# sphinx build dirs, cache
+# Sphinx build dirs, cache
 _build/
 docs/dist
 
-# Ignore temp files used for signing
-cdist-*.tar
-cdist-*.tar.gz
-cdist-*.tar.gz.asc
+# Build
+docs/man/man?/*.[0-9]
+/build/
+__pycache__/
+*.pyc
+/MANIFEST
+/dist/
+/skonfig.egg-info/
 
-# Packaging: Archlinux
-/PKGBUILD
-/cdist-*.pkg.tar.xz
-/cdist-*.tar.gz
-/pkg
-/src
-build
-.lock-*
-.git-current-branch
-.lock*
-.pypi-release

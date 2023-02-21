@@ -36,9 +36,9 @@ from cdist import test
 from cdist.exec import local
 
 import os.path as op
-my_dir = op.abspath(op.dirname(__file__))
+my_dir = op.abspath(op.dirname(test.__file__))
 fixtures = op.join(my_dir, 'fixtures')
-conf_dir = op.join(fixtures, "conf")
+conf_dirs = [op.join(fixtures, "conf")]
 
 bin_true = "true"
 bin_false = "false"
@@ -61,22 +61,15 @@ class LocalTestCase(test.CdistTestCase):
 
         self.local = local.Local(
             target_host=target_host,
-            target_host_tags=None,
             base_root_path=self.host_base_path,
             host_dir_name=self.hostdir,
             exec_path=test.cdist_exec_path
         )
 
-        self.home_dir = os.path.join(os.environ['HOME'], ".cdist")
-
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
 
     # test api
-
-    def test_cache_path(self):
-        self.assertEqual(self.local.cache_path,
-                         os.path.join(self.home_dir, "cache"))
 
     def test_conf_path(self):
         self.assertEqual(self.local.conf_path,
@@ -113,30 +106,6 @@ class LocalTestCase(test.CdistTestCase):
         self.assertEqual(self.local.type_path,
                          os.path.join(self.out_path, "conf", "type"))
 
-    def test_dist_conf_dir_linking(self):
-        """Ensure that links are correctly created for types included
-           in distribution"""
-
-        test_type = "__file"
-
-        link_test_local = local.Local(
-            target_host=(
-                'localhost',
-                'localhost',
-                'localhost',
-            ),
-            target_host_tags=None,
-            base_root_path=self.host_base_path,
-            host_dir_name=self.hostdir,
-            exec_path=test.cdist_exec_path,
-        )
-
-        link_test_local._create_conf_path_and_link_conf_dirs()
-
-        our_type_dir = os.path.join(link_test_local.type_path, test_type)
-
-        self.assertTrue(os.path.isdir(our_type_dir))
-
     def test_added_conf_dir_linking(self):
         """Ensure that links are correctly created for types in added conf
            directories"""
@@ -149,11 +118,10 @@ class LocalTestCase(test.CdistTestCase):
                 'localhost',
                 'localhost',
             ),
-            target_host_tags=None,
             base_root_path=self.host_base_path,
             host_dir_name=self.hostdir,
             exec_path=test.cdist_exec_path,
-            add_conf_dirs=[conf_dir]
+            add_conf_dirs=conf_dirs
         )
 
         link_test_local._create_conf_path_and_link_conf_dirs()
@@ -168,7 +136,7 @@ class LocalTestCase(test.CdistTestCase):
 
         test_type = "__cdist_test_type"
 
-        os.environ['CDIST_PATH'] = conf_dir
+        os.environ['CDIST_PATH'] = os.pathsep.join(conf_dirs)
 
         # bypass singleton from other tests if any
         cc.Configuration.instance = None
@@ -182,7 +150,6 @@ class LocalTestCase(test.CdistTestCase):
                 'localhost',
                 'localhost',
             ),
-            target_host_tags=None,
             base_root_path=self.host_base_path,
             host_dir_name=self.hostdir,
             exec_path=test.cdist_exec_path,

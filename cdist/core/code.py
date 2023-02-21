@@ -55,7 +55,7 @@ gencode-local
         __object_fq: full qualified object id, iow: $type.name + / + object_id
         __type: full qualified path to the type's dir
         __files: full qualified path to the files dir
-        __target_host_tags: comma spearated list of host tags
+        __target_host_tags: empty string (backwards compatibility with cdist)
 
     returns: string containing the generated code or None
 
@@ -74,7 +74,7 @@ gencode-remote
         __object_fq: full qualified object id, iow: $type.name + / + object_id
         __type: full qualified path to the type's dir
         __files: full qualified path to the files dir
-        __target_host_tags: comma spearated list of host tags
+        __target_host_tags: empty string (backwards compatibility with cdist)
 
     returns: string containing the generated code or None
 
@@ -107,7 +107,7 @@ class Code:
             '__target_fqdn': self.target_host[2],
             '__global': self.local.base_path,
             '__files': self.local.files_path,
-            '__target_host_tags': self.local.target_host_tags,
+            '__target_host_tags': '',  # backwards compatibility with cdist
             '__cdist_log_level': util.log_level_env_var_val(local.log),
             '__cdist_log_level_name': util.log_level_name_env_var_val(
                 local.log),
@@ -115,10 +115,6 @@ class Code:
 
         if dry_run:
             self.env['__cdist_dry_run'] = '1'
-
-        if '__cdist_log_server_socket_export' in os.environ:
-            self.env['__cdist_log_server_socket'] = os.environ[
-                '__cdist_log_server_socket_export']
 
     def _run_gencode(self, cdist_object, which):
         cdist_type = cdist_object.cdist_type

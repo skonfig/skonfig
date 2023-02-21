@@ -119,26 +119,20 @@ class DefaultLog(logging.Logger):
         super().__init__(name)
         self.propagate = False
 
-        if '__cdist_log_server_socket' in os.environ:
-            log_server_socket = os.environ['__cdist_log_server_socket']
-            socket_handler = logging.handlers.SocketHandler(log_server_socket,
-                                                            None)
-            self.addHandler(socket_handler)
-        else:
-            formatter = CdistFormatter(self.FORMAT)
+        formatter = CdistFormatter(self.FORMAT)
 
-            stdout_handler = logging.StreamHandler(sys.stdout)
-            stdout_handler.addFilter(self.StdoutFilter())
-            stdout_handler.setLevel(logging.TRACE)
-            stdout_handler.setFormatter(formatter)
+        stdout_handler = logging.StreamHandler(sys.stdout)
+        stdout_handler.addFilter(self.StdoutFilter())
+        stdout_handler.setLevel(logging.TRACE)
+        stdout_handler.setFormatter(formatter)
 
-            stderr_handler = logging.StreamHandler(sys.stderr)
-            stderr_handler.addFilter(self.StderrFilter())
-            stderr_handler.setLevel(logging.ERROR)
-            stderr_handler.setFormatter(formatter)
+        stderr_handler = logging.StreamHandler(sys.stderr)
+        stderr_handler.addFilter(self.StderrFilter())
+        stderr_handler.setLevel(logging.ERROR)
+        stderr_handler.setFormatter(formatter)
 
-            self.addHandler(stdout_handler)
-            self.addHandler(stderr_handler)
+        self.addHandler(stdout_handler)
+        self.addHandler(stderr_handler)
 
     def verbose(self, msg, *args, **kwargs):
         self.log(logging.VERBOSE, msg, *args, **kwargs)

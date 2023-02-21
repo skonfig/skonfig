@@ -81,7 +81,7 @@ class Explorer:
             '__target_hostname': self.target_host[1],
             '__target_fqdn': self.target_host[2],
             '__explorer': self.remote.global_explorer_path,
-            '__target_host_tags': self.local.target_host_tags,
+            '__target_host_tags': '',  # backwards compatibility with cdist
             '__cdist_log_level': util.log_level_env_var_val(self.log),
             '__cdist_log_level_name': util.log_level_name_env_var_val(
                 self.log),
@@ -162,11 +162,15 @@ class Explorer:
 
     def transfer_global_explorers(self):
         """Transfer the global explorers to the remote side."""
-        self.remote.transfer(self.local.global_explorer_path,
-                             self.remote.global_explorer_path,
-                             self.jobs)
-        self.remote.run(["chmod", "0700", "{}/*".format(
-            self.remote.global_explorer_path)])
+        if os.path.isdir(self.local.global_explorer_path) \
+                and os.listdir(self.local.global_explorer_path):
+            # only transfer if there's actually something to transfer,
+            # otherwise chmod(1) will fail.
+            self.remote.transfer(self.local.global_explorer_path,
+                                 self.remote.global_explorer_path,
+                                 self.jobs)
+            self.remote.run(["chmod", "0700", "{}/*".format(
+                self.remote.global_explorer_path)])
 
     def run_global_explorer(self, explorer):
         """Run the given global explorer and return it's output."""

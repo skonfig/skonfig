@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/sh -e
 
-source="$(cat "$__object/parameter/source")"
-cat "$source" | __file "/$__object_id" --source /dev/null
+source=$(cat "${__object:?}/parameter/source")
+
+__file_noop "/${__object_id:?}" \
+	--source - <"${source}"

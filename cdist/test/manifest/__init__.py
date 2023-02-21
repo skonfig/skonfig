@@ -53,7 +53,6 @@ class ManifestTestCase(test.CdistTestCase):
         base_root_path = os.path.join(out_path, hostdir)
         self.local = local.Local(
             target_host=self.target_host,
-            target_host_tags=self.target_host_tags,
             base_root_path=base_root_path,
             host_dir_name=hostdir,
             exec_path=cdist.test.cdist_exec_path,
@@ -97,8 +96,7 @@ class ManifestTestCase(test.CdistTestCase):
                          self.local.type_path)
         self.assertEqual(output_dict['__manifest'], self.local.manifest_path)
         self.assertEqual(output_dict['__files'], self.local.files_path)
-        self.assertEqual(output_dict['__target_host_tags'],
-                         self.local.target_host_tags)
+        self.assertEqual(output_dict['__target_host_tags'], '')
         self.assertEqual(output_dict['__cdist_log_level'],
                          str(logging.VERBOSE))
         self.assertEqual(output_dict['__cdist_log_level_name'], 'VERBOSE')
@@ -140,8 +138,7 @@ class ManifestTestCase(test.CdistTestCase):
         self.assertEqual(output_dict['__object_id'], cdist_object.object_id)
         self.assertEqual(output_dict['__object_name'], cdist_object.name)
         self.assertEqual(output_dict['__files'], self.local.files_path)
-        self.assertEqual(output_dict['__target_host_tags'],
-                         self.local.target_host_tags)
+        self.assertEqual(output_dict['__target_host_tags'], '')
         self.assertEqual(output_dict['__cdist_log_level'],
                          str(logging.VERBOSE))
         self.assertEqual(output_dict['__cdist_log_level_name'], 'VERBOSE')

@@ -1,5 +1,5 @@
 #
-# 2013 Nico Schottelius (nico-cdist at schottelius.org)
+# 2022 Dennis Camera (skonfig at dtnr.ch)
 #
 # This file is part of cdist.
 #
@@ -18,131 +18,104 @@
 #
 #
 
-.PHONY: help
-help:
+.POSIX:
+
+help: .FORCE
 	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "man             build only man user documentation"
-	@echo "html            build only html user documentation"
-	@echo "docs            build both man and html user documentation"
-	@echo "dotman          build man pages for types in your ~/.cdist directory"
-	@echo "speeches        build speeches pdf files"
-	@echo "install         install in the system site-packages directory"
-	@echo "install-user    install in the user site-packages directory"
-	@echo "docs-clean      clean documentation"
-	@echo "clean           clean"
+	@echo ""
+	@echo "Building:"
+	@echo "  build           build the skonfig source code"
+	@echo "  install         install in the system site-packages directory"
+	@echo "  install-user    install in the user site-packages directory"
+	@echo "  clean           clean"
+	@echo ""
+	@echo "Documentation:"
+	@echo "  docs            build html user documentation"
+	@echo "  docs-clean      clean user documentation"
+	@echo ""
+	@echo "  man             build only man pages"
+	@echo ""
+	@echo "Testing:"
+	@echo "  lint            run all of the following linters:"
+	@echo "  pep8            check that the Python source code adheres to PEP 8"
+	@echo "  shellcheck      check the shell scripts for errors"
+	@echo ""
+	@echo "  test            run all of the following test targets:"
+	@echo "  unittest        run unit tests"
+	@echo "  unittest-remote "
+	@echo ""
 
-DOCS_SRC_DIR=./docs/src
-SPEECHDIR=./docs/speeches
-TYPEDIR=./cdist/conf/type
 
-SPHINXM=$(MAKE) -C $(DOCS_SRC_DIR) man
-SPHINXH=$(MAKE) -C $(DOCS_SRC_DIR) html
-SPHINXC=$(MAKE) -C $(DOCS_SRC_DIR) clean
-
-################################################################################
-# Manpages
+###############################################################################
+# docs
 #
-MAN7DSTDIR=$(DOCS_SRC_DIR)/man7
 
-# Manpages #1: Types
-# Use shell / ls to get complete list - $(TYPEDIR)/*/man.rst does not work
-# Using ls does not work if no file with given pattern exist, so use wildcard
-MANTYPESRC=$(wildcard $(TYPEDIR)/*/man.rst)
-MANTYPEPREFIX=$(subst $(TYPEDIR)/,$(MAN7DSTDIR)/cdist-type,$(MANTYPESRC))
-MANTYPES=$(subst /man.rst,.rst,$(MANTYPEPREFIX))
-
-# Link manpage: do not create man.html but correct named file
-$(MAN7DSTDIR)/cdist-type%.rst: $(TYPEDIR)/%/man.rst
-	mkdir -p $(MAN7DSTDIR)
-	ln -sf "../../../$^" $@
-
-# Manpages #2: reference
-DOCSREF=$(MAN7DSTDIR)/cdist-reference.rst
-DOCSREFSH=$(DOCS_SRC_DIR)/cdist-reference.rst.sh
-
-$(DOCSREF): $(DOCSREFSH)
-	$(DOCSREFSH)
-
-# Html types list with references
-DOCSTYPESREF=$(MAN7DSTDIR)/cdist-types.rst
-DOCSTYPESREFSH=$(DOCS_SRC_DIR)/cdist-types.rst.sh
-
-$(DOCSTYPESREF): $(DOCSTYPESREFSH)
-	$(DOCSTYPESREFSH)
-
-DOCSCFGSKEL=./configuration/cdist.cfg.skeleton
-
-configskel: $(DOCSCFGSKEL)
-	cp -f "$(DOCSCFGSKEL)" "$(DOCS_SRC_DIR)/"
-
-version:
-	@[ -f "cdist/version.py" ] || { \
-		printf "Missing 'cdist/version.py', please generate it first.\n" && exit 1; \
-	}
-
-# Manpages #3: generic part
-man: version configskel $(MANTYPES) $(DOCSREF) $(DOCSTYPESREF)
-	$(SPHINXM)
-
-html: version configskel $(MANTYPES) $(DOCSREF) $(DOCSTYPESREF)
-	$(SPHINXH)
+DOCS_SRC_DIR=docs/src
 
 docs: man html
 
-docs-clean:
-	$(SPHINXC)
+html: .FORCE
+	$(MAKE) -C $(DOCS_SRC_DIR) html
 
-# Manpages: .cdist Types
-DOT_CDIST_PATH=${HOME}/.cdist
-DOTMAN7DSTDIR=$(MAN7DSTDIR)
-DOTTYPEDIR=$(DOT_CDIST_PATH)/type
-DOTMANTYPESRC=$(wildcard $(DOTTYPEDIR)/*/man.rst)
-DOTMANTYPEPREFIX=$(subst $(DOTTYPEDIR)/,$(DOTMAN7DSTDIR)/cdist-type,$(DOTMANTYPESRC))
-DOTMANTYPES=$(subst /man.rst,.rst,$(DOTMANTYPEPREFIX))
+docs-clean: .FORCE
+	$(MAKE) -C $(DOCS_SRC_DIR) clean
 
-# Link manpage: do not create man.html but correct named file
-$(DOTMAN7DSTDIR)/cdist-type%.rst: $(DOTTYPEDIR)/%/man.rst
-	ln -sf "$^" $@
+man: .FORCE
+	python3 setup.py build_manpages
 
-dotman: version configskel $(DOTMANTYPES) $(DOCSREF) $(DOCSTYPESREF)
-	$(SPHINXM)
 
-################################################################################
-# Speeches
-#
-SPEECHESOURCES=$(SPEECHDIR)/*.tex
-SPEECHES=$(SPEECHESOURCES:.tex=.pdf)
 
-# Create speeches and ensure Toc is up-to-date
-$(SPEECHDIR)/%.pdf: $(SPEECHDIR)/%.tex
-	pdflatex -output-directory $(SPEECHDIR) $^
-	pdflatex -output-directory $(SPEECHDIR) $^
-	pdflatex -output-directory $(SPEECHDIR) $^
-
-speeches: $(SPEECHES)
-
-################################################################################
-# Misc
-#
-clean: docs-clean
-	rm -f $(DOCS_SRC_DIR)/cdist-reference.rst
-	rm -f $(DOCS_SRC_DIR)/cdist-types.rst
-	rm -f $(DOCS_SRC_DIR)/cdist.cfg.skeleton
-
-	find "$(DOCS_SRC_DIR)" -mindepth 2 -type l \
-	| xargs rm -f
-
-	find * -name __pycache__  | xargs rm -rf
-
-	# distutils
-	rm -rf ./build
-
-################################################################################
-# install
+###############################################################################
+# tests and checkers
 #
 
-install:
+lint: pep8 shellcheck
+test: unittest unittest-remote
+
+pycodestyle pep8: .FORCE
+	pycodestyle bin/ skonfig/ cdist/
+
+
+SHELLCHECKCMD = shellcheck -s sh -f gcc -x
+shellcheck: .FORCE
+	find ./bin -type f \
+		-exec awk 'FNR==1{exit !/^#!\/bin\/sh/}' {} \; \
+		-exec ${SHELLCHECKCMD} {} +
+
+unittest: .FORCE
+	PYTHONPATH=$$(pwd -P) python3 -m cdist.test
+
+unittest-remote: .FORCE
+	PYTHONPATH=$$(pwd -P) python3 -m cdist.test.exec.remote
+
+
+###############################################################################
+# clean
+#
+
+clean: docs-clean .FORCE
+	python3 setup.py clean --all
+	find . -name __pycache__ | xargs rm -rf
+
+# distutils
+	rm -rf ./build ./.eggs ./dist
+
+# Temporary files
+	rm -f ./*.tmp ./.*.tmp
+
+
+###############################################################################
+# build and install
+#
+
+build: .FORCE
+	python3 setup.py build
+
+install: build .FORCE
 	python3 setup.py install
 
-install-user:
+install-user: build .FORCE
 	python3 setup.py install --user
+
+
+.FORCE:

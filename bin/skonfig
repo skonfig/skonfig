@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+
+if __name__ == "__main__":
+    import os
+    skonfig_bindir_pardir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    import sys
+    if os.path.isfile(os.path.join(skonfig_bindir_pardir, "skonfig", "__init__.py")):
+        sys.path.insert(0, skonfig_bindir_pardir)
+    import skonfig
+    skonfig.THIS_IS_SKONFIG = True
+    try:
+        if skonfig.run():
+            sys.exit(0)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        sys.exit(2)
