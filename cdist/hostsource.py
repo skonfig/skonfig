@@ -29,16 +29,12 @@ def hostfile_process_line(line, strip_func=str.strip):
     # remove comment if present
     comment_index = line.find('#')
     if comment_index >= 0:
-        foo = line[:comment_index]
-    else:
-        foo = line
+        line = line[:comment_index]
     # remove leading and trailing whitespaces
-    foo = strip_func(foo)
+    host = strip_func(line)
+
     # skip empty lines
-    if foo:
-        return foo
-    else:
-        return None
+    return host if host else None
 
 
 class HostSource:
@@ -50,30 +46,22 @@ class HostSource:
     def __init__(self, source):
         self.source = source
 
-    def _process_file_line(self, line):
-        return hostfile_process_line(line)
-
     def _hosts_from_sequence(self):
         for host in self.source:
             yield host
 
     def _hosts_from_file(self):
-        for line in fileinput.input(files=(self.source)):
-            host = self._process_file_line(line)
-            if host:
-                yield host
+        return filter(
+            None.__ne__,
+            map(
+                hostfile_process_line,
+                fileinput.input(files=(self.source,))))
 
     def hosts(self):
         if not self.source:
             return
 
         if isinstance(self.source, str):
-            for x in self._hosts_from_file():
-                yield x
+            return self._hosts_from_file()
         else:
-            for x in self._hosts_from_sequence():
-                yield x
-
-    def __call__(self):
-        for x in self.hosts():
-            yield x
+            return self._hosts_from_sequence()
