@@ -23,21 +23,23 @@
 help: .FORCE
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo ""
-	@echo "Install:"
+	@echo "Building:"
+	@echo "  build           build the skonfig source code"
 	@echo "  install         install in the system site-packages directory"
 	@echo "  install-user    install in the user site-packages directory"
 	@echo "  clean           clean"
 	@echo ""
 	@echo "Documentation:"
-	@echo "  docs            build both man and html user documentation"
-	@echo "  man             build only man user documentation"
-	@echo "  html            build only html user documentation"
-	@echo "  docs-clean      clean documentation"
+	@echo "  docs            build html user documentation"
+	@echo "  docs-clean      clean user documentation"
+	@echo ""
+	@echo "  man             build only man pages"
 	@echo ""
 	@echo "Testing:"
 	@echo "  lint            run all of the following linters:"
 	@echo "  pep8            check that the Python source code adheres to PEP 8"
 	@echo "  shellcheck      check the shell scripts for errors"
+	@echo ""
 	@echo "  test            run all of the following test targets:"
 	@echo "  unittest        run unit tests"
 	@echo "  unittest-remote "
@@ -55,11 +57,12 @@ docs: man html
 html: .FORCE
 	$(MAKE) -C $(DOCS_SRC_DIR) html
 
-man: .FORCE
-	$(MAKE) -C $(DOCS_SRC_DIR) man
-
 docs-clean: .FORCE
 	$(MAKE) -C $(DOCS_SRC_DIR) clean
+
+man: .FORCE
+	python3 setup.py build_manpages
+
 
 
 ###############################################################################
@@ -102,13 +105,16 @@ clean: docs-clean .FORCE
 
 
 ###############################################################################
-# install
+# build and install
 #
 
-install: .FORCE
+build: .FORCE
+	python3 setup.py build
+
+install: build .FORCE
 	python3 setup.py install
 
-install-user: .FORCE
+install-user: build .FORCE
 	python3 setup.py install --user
 
 
