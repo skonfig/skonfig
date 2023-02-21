@@ -152,7 +152,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
-            'inventory_dir': '',
             'cache_path_pattern': '',
             'colored_output': colored_output_default,
             'conf_dir': '',
@@ -183,7 +182,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'GLOBAL': {
                 'local_shell': '/bin/sh',
                 'remote_shell': '/bin/sh',
-                'inventory_dir': None,
                 'cache_path_pattern': None,
                 'colored_output': cc.ColoredOutputOption.translate(
                     colored_output_default),
@@ -412,7 +410,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
-            'inventory_dir': '',
             'cache_path_pattern': '',
             'conf_dir': '',
             'init_manifest': '',
@@ -434,7 +431,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'GLOBAL': {
                 'local_shell': '/bin/sh',
                 'remote_shell': '/bin/sh',
-                'inventory_dir': None,
                 'cache_path_pattern': None,
                 'colored_output': colored_output_default,
                 'conf_dir': None,
@@ -469,7 +465,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
-            'inventory_dir': '',
             'cache_path_pattern': '',
             'conf_dir': '',
             'init_manifest': '',
@@ -491,7 +486,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
-            'inventory_dir': '/var/db/cdist/inventory',
             'conf_dir': '/opt/cdist',
             'remote_copy': 'myscp',
             'remote_exec': 'myexec',
@@ -507,7 +501,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'GLOBAL': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
-                'inventory_dir': '/var/db/cdist/inventory',
                 'cache_path_pattern': None,
                 'colored_output': colored_output_default,
                 'conf_dir': ['/opt/cdist', ],
@@ -547,7 +540,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
-            'inventory_dir': '',
             'cache_path_pattern': '',
             'colored_output': colored_output_default,
             'conf_dir': '',
@@ -570,7 +562,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'GLOBAL': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
-                'inventory_dir': None,
                 'cache_path_pattern': None,
                 'colored_output': cc.ColoredOutputOption.translate(
                     colored_output_default),
@@ -614,7 +605,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
-            'inventory_dir': '',
             'cache_path_pattern': '',
             'colored_output': colored_output_default,
             'conf_dir': '',
@@ -637,7 +627,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
-            'inventory_dir': '/var/db/cdist/inventory',
             'colored_output': colored_output_default,
             'conf_dir': '/opt/cdist',
             'remote_copy': 'myscp',
@@ -654,7 +643,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'GLOBAL': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
-                'inventory_dir': '/var/db/cdist/inventory',
                 'cache_path_pattern': None,
                 'colored_output': cc.ColoredOutputOption.translate(
                     colored_output_default),
@@ -713,7 +701,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
-            'inventory_dir': '',
             'cache_path_pattern': '',
             'conf_dir': '',
             'init_manifest': '',
@@ -735,7 +722,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
-            'inventory_dir': '/var/db/cdist/inventory',
             'conf_dir': '/opt/cdist',
             'remote_copy': 'myscp',
             'remote_exec': 'myexec',
@@ -747,7 +733,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         with open(local_config_file, 'w') as f:
             config.write(f)
 
-        args.inventory_dir = '/opt/sysadmin/cdist/inventory'
         args.conf_dir = ['/opt/sysadmin/cdist/conf', ]
         args.manifest = '/opt/sysadmin/cdist/conf/manifest/init'
         args.jobs = 10
@@ -757,7 +742,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'GLOBAL': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
-                'inventory_dir': '/opt/sysadmin/cdist/inventory',
                 'cache_path_pattern': None,
                 'colored_output': colored_output_default,
                 'conf_dir': [
@@ -801,7 +785,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
-            'inventory_dir': '',
             'cache_path_pattern': '',
             'conf_dir': '',
             'init_manifest': '',
@@ -823,7 +806,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
-            'inventory_dir': '/var/db/cdist/inventory',
             'conf_dir': '/opt/cdist',
             'remote_copy': 'myscp',
             'remote_exec': 'myexec',
@@ -852,7 +834,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'GLOBAL': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
-                'inventory_dir': '/var/db/cdist/inventory',
                 'cache_path_pattern': None,
                 'colored_output': colored_output_default,
                 'conf_dir': [
@@ -897,7 +878,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
-            'inventory_dir': '',
             'cache_path_pattern': '',
             'conf_dir': '',
             'init_manifest': '',
@@ -919,7 +899,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
-            'inventory_dir': '/var/db/cdist/inventory',
             'conf_dir': '/opt/cdist',
             'remote_copy': 'myscp',
             'remote_exec': 'myexec',
@@ -948,7 +927,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'GLOBAL': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
-                'inventory_dir': '/var/db/cdist/inventory',
                 'cache_path_pattern': None,
                 'colored_output': colored_output_default,
                 'conf_dir': [
@@ -993,7 +971,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
-            'inventory_dir': '',
             'cache_path_pattern': '',
             'conf_dir': '',
             'init_manifest': '',
@@ -1015,7 +992,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
-            'inventory_dir': '/var/db/cdist/inventory',
             'conf_dir': '/opt/cdist',
             'remote_copy': 'myscp',
             'remote_exec': 'myexec',
@@ -1044,7 +1020,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'GLOBAL': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
-                'inventory_dir': '/var/db/cdist/inventory',
                 'cache_path_pattern': None,
                 'colored_output': colored_output_default,
                 'conf_dir': [
@@ -1076,7 +1051,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         args = configuration.get_args()
         dargs = vars(args)
         expected_args = {
-            'inventory_dir': '/var/db/cdist/inventory',
             'cache_path_pattern': None,
             'colored_output': colored_output_default,
             'conf_dir': [
@@ -1098,7 +1072,6 @@ class ConfigurationTestCase(test.CdistTestCase):
     def test_configuration_empty_value_in_file(self):
         config = newConfigParser()
         config['GLOBAL'] = {
-            'inventory_dir': '',
             'conf_dir': '',
         }
 
@@ -1108,7 +1081,6 @@ class ConfigurationTestCase(test.CdistTestCase):
 
         expected_config_dict = {
             'GLOBAL': {
-                'inventory_dir': None,
                 'colored_output': colored_output_default,
                 'conf_dir': None,
                 'verbosity': 0,

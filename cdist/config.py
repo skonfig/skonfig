@@ -33,7 +33,7 @@ import shutil
 import socket
 
 from cdist.mputil import mp_pool_run, mp_sig_handler
-from cdist import core, inventory
+from cdist import core
 from cdist.util.remoteutil import inspect_ssh_mux_opts
 
 import cdist
@@ -130,8 +130,7 @@ class Config:
     @staticmethod
     def hosts(source):
         try:
-            for x in cdist.hostsource.HostSource(source)():
-                yield x
+            return cdist.hostsource.HostSource(source).hosts()
         except (IOError, OSError, UnicodeError) as e:
             raise cdist.Error(
                     "Error reading hosts from \'{}\': {}".format(
@@ -177,10 +176,7 @@ class Config:
                                "from stdin"))
 
         if not (args.hostfile or args.host):
-            if args.tag or args.all_tagged_hosts:
-                raise cdist.Error(("Target host tag(s) missing"))
-            else:
-                raise cdist.Error(("Target host(s) missing"))
+            raise cdist.Error(("Target host(s) missing"))
 
         if args.manifest == '-':
             # read initial manifest from stdin
@@ -233,21 +229,7 @@ class Config:
         cfg = cdist.configuration.Configuration(args)
         configuration = cfg.get_config(section='GLOBAL')
 
-        if args.tag or args.all_tagged_hosts:
-            inventory.determine_default_inventory_dir(args, configuration)
-            if args.all_tagged_hosts:
-                inv_list = inventory.InventoryList(
-                    hosts=None, istag=True, hostfile=None,
-                    db_basedir=args.inventory_dir)
-            else:
-                inv_list = inventory.InventoryList(
-                    hosts=args.host, istag=True, hostfile=args.hostfile,
-                    db_basedir=args.inventory_dir,
-                    has_all_tags=args.has_all_tags)
-            it = inv_list.entries()
-        else:
-            it = itertools.chain(cls.hosts(args.host),
-                                 cls.hosts(args.hostfile))
+        it = itertools.chain(cls.hosts(args.host), cls.hosts(args.hostfile))
 
         process_args = []
         if args.parallel:
@@ -255,23 +237,7 @@ class Config:
         else:
             log.trace("Processing hosts sequentially")
         for entry in it:
-            if isinstance(entry, tuple):
-                # if configuring by specified tags
-                host = entry[0]
-                host_tags = entry[1]
-            else:
-                # if configuring by host then check inventory for tags
-                host = entry
-                inventory.determine_default_inventory_dir(args, configuration)
-                inv_list = inventory.InventoryList(
-                    hosts=(host,), db_basedir=args.inventory_dir)
-                inv = tuple(inv_list.entries())
-                if inv:
-                    # host is present in inventory and has tags
-                    host_tags = inv[0][1]
-                else:
-                    # host is not present in inventory or has no tags
-                    host_tags = None
+            host = entry
             host_base_path, hostdir = cls.create_host_base_dirs(
                 host, base_root_path)
             log.debug("Base root path for target host \"%s\" is \"%s\"",
@@ -279,14 +245,14 @@ class Config:
 
             hostcnt += 1
             if args.parallel:
-                pargs = (host, host_tags, host_base_path, hostdir, args, True,
+                pargs = (host, host_base_path, hostdir, args, True,
                          configuration)
                 log.trace("Args for multiprocessing operation for host %s: %s",
                           host, pargs)
                 process_args.append(pargs)
             else:
                 try:
-                    cls.onehost(host, host_tags, host_base_path, hostdir,
+                    cls.onehost(host, host_base_path, hostdir,
                                 args, parallel=False,
                                 configuration=configuration)
                 except cdist.Error:
@@ -382,7 +348,7 @@ class Config:
                                ": {}").format(host, e))
 
     @classmethod
-    def onehost(cls, host, host_tags, host_base_path, host_dir_name, args,
+    def onehost(cls, host, host_base_path, host_dir_name, args,
                 parallel, configuration, remove_remote_files_dirs=False):
         """Configure ONE system.
            If operating in parallel then return tuple (host, True|False, )
@@ -391,20 +357,6 @@ class Config:
         log = logging.getLogger(host)
 
         try:
-            if args.log_server:
-                if sys.version_info[:3] < (3, 5):
-                    print(
-                        "Python >= 3.5 is required on the source host to use "
-                        "the log server.", file=sys.stderr)
-                    sys.exit(1)
-
-                # Start a log server so that nested `cdist config` runs
-                # have a place to send their logs to.
-                log_server_socket_dir = tempfile.mkdtemp()
-                cls._register_path_for_removal(log_server_socket_dir)
-                from cdist.log_server import setupLogServer
-                setupLogServer(log_server_socket_dir, log)
-
             remote_exec, remote_copy, cleanup_cmd = cls._resolve_remote_cmds(
                 args)
             log.debug("remote_exec for host \"%s\": %s", host, remote_exec)
@@ -417,7 +369,6 @@ class Config:
 
             local = cdist.exec.local.Local(
                 target_host=target_host,
-                target_host_tags=host_tags,
                 base_root_path=host_base_path,
                 host_dir_name=host_dir_name,
                 initial_manifest=args.manifest,

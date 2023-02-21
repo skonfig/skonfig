@@ -28,8 +28,6 @@ grade environments.
    cdist-explorer
    cdist-messaging
    cdist-parallelization
-   cdist-inventory
-   cdist-integration
    cdist-reference
    cdist-best-practice
    cdist-stages

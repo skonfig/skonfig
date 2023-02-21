@@ -48,7 +48,6 @@ class Local:
     """
     def __init__(self,
                  target_host,
-                 target_host_tags,
                  base_root_path,
                  host_dir_name,
                  exec_path=sys.argv[0],
@@ -60,10 +59,6 @@ class Local:
                  save_output_streams=True):
 
         self.target_host = target_host
-        if target_host_tags is None:
-            self.target_host_tags = ""
-        else:
-            self.target_host_tags = ",".join(target_host_tags)
         self.hostdir = host_dir_name
         self.base_path = os.path.join(base_root_path, "data")
 

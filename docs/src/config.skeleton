@@ -31,10 +31,6 @@
 #     Specify default initial manifest.
 # init_manifest = <path-to-init-manifest>
 #
-# inventory_dir
-#     Specify inventory directory.
-# inventory_dir = <path-to-inventory-dir>
-#
 # jobs
 #     Specify number of jobs for parallel processing. If -1 then the default,
 #     number of CPUs in this system is used. If 0 then parallel processing in

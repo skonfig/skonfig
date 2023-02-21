@@ -4,9 +4,9 @@ import multiprocessing
 import logging
 import collections
 import functools
+import cdist.config
 import cdist.configuration
 import cdist.log
-import cdist.info
 
 
 # Parser others can reuse
@@ -106,22 +106,6 @@ def get_parsers():
     parser['sub'] = parser['main'].add_subparsers(
             title="Commands", dest="command")
 
-    # Banner
-    parser['banner'] = parser['sub'].add_parser(
-            'banner', parents=[parser['loglevel']])
-    parser['banner'].set_defaults(func=cdist.banner.banner)
-
-    parser['inventory_common'] = argparse.ArgumentParser(add_help=False)
-    parser['inventory_common'].add_argument(
-           '-I', '--inventory',
-           help=('Use specified custom inventory directory. '
-                 'Inventory directory is set up by the following rules: '
-                 'if cdist configuration resolves this value then specified '
-                 'directory is used, '
-                 'if HOME env var is set then ~/.cdist/inventory is '
-                 'used, otherwise distribution inventory directory is used.'),
-           dest="inventory_dir", required=False)
-
     parser['common'] = argparse.ArgumentParser(add_help=False)
     parser['common'].add_argument(
            '-g', '--config-file',
@@ -163,12 +147,6 @@ def get_parsers():
                  'supported. Without argument CPU count is used by default. '),
            action='store', dest='jobs',
            const=multiprocessing.cpu_count())
-    parser['config_main'].add_argument(
-           '--log-server',
-           action='store_true',
-           help=('Start a log server for sub processes to use. '
-                 'This is mainly useful when running cdist nested '
-                 'from a code-local script.'))
     parser['config_main'].add_argument(
            '-n', '--dry-run',
            help='Do not execute code.', action='store_true')
@@ -216,15 +194,6 @@ def get_parsers():
     # Config
     parser['config_args'] = argparse.ArgumentParser(add_help=False)
     parser['config_args'].add_argument(
-             '-A', '--all-tagged',
-             help=('Use all hosts present in tags DB.'),
-             action="store_true", dest="all_tagged_hosts", default=False)
-    parser['config_args'].add_argument(
-             '-a', '--all',
-             help=('List hosts that have all specified tags, '
-                   'if -t/--tag is specified.'),
-             action="store_true", dest="has_all_tags", default=False)
-    parser['config_args'].add_argument(
             '-f', '--file',
             help=('Read specified file for a list of additional hosts to '
                   'operate on or if \'-\' is given, read stdin (one host per '
@@ -244,177 +213,14 @@ def get_parsers():
            help='Operate on multiple hosts sequentially (default).',
            action='store_const', dest='parallel', const=0)
     parser['config_args'].add_argument(
-             '-t', '--tag',
-             help=('Host is specified by tag, not hostname/address; '
-                   'list all hosts that contain any of specified tags.'),
-             dest='tag', required=False, action="store_true", default=False)
-    parser['config_args'].add_argument(
             'host', nargs='*', help='Host(s) to operate on.')
     parser['config'] = parser['sub'].add_parser(
             'config', parents=[parser['loglevel'],
                                parser['colored_output'],
                                parser['common'],
                                parser['config_main'],
-                               parser['inventory_common'],
                                parser['config_args']])
     parser['config'].set_defaults(func=cdist.config.Config.commandline)
-
-    # Inventory
-    parser['inventory'] = parser['sub'].add_parser('inventory')
-    parser['invsub'] = parser['inventory'].add_subparsers(
-            title="Inventory commands", dest="subcommand")
-
-    parser['add-host'] = parser['invsub'].add_parser(
-            'add-host', parents=[parser['loglevel'],
-                                 parser['colored_output'],
-                                 parser['common'],
-                                 parser['inventory_common']])
-    parser['add-host'].add_argument(
-            'host', nargs='*', help='Host(s) to add.')
-    parser['add-host'].add_argument(
-           '-f', '--file',
-           help=('Read additional hosts to add from specified file '
-                 'or from stdin if \'-\' (each host on separate line). '),
-           dest='hostfile', required=False)
-
-    parser['add-tag'] = parser['invsub'].add_parser(
-            'add-tag', parents=[parser['loglevel'],
-                                parser['colored_output'],
-                                parser['common'],
-                                parser['inventory_common']])
-    parser['add-tag'].add_argument(
-           'host', nargs='*',
-           help='List of host(s) for which tags are added.')
-    parser['add-tag'].add_argument(
-           '-f', '--file',
-           help=('Read additional hosts to add tags from specified file '
-                 'or from stdin if \'-\' (each host on separate line). '),
-           dest='hostfile', required=False)
-    parser['add-tag'].add_argument(
-           '-T', '--tag-file',
-           help=('Read additional tags to add from specified file '
-                 'or from stdin if \'-\' (each tag on separate line). '),
-           dest='tagfile', required=False)
-    parser['add-tag'].add_argument(
-           '-t', '--taglist',
-           help=("Tag list to be added for specified host(s), comma separated"
-                 " values."),
-           dest="taglist", required=False)
-
-    parser['del-host'] = parser['invsub'].add_parser(
-            'del-host', parents=[parser['loglevel'],
-                                 parser['colored_output'],
-                                 parser['common'],
-                                 parser['inventory_common']])
-    parser['del-host'].add_argument(
-            'host', nargs='*', help='Host(s) to delete.')
-    parser['del-host'].add_argument(
-            '-a', '--all', help=('Delete all hosts.'),
-            dest='all', required=False, action="store_true", default=False)
-    parser['del-host'].add_argument(
-            '-f', '--file',
-            help=('Read additional hosts to delete from specified file '
-                  'or from stdin if \'-\' (each host on separate line). '),
-            dest='hostfile', required=False)
-
-    parser['del-tag'] = parser['invsub'].add_parser(
-            'del-tag', parents=[parser['loglevel'],
-                                parser['colored_output'],
-                                parser['common'],
-                                parser['inventory_common']])
-    parser['del-tag'].add_argument(
-            'host', nargs='*',
-            help='List of host(s) for which tags are deleted.')
-    parser['del-tag'].add_argument(
-            '-a', '--all',
-            help=('Delete all tags for specified host(s).'),
-            dest='all', required=False, action="store_true", default=False)
-    parser['del-tag'].add_argument(
-            '-f', '--file',
-            help=('Read additional hosts to delete tags for from specified '
-                  'file or from stdin if \'-\' (each host on separate '
-                  'line). '),
-            dest='hostfile', required=False)
-    parser['del-tag'].add_argument(
-            '-T', '--tag-file',
-            help=('Read additional tags from specified file '
-                  'or from stdin if \'-\' (each tag on separate line). '),
-            dest='tagfile', required=False)
-    parser['del-tag'].add_argument(
-            '-t', '--taglist',
-            help=("Tag list to be deleted for specified host(s), "
-                  "comma separated values."),
-            dest="taglist", required=False)
-
-    parser['list'] = parser['invsub'].add_parser(
-            'list', parents=[parser['loglevel'],
-                             parser['colored_output'],
-                             parser['common'],
-                             parser['inventory_common']])
-    parser['list'].add_argument(
-            'host', nargs='*', help='Host(s) to list.')
-    parser['list'].add_argument(
-            '-a', '--all',
-            help=('List hosts that have all specified tags, '
-                  'if -t/--tag is specified.'),
-            action="store_true", dest="has_all_tags", default=False)
-    parser['list'].add_argument(
-            '-f', '--file',
-            help=('Read additional hosts to list from specified file '
-                  'or from stdin if \'-\' (each host on separate line). '
-                  'If no host or host file is specified then, by default, '
-                  'list all.'), dest='hostfile', required=False)
-    parser['list'].add_argument(
-            '-H', '--host-only', help=('Suppress tags listing.'),
-            action="store_true", dest="list_only_host", default=False)
-    parser['list'].add_argument(
-            '-t', '--tag',
-            help=('Host is specified by tag, not hostname/address; '
-                  'list all hosts that contain any of specified tags.'),
-            action="store_true", default=False)
-
-    parser['inventory'].set_defaults(
-            func=cdist.inventory.Inventory.commandline)
-
-    # Shell
-    parser['shell'] = parser['sub'].add_parser(
-            'shell', parents=[parser['loglevel'], parser['colored_output']])
-    parser['shell'].add_argument(
-            '-s', '--shell',
-            help=('Select shell to use, defaults to current shell. Used shell'
-                  ' should be POSIX compatible shell.'))
-    parser['shell'].set_defaults(func=cdist.shell.Shell.commandline)
-
-    # Info
-    parser['info'] = parser['sub'].add_parser('info')
-    parser['info'].add_argument(
-            '-a', '--all', help='Display all info. This is the default.',
-            action='store_true', default=False)
-    parser['info'].add_argument(
-            '-c', '--conf-dir',
-            help='Add configuration directory (can be repeated).',
-            action='append')
-    parser['info'].add_argument(
-            '-e', '--global-explorers',
-            help='Display info for global explorers.', action='store_true',
-            default=False)
-    parser['info'].add_argument(
-            '-F', '--fixed-string',
-            help='Interpret pattern as a fixed string.', action='store_true',
-            default=False)
-    parser['info'].add_argument(
-            '-f', '--full', help='Display full details.',
-            action='store_true', default=False)
-    parser['info'].add_argument(
-           '-g', '--config-file',
-           help='Use specified custom configuration file.',
-           dest="config_file", required=False)
-    parser['info'].add_argument(
-            '-t', '--types', help='Display info for types.',
-            action='store_true', default=False)
-    parser['info'].add_argument(
-            'pattern', nargs='?', help='Glob pattern.')
-    parser['info'].set_defaults(func=cdist.info.Info.commandline)
 
     return parser
 

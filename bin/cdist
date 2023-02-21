@@ -40,10 +40,7 @@ if os.path.exists(cdist_init_dir):
 
 import cdist            # noqa 402
 import cdist.argparse   # noqa 402
-import cdist.banner     # noqa 402
 import cdist.config     # noqa 402
-import cdist.shell      # noqa 402
-import cdist.inventory  # noqa 402
 
 
 def _check_python_version():

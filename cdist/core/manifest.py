@@ -49,7 +49,7 @@ common:
                                 types are defined for use in type emulator
             == local.type_path
         __files: full qualified path to the files dir
-        __target_host_tags: comma spearated list of host tags
+        __target_host_tags: empty string (backwards compatibility with cdist)
 
 initial manifest is:
     script: full qualified path to the initial manifest
@@ -120,7 +120,7 @@ class Manifest:
             '__target_hostname': self.target_host[1],
             '__target_fqdn': self.target_host[2],
             '__files': self.local.files_path,
-            '__target_host_tags': self.local.target_host_tags,
+            '__target_host_tags': '',  # backwards compatibility with cdist
             '__cdist_log_level': util.log_level_env_var_val(self.log),
             '__cdist_log_level_name': util.log_level_name_env_var_val(
                 self.log),

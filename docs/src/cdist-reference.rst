@@ -8,10 +8,6 @@ $HOME/.cdist
     The standard cdist configuration directory relative to your home directory.
     This is usually the place you want to store your site specific configuration.
 
-cdist/inventory/
-    The distribution inventory directory.
-    This path is relative to cdist installation directory.
-
 confdir
     Cdist will use all available configuration directories and create
     a temporary confdir containing links to the real configuration directories.
@@ -161,20 +157,20 @@ __cdist_dry_run
 __explorer
     Directory that contains all global explorers.
 
-    Available for: initial manifest, explorer, type explorer, shell.
+    Available for: initial manifest, explorer, type explorer.
 __files
     Directory that contains content from the "files" subdirectories
     from the configuration directories.
 
-    Available for: initial manifest, type manifest, type gencode, shell.
+    Available for: initial manifest, type manifest, type gencode.
 __manifest
     Directory that contains the initial manifest.
 
-    Available for: initial manifest, type manifest, shell.
+    Available for: initial manifest, type manifest.
 __global
     Directory that contains generic output like explorer.
 
-    Available for: initial manifest, type manifest, type gencode, shell.
+    Available for: initial manifest, type manifest, type gencode.
 __messages_in
     File to read messages from.
 
@@ -203,23 +199,26 @@ __target_host
     The host we are deploying to. This is primary variable. It's content is
     literally the one user passed in.
 
-    Available for: explorer, initial manifest, type explorer, type manifest, type gencode, shell.
+    Available for: explorer, initial manifest, type explorer, type manifest, type gencode.
 __target_hostname
     The hostname of host we are deploying to. This variable is derived from
     **__target_host** (using **socket.getaddrinfo(__target_host)** and then
     **socket.gethostbyaddr()**).
 
-    Available for: explorer, initial manifest, type explorer, type manifest, type gencode, shell.
+    Available for: explorer, initial manifest, type explorer, type manifest, type gencode.
 __target_fqdn
     The fully qualified domain name of the host we are deploying to.
     This variable is derived from **__target_host**
     (using **socket.getfqdn()**).
 
-    Available for: explorer, initial manifest, type explorer, type manifest, type gencode, shell.
+    Available for: explorer, initial manifest, type explorer, type manifest, type gencode.
 __target_host_tags
-    Comma separated list of target host tags.
+    Set to the empty string. This environment variable is only kept for
+    backwards compatibility with cdist.
 
-    Available for: explorer, initial manifest, type explorer, type manifest, type gencode, shell.
+    The inventory feature has been removed from skonfig.
+
+    Available for: explorer, initial manifest, type explorer, type manifest, type gencode.
 __type
     Path to the current type.
 
@@ -283,9 +282,6 @@ CDIST_REMOTE_EXEC
 
 CDIST_REMOTE_COPY
     Use this command for remote copy (should behave like scp).
-
-CDIST_INVENTORY_DIR
-    Use this directory as inventory directory.
 
 CDIST_COLORED_OUTPUT
     Colorize cdist's output. If enabled, cdist will use different colors for
