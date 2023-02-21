@@ -52,7 +52,6 @@ class ExplorerClassTestCase(test.CdistTestCase):
 
         self.local = local.Local(
             target_host=self.target_host,
-            target_host_tags=self.target_host_tags,
             base_root_path=base_root_path,
             host_dir_name=hostdir,
             exec_path=test.cdist_exec_path,
@@ -246,8 +245,7 @@ class ExplorerClassTestCase(test.CdistTestCase):
                          self.local.target_host[2])
         self.assertEqual(output_dict['__explorer'],
                          self.remote.global_explorer_path)
-        self.assertEqual(output_dict['__target_host_tags'],
-                         self.local.target_host_tags)
+        self.assertEqual(output_dict['__target_host_tags'], '')
         self.assertEqual(output_dict['__cdist_log_level'],
                          str(logging.WARNING))
         self.assertEqual(output_dict['__cdist_log_level_name'], 'WARNING')

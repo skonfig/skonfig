@@ -79,7 +79,7 @@ class Explorer:
             '__target_hostname': self.target_host[1],
             '__target_fqdn': self.target_host[2],
             '__explorer': self.remote.global_explorer_path,
-            '__target_host_tags': self.local.target_host_tags,
+            '__target_host_tags': '',  # backwards compatibility with cdist
             '__cdist_log_level': util.log_level_env_var_val(self.log),
             '__cdist_log_level_name': util.log_level_name_env_var_val(
                 self.log),

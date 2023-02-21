@@ -148,12 +148,6 @@ def get_parsers():
            action='store', dest='jobs',
            const=multiprocessing.cpu_count())
     parser['config_main'].add_argument(
-           '--log-server',
-           action='store_true',
-           help=('Start a log server for sub processes to use. '
-                 'This is mainly useful when running cdist nested '
-                 'from a code-local script.'))
-    parser['config_main'].add_argument(
            '-n', '--dry-run',
            help='Do not execute code.', action='store_true')
     parser['config_main'].add_argument(
@@ -200,15 +194,6 @@ def get_parsers():
     # Config
     parser['config_args'] = argparse.ArgumentParser(add_help=False)
     parser['config_args'].add_argument(
-             '-A', '--all-tagged',
-             help=('Use all hosts present in tags DB.'),
-             action="store_true", dest="all_tagged_hosts", default=False)
-    parser['config_args'].add_argument(
-             '-a', '--all',
-             help=('List hosts that have all specified tags, '
-                   'if -t/--tag is specified.'),
-             action="store_true", dest="has_all_tags", default=False)
-    parser['config_args'].add_argument(
             '-f', '--file',
             help=('Read specified file for a list of additional hosts to '
                   'operate on or if \'-\' is given, read stdin (one host per '
@@ -227,11 +212,6 @@ def get_parsers():
            '-s', '--sequential',
            help='Operate on multiple hosts sequentially (default).',
            action='store_const', dest='parallel', const=0)
-    parser['config_args'].add_argument(
-             '-t', '--tag',
-             help=('Host is specified by tag, not hostname/address; '
-                   'list all hosts that contain any of specified tags.'),
-             dest='tag', required=False, action="store_true", default=False)
     parser['config_args'].add_argument(
             'host', nargs='*', help='Host(s) to operate on.')
     parser['config'] = parser['sub'].add_parser(

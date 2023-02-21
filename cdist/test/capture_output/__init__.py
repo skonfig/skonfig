@@ -49,7 +49,6 @@ class CaptureOutputTestCase(test.CdistTestCase):
         os.makedirs(self.host_base_path)
         self.local = local.Local(
             target_host=self.target_host,
-            target_host_tags=None,
             base_root_path=self.host_base_path,
             host_dir_name=self.hostdir,
             exec_path=cdist.test.cdist_exec_path,
