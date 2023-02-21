@@ -28,6 +28,9 @@ import logging.handlers
 import os
 import sys
 
+from logging import *
+
+root = logging.root
 
 # Define additional cdist logging levels.
 logging.OFF = logging.CRITICAL + 10  # disable logging

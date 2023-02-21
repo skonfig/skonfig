@@ -20,7 +20,8 @@
 #
 
 import os
-import logging
+
+import cdist.log
 
 
 def listdir(path='.', include_dot=False):
@@ -42,4 +43,4 @@ def log_level_env_var_val(log):
 
 
 def log_level_name_env_var_val(log):
-    return logging.getLevelName(log.getEffectiveLevel())
+    return cdist.log.getLevelName(log.getEffectiveLevel())

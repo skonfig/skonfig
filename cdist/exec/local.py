@@ -22,7 +22,6 @@
 #
 
 import datetime
-import logging
 import os
 import re
 import shutil
@@ -83,7 +82,7 @@ class Local:
         self._init_conf_dirs(add_conf_dirs)
 
     def _init_log(self):
-        self.log = logging.getLogger(self.target_host[0])
+        self.log = cdist.log.getLogger(self.target_host[0])
 
     # logger is not pickable, so remove it when we pickle
     def __getstate__(self):

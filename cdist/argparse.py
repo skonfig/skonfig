@@ -1,6 +1,5 @@
 import argparse
 import multiprocessing
-import logging
 import functools
 
 import cdist
@@ -15,14 +14,14 @@ parser = None
 
 _verbosity_level_off = -2
 _verbosity_level = {
-    None: logging.WARNING,
-    _verbosity_level_off: logging.OFF,
-    -1: logging.ERROR,
-    0: logging.WARNING,
-    1: logging.INFO,
-    2: logging.VERBOSE,
-    3: logging.DEBUG,
-    4: logging.TRACE,
+    None: cdist.log.WARNING,
+    _verbosity_level_off: cdist.log.OFF,
+    -1: cdist.log.ERROR,
+    0: cdist.log.WARNING,
+    1: cdist.log.INFO,
+    2: cdist.log.VERBOSE,
+    3: cdist.log.DEBUG,
+    4: cdist.log.TRACE,
 }
 
 
@@ -31,13 +30,13 @@ _verbosity_level = {
 # VERBOSE_DEBUG, VERBOSE_TRACE.
 this_globals = globals()
 for level in _verbosity_level:
-    const = 'VERBOSE_' + logging.getLevelName(_verbosity_level[level])
+    const = 'VERBOSE_' + cdist.log.getLevelName(_verbosity_level[level])
     this_globals[const] = level
 
 
 # All verbosity levels above 4 are TRACE.
 _verbosity_level = collections.defaultdict(
-    lambda: logging.TRACE, _verbosity_level)
+    lambda: cdist.log.TRACE, _verbosity_level)
 
 
 def check_lower_bounded_int(value, lower_bound, name):
@@ -232,7 +231,7 @@ def handle_loglevel(args):
     if hasattr(args, 'quiet') and args.quiet:
         args.verbose = cdist.log._verbosity_level_off
 
-    logging.getLogger().setLevel(cdist.log._verbosity_level[args.verbose])
+    cdist.log.getLogger().setLevel(cdist.log._verbosity_level[args.verbose])
 
 
 def handle_log_colors(args):
@@ -253,7 +252,7 @@ def parse_and_configure(argv, singleton=True):
     handle_loglevel(args)
     handle_log_colors(args)
 
-    log = logging.getLogger("cdist")
+    log = cdist.log.getLogger("cdist")
 
     log.verbose("version %s", cdist.__version__)
     log.trace('command line args: %s', cfg.command_line_args)

@@ -21,7 +21,6 @@
 #
 #
 
-import logging
 import os
 import sys
 import time
@@ -32,10 +31,6 @@ import atexit
 import shutil
 import socket
 
-from cdist.mputil import mp_pool_run, mp_sig_handler
-from cdist import core
-from cdist.util.remoteutil import inspect_ssh_mux_opts
-
 import cdist
 import cdist.configuration
 import cdist.exec.local
@@ -44,7 +39,6 @@ import cdist.hostsource
 import cdist.log
 import cdist.util.ipaddr as ipaddr
 
-from cdist import core
 from cdist.mputil import mp_pool_run, mp_sig_handler
 from cdist.util.remoteutil import inspect_ssh_mux_opts
 
@@ -109,13 +103,13 @@ class Config:
             self.cleanup_cmds = []
         self.remove_remote_files_dirs = remove_remote_files_dirs
 
-        self.explorer = core.Explorer(self.local.target_host, self.local,
-                                      self.remote, jobs=self.jobs,
-                                      dry_run=self.dry_run)
-        self.manifest = core.Manifest(self.local.target_host, self.local,
-                                      dry_run=self.dry_run)
-        self.code = core.Code(self.local.target_host, self.local, self.remote,
-                              dry_run=self.dry_run)
+        self.explorer = cdist.core.Explorer(self.local.target_host, self.local,
+                                            self.remote, jobs=self.jobs,
+                                            dry_run=self.dry_run)
+        self.manifest = cdist.core.Manifest(self.local.target_host, self.local,
+                                            dry_run=self.dry_run)
+        self.code = cdist.core.Code(self.local.target_host, self.local,
+                                    self.remote, dry_run=self.dry_run)
 
     def _init_files_dirs(self):
         """Prepare files and directories for the run"""
@@ -208,7 +202,7 @@ class Config:
         elif args.timestamp:
             cdist.log.setupTimestampingLogging()
 
-        log = logging.getLogger("config")
+        log = cdist.log.getLogger("config")
 
         # No new child process if only one host at a time.
         if args.parallel == 1:
@@ -359,7 +353,7 @@ class Config:
            If operating in parallel then return tuple (host, True|False, )
            so that main process knows for which host function was successful.
         """
-        log = logging.getLogger(host)
+        log = cdist.log.getLogger(host)
 
         try:
             remote_exec, remote_copy, cleanup_cmd = cls._resolve_remote_cmds(
@@ -467,7 +461,7 @@ class Config:
             cmd = cleanup_cmd.split()
             cmd.append(self.local.target_host[0])
             try:
-                if self.log.getEffectiveLevel() <= logging.DEBUG:
+                if self.log.getEffectiveLevel() <= cdist.log.DEBUG:
                     quiet_mode = False
                 else:
                     quiet_mode = True
@@ -479,7 +473,7 @@ class Config:
 
     def object_list(self):
         """Short name for object list retrieval"""
-        for cdist_object in core.CdistObject.list_objects(
+        for cdist_object in cdist.core.CdistObject.list_objects(
                 self.local.object_path, self.local.type_path,
                 self.local.object_marker_name):
             if cdist_object.cdist_type.is_install:
@@ -509,7 +503,7 @@ class Config:
                 """We cannot do anything for this poor object"""
                 continue
 
-            if cdist_object.state == core.CdistObject.STATE_UNDEF:
+            if cdist_object.state == cdist.core.CdistObject.STATE_UNDEF:
                 """Prepare the virgin object"""
 
                 self.object_prepare(cdist_object)
@@ -522,7 +516,7 @@ class Config:
                 """
                 continue
 
-            if cdist_object.state == core.CdistObject.STATE_PREPARED:
+            if cdist_object.state == cdist.core.CdistObject.STATE_PREPARED:
                 self.object_run(cdist_object)
                 objects_changed = True
 
@@ -539,7 +533,7 @@ class Config:
                 """We cannot do anything for this poor object"""
                 continue
 
-            if cdist_object.state == core.CdistObject.STATE_UNDEF:
+            if cdist_object.state == cdist.core.CdistObject.STATE_UNDEF:
                 """Prepare the virgin object"""
 
                 # self.object_prepare(cdist_object)
@@ -597,7 +591,7 @@ class Config:
                 """We cannot do anything for this poor object"""
                 continue
 
-            if cdist_object.state == core.CdistObject.STATE_PREPARED:
+            if cdist_object.state == cdist.core.CdistObject.STATE_PREPARED:
                 if cdist_object.has_requirements_unfinished(
                         cdist_object.autorequire):
                     """The previous step created objects we depend on -
@@ -653,7 +647,7 @@ class Config:
         return objects_changed
 
     def _open_logger(self):
-        self.log = logging.getLogger(self.local.target_host[0])
+        self.log = cdist.log.getLogger(self.local.target_host[0])
 
     # logger is not pickable, so remove it when we pickle
     def __getstate__(self):
@@ -776,7 +770,7 @@ class Config:
             self.log.trace("[ORDER_DEP] Removing order dep files for %s",
                            cdist_object)
             cdist_object.cleanup()
-            cdist_object.state = core.CdistObject.STATE_PREPARED
+            cdist_object.state = cdist.core.CdistObject.STATE_PREPARED
         except cdist.Error as e:
             raise cdist.CdistObjectError(cdist_object, e)
 
@@ -784,7 +778,7 @@ class Config:
         """Run gencode and code for an object"""
         try:
             self.log.verbose("Running object %s", cdist_object.name)
-            if cdist_object.state == core.CdistObject.STATE_DONE:
+            if cdist_object.state == cdist.core.CdistObject.STATE_DONE:
                 raise cdist.Error(("Attempting to run an already finished "
                                    "object: {}").format(cdist_object))
 
@@ -812,6 +806,6 @@ class Config:
 
             # Mark this object as done
             self.log.trace("Finishing run of %s", cdist_object.name)
-            cdist_object.state = core.CdistObject.STATE_DONE
+            cdist_object.state = cdist.core.CdistObject.STATE_DONE
         except cdist.Error as e:
             raise cdist.CdistObjectError(cdist_object, e)

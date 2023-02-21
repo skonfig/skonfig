@@ -23,7 +23,6 @@
 import os
 import glob
 import subprocess
-import logging
 
 import cdist
 import cdist.log
@@ -96,7 +95,7 @@ class Remote:
         self._init_env()
 
     def _open_logger(self):
-        self.log = logging.getLogger(self.target_host[0])
+        self.log = cdist.log.getLogger(self.target_host[0])
 
     # logger is not pickable, so remove it when we pickle
     def __getstate__(self):

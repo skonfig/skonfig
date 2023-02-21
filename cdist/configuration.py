@@ -20,7 +20,6 @@
 #
 
 import configparser
-import logging
 import multiprocessing
 import os
 import re
@@ -234,7 +233,7 @@ class LogLevelOption(OptionBase):
     def get_converter(self):
         def log_level_converter(val):
             try:
-                val = logging.getLevelName(int(val))
+                val = cdist.log.getLevelName(int(val))
                 return self.translate(val)
             except (ValueError, AttributeError):
                 raise ValueError("Invalid {} value: {}.".format(

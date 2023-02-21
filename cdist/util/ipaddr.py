@@ -20,7 +20,6 @@
 #
 
 import socket
-import logging
 
 
 def resolve_target_addresses(host, family=0):
@@ -30,7 +29,7 @@ def resolve_target_addresses(host, family=0):
 
 
 def resolve_target_host_name(host, family=0):
-    log = logging.getLogger(host)
+    log = cdist.log.getLogger(host)
     try:
         # getaddrinfo returns a list of 5-tuples:
         # (family, type, proto, canonname, sockaddr)
@@ -50,7 +49,7 @@ def resolve_target_host_name(host, family=0):
 
 
 def resolve_target_fqdn(host):
-    log = logging.getLogger(host)
+    log = cdist.log.getLogger(host)
     try:
         host_fqdn = socket.getfqdn(host)
         log.debug("derived host_fqdn for host \"%s\": %s", host, host_fqdn)

@@ -22,7 +22,6 @@
 #
 
 import argparse
-import logging
 import os
 import re
 import sys
@@ -125,17 +124,17 @@ class Emulator:
                 loglevel = self.env['__cdist_log_level']
                 level = int(loglevel)
             except ValueError:
-                level = logging.WARNING
+                level = cdist.log.WARNING
         else:
-            level = logging.WARNING
-        self.log = logging.getLogger(self.target_host[0])
+            level = cdist.log.WARNING
+        self.log = cdist.log.getLogger(self.target_host[0])
         try:
-            logging.root.setLevel(level)
+            cdist.log.root.setLevel(level)
             self.log.setLevel(level)
         except (ValueError, TypeError):
             # if invalid __cdist_log_level value
-            logging.root.setLevel(logging.WARNING)
-            self.log.setLevel(logging.WARNING)
+            cdist.log.root.setLevel(cdist.log.WARNING)
+            self.log.setLevel(cdist.log.WARNING)
 
         colored_log = self.env.get('__cdist_colored_log', 'false')
         cdist.log.CdistFormatter.USE_COLORS = colored_log == 'true'

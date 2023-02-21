@@ -21,14 +21,13 @@
 #
 
 import glob
-import logging
 import multiprocessing
 import os
 
 import cdist
 import cdist.log
 from cdist.mputil import mp_pool_run
-from . import util
+from cdist.core import util
 
 '''
 common:
@@ -94,7 +93,7 @@ class Explorer:
         self.jobs = jobs
 
     def _open_logger(self):
-        self.log = logging.getLogger(self.target_host[0])
+        self.log = cdist.log.getLogger(self.target_host[0])
 
     # global
 

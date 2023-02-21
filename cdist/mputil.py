@@ -21,14 +21,13 @@
 
 import concurrent.futures as cf
 import itertools
-import logging
 import multiprocessing
 import os
 import signal
 
 import cdist.log
 
-log = logging.getLogger("cdist-mputil")
+log = cdist.log.getLogger("cdist-mputil")
 
 
 def mp_sig_handler(signum, frame):

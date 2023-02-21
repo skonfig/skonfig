@@ -20,7 +20,6 @@
 #
 #
 
-import logging
 import os
 
 import cdist
@@ -132,7 +131,7 @@ class Manifest:
             self.env['__cdist_dry_run'] = '1'
 
     def _open_logger(self):
-        self.log = logging.getLogger(self.target_host[0])
+        self.log = cdist.log.getLogger(self.target_host[0])
 
     # logger is not pickable, so remove it when we pickle
     def __getstate__(self):
