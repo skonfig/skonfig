@@ -59,7 +59,7 @@ class HostSource:
 
     def hosts(self):
         if not self.source:
-            return
+            return iter(())
 
         if isinstance(self.source, str):
             return self._hosts_from_file()
