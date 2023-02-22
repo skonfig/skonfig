@@ -319,7 +319,14 @@ class Remote:
 
             return output
         except (OSError, subprocess.CalledProcessError) as error:
-            raise cdist.Error(" ".join(command) + ": " + str(error.args[1]))
+            emsg = ""
+            if not isinstance(command, (str, bytes)):
+                emsg += " ".join(command)
+            else:
+                emsg += command
+            if error.args:
+                emsg += ": " + str(error.args[1])
+            raise cdist.Error(emsg)
         except UnicodeDecodeError:
             raise DecodeError(command)
         finally:
