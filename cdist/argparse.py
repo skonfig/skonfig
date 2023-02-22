@@ -222,7 +222,7 @@ def get_parsers():
                                parser['common'],
                                parser['config_main'],
                                parser['config_args']])
-    parser['config'].set_defaults(func=cdist.config.Config.commandline)
+    parser['config'].set_defaults(cls=cdist.config.Config)
 
     return parser
 
