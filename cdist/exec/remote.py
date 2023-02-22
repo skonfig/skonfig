@@ -144,14 +144,14 @@ class Remote:
         import cdist.autil as autil
 
         self.log.trace("Remote extract archive: %s", path)
-        command = ["tar", "-x", "-m", "-C", ]
-        directory = os.path.dirname(path)
-        command.append(directory)
-        xopt = autil.get_extract_option(mode)
-        if xopt:
-            command.append(xopt)
-        command.append("-f")
-        command.append(path)
+        command = [
+            "tar",
+            "-C", os.path.dirname(path),
+            "-x",
+            "-f", path
+        ]
+        if mode is not None:
+            command += mode.extract_opts
         self.run(command)
 
     def _transfer_file(self, source, destination):
@@ -167,7 +167,7 @@ class Remote:
         if os.path.isdir(source):
             self.mkdir(destination)
             used_archiving = False
-            if self.archiving_mode:
+            if self.archiving_mode is not None:
                 self.log.trace("Remote transfer in archiving mode")
                 import cdist.autil as autil
 
