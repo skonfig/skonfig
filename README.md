@@ -1,8 +1,8 @@
 # skonfig
 
-This is [skonfig](https://skonfig.li), a streamlined and compartmentalized version of
-[ungleich](https://github.com/ungleich)'s [cdist](https://github.com/ungleich/cdist)
-(forked after [f061fb1](https://github.com/ungleich/cdist/commit/f061fb168ddacc894cb6e9882ff5c8ba002fadd8)).
+This is [skonfig](https://skonfig.li), a streamlined and compartmentalized
+version of ungleich's [cdist](https://www.cdi.st/)
+(forked after [e250024](https://code.ungleich.ch/ungleich-public/cdist/commit/e2500248f2ddc83129e77f2e6b8dffb64904dbae)).
 
 Work is mostly split between three main repositories:
 
