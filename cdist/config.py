@@ -32,11 +32,12 @@ import atexit
 import shutil
 import socket
 
-from cdist.mputil import mp_pool_run, mp_sig_handler
 from cdist import core
+from cdist.mputil import mp_pool_run, mp_sig_handler
 from cdist.util.remoteutil import inspect_ssh_mux_opts
 
 import cdist
+import cdist.autil
 import cdist.hostsource
 import cdist.exec.local
 import cdist.exec.remote
@@ -388,7 +389,7 @@ class Config:
                 remote_copy=remote_copy,
                 base_path=args.remote_out_path,
                 quiet_mode=args.quiet,
-                archiving_mode=args.use_archiving,
+                archiving_mode=cdist.autil.mode_from_str(args.use_archiving),
                 configuration=configuration,
                 stdout_base_path=local.stdout_base_path,
                 stderr_base_path=local.stderr_base_path,

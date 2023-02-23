@@ -99,7 +99,7 @@ def _commandline():
     # FIXME: we always print main help, not
     # the help of the actual parser being used!
     try:
-        getattr(args, "func")
+        getattr(args, "cls")
     except AttributeError:
         parser['main'].print_help()
         sys.exit(0)
@@ -107,7 +107,7 @@ def _commandline():
     if cfg.get_config(section="GLOBAL").get("check_python_version", True):
         _check_python_version()
 
-    args.func(args)
+    args.cls.commandline(args)
 
 
 if __name__ == "__main__":

@@ -19,12 +19,13 @@
 #
 #
 
-from cdist import test
-import cdist.autil as autil
 import os
 import os.path as op
 import tarfile
 
+import cdist.autil
+
+from cdist import test
 
 my_dir = op.abspath(op.dirname(__file__))
 fixtures = op.join(my_dir, 'fixtures')
@@ -33,19 +34,13 @@ explorers_path = op.join(fixtures, 'explorer')
 
 class AUtilTestCase(test.CdistTestCase):
     def test_tar(self):
-        test_modes = {
-            'tar': 'r:',
-            'tgz': 'r:gz',
-            'tbz2': 'r:bz2',
-            'txz': 'r:xz',
-        }
         source = explorers_path
-        for mode in test_modes:
+        for mode in cdist.autil.archiving_modes:
             try:
-                tarpath, fcnt = autil.tar(source, mode)
+                tarpath, fcnt = cdist.autil.tar(source, mode)
                 self.assertIsNotNone(tarpath)
                 fcnt = 0
-                with tarfile.open(tarpath, test_modes[mode]) as tar:
+                with tarfile.open(tarpath, "r:" + mode.tarmode) as tar:
                     for tarinfo in tar:
                         fcnt += 1
                 os.remove(tarpath)
