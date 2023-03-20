@@ -29,8 +29,6 @@ higher than for extra.
 services which don't belong to the operating system and also serves as an
 incubator for new types.
 
-You can find maintainers in `#skonfig:matrix.org` (you need [Matrix client](https://matrix.org/docs/projects/try-matrix-now/)).
-
 ## Getting Started
 
 ### Step 1: Install `skonfig`
