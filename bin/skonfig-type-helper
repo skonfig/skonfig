@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# 2021-2022 Dennis Camera (skonfig at dtnr.ch)
+# 2021-2023 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -24,12 +24,16 @@ set -e -u
 
 atexit() {
 	# ATTENTION: arguments are not quoted properly
-	_atexit_=${_atexit_-}${_atexit_:+;}$*
+	__atexit__=${__atexit__-}${__atexit__:+;}$*
 	# shellcheck disable=SC2154
-	trap 'eval "${_atexit_-}"' 0
+	trap 'set +e; eval "${__atexit__-}"' 0
 }
 
-quote() { printf '%s\n' "$*" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/'/"; }
+quote() {
+	sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/'/" <<-EOF
+	$*
+	EOF
+}
 
 breify() {
 	# Convert arguments to a POSIX BRE-compatible form, i.e. escape special
@@ -38,10 +42,10 @@ breify() {
 }
 
 error() {
-	_fmt=$1
+	__fmt=$1
 	shift
 	# shellcheck disable=SC2059
-	printf "error: ${_fmt}\n" "$@" >&2
+	printf "error: ${__fmt}\n" "$@" >&2
 	exit 1
 }
 
@@ -49,26 +53,27 @@ join() {
 	# joins the FIELDS using SEP.
 	# usage: join SEP FIELDS
 
-	_sep=$1
+	__sep=$1
 	shift
-	for _a
+	for __a
 	do
-		set -- "$@" "${_sep}" "${_a}"
+		set -- "$@" "${__sep}" "${__a}"
+		shift
 	done
-	shift $(($# + 1))
-	unset _a _sep
+	unset __a __sep
+	shift  # shift away first sep
 	(IFS=''; printf '%s\n' "$*")
 }
 
 require() {
-	for _bin
+	for __bin
 	do
 		shift
-		command -v "${_bin}" >/dev/null 2>&1 || {
-			set -- "$@" "${_bin}"
+		command -v "${__bin}" >/dev/null 2>&1 || {
+			set -- "$@" "${__bin}"
 		}
 	done
-	unset _bin
+	unset __bin
 	if test $# -gt 0
 	then
 		printf 'error: missing: %s\n' "$@" >&2
@@ -139,7 +144,18 @@ git_is_clean() {
 }
 
 git_gitdir() {
-	GIT_DIR='' git -C "${1:?}" rev-parse --git-dir
+	__gd=$(
+		unset GIT_DIR
+		git -C "${1:?}" rev-parse --git-dir
+	)
+	case ${__gd}
+	in
+		('') unset __gd; return 1 ;;
+		(/*) ;;
+		(*) __gd=${1%/}/${__gd}
+	esac
+	printf '%s\n' "${__gd}"
+	unset __gd
 }
 
 git_is_working_copy() {
@@ -147,25 +163,40 @@ git_is_working_copy() {
 }
 
 git_temp_branch() {
-	mktemp -u "$(git_gitdir "${1:?}")/refs/heads"/skonfig-type-helper.XXXXXX | sed 's:.*/::'
+	# shellcheck disable=SC2015
+	_gd=$(git_gitdir "${1:?}") && test -d "${_gd}" || {
+		unset _gd
+		return 2
+	}
+	# shellcheck disable=SC2015
+	_b=$(mktemp -u "${_gd:?}"/refs/heads/skonfig-type-helper.XXXXXX) || {
+		unset _gd _b
+		return 1
+	}
+	echo "${_b##*/}"
+	unset _b _gd
 }
 
 
 # commands
 
 _copy_cleanup() {
-	if git_is_branch "${src_repo}" "refs/original/refs/heads/${temp_branch}"
-	then
-		git -C "${src_repo}" update-ref -d "refs/original/refs/heads/${temp_branch}"
-	fi
+	case ${temp_branch-}
+	in
+		(?*)
+			if git_is_branch "${src_repo}" "refs/original/refs/heads/${temp_branch}"
+			then
+				git -C "${src_repo}" update-ref -d "refs/original/refs/heads/${temp_branch}"
+			fi
 
-	if git_is_branch "${src_repo}" "${temp_branch-}"
-	then
-		# Remove temporary branch
-		printf 'Deleting temporary branch (in source): %s\n' "${temp_branch}"
-		git -C "${src_repo}" checkout "${oldref}"
-		git -C "${src_repo}" branch -D "${temp_branch}"
-	fi
+			if git_is_branch "${src_repo}" "${temp_branch}"
+			then
+				# Remove temporary branch
+				printf 'Deleting temporary branch (in source): %s\n' "${temp_branch}"
+				git -C "${src_repo}" checkout "${oldref:?}" &&
+				git -C "${src_repo}" branch -D "${temp_branch}"
+			fi
+	esac
 }
 
 cmd_copy() {
@@ -250,6 +281,7 @@ cmd_copy() {
 		set -- "$@" "$(breify "$1")"
 		shift
 	done
+	unset _type_name
 
 	file_filter="^$(breify "${src_path}")/\($(join '\|' "$@")\)/"
 
@@ -270,14 +302,21 @@ cmd_copy() {
 		filter_cmd="${filter_cmd:-:}; cd \$(git rev-parse --show-cdup)./ && mkdir -p $(quote "${dest_prefix%/}") && git mv -f -k $(quote "${src_path}") $(quote "${dest_prefix%/}")"
 	fi
 
-	shmdir=$(find /run/shm /dev/shm -prune | head -n 1)
-	if test -d "${shmdir}"
-	then
-		filter_tmpdir=$(mktemp -u "${shmdir}/skonfig-type-helper.XXXXXX")
-	fi
+	while read -r _shmdir
+	do
+		if test -d "${_shmdir}"
+		then
+			filter_tmpdir=$(mktemp -u "${_shmdir}/skonfig-type-helper.XXXXXX")
+			break
+		fi
+	done <<-EOF
+	$(find /run/shm /dev/shm -prune -print 2>/dev/null)
+	EOF
+	unset shmdir
 
 	FILTER_BRANCH_SQUELCH_WARNING=1 \
-	git -C "${src_repo}" filter-branch ${filter_tmpdir:+-d "${filter_tmpdir}"} \
+	git -C "${src_repo}" filter-branch \
+		${filter_tmpdir:+ -d "${filter_tmpdir}"} \
 		--index-filter "${filter_cmd}" \
 		--prune-empty \
 		--parent-filter "sed 's/-p //g' | xargs git show-branch --independent | sed 's/^/-p /' | tr '\\n' ' '" \
@@ -300,6 +339,7 @@ cmd_copy() {
 			git -C "${src_repo}" rm -q -r "${src_path:?}/${_type_name}/"
 			git -C "${src_repo}" commit -m "[${src_path:?}/${_type_name}] Remove type"
 		done
+		unset _type_name
 
 		git -C "${src_repo}" checkout "${oldref}"
 	fi
@@ -349,21 +389,14 @@ cmd_make_set() {
 	unset _opt OPTARG
 
 	git_is_clean "${src_repo:?}" || {
-		error 'this operation requires a clean Git working copy.'
+		error 'this operation requires a clean source Git working copy.'
 	}
 
 	src_path="${src_prefix%/}${src_prefix:+/}type"
 
 	# expand globs
-	cd "${src_repo:?}/${src_path}" &&
-	for _type_glob
-	do
-		# shellcheck disable=SC2086
-		set -- "$@" ${_type_glob}
-		shift
-	done
-	shift $#
-	cd - >/dev/null
+	# shellcheck disable=SC2048,SC2086
+	cd "${src_repo:?}/${src_path}" && set -- $* && cd - >/dev/null
 
 	if ${delete_src}
 	then
@@ -402,7 +435,11 @@ if test $# -ge 1
 then
 	command=$1
 	shift
-	cmd_func=cmd_$(printf '%s\n' "${command}" | tr '-' '_')
+	cmd_func=$(
+		tr - _ <<-EOF
+		cmd_${command}
+		EOF
+	)
 
 	if type "${cmd_func}" >/dev/null 2>&1
 	then
