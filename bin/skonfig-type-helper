@@ -108,7 +108,7 @@ help() {
 
 	Commands:
 
-	copy -s <src repo> [-P <src prefix>] -d <dest repo> [-p <dest prefix>] -b <branch>  <type name>...
+	copy -s <src repo> [-P <src prefix>] -d <dest repo> [-p <dest prefix>] -b <branch> <type name>...
 	    copies the given type from the source repository into a new branch in a
 	    destination Git repository, keeping the Git history.
 	    The dest repo can be a local working copy or a remote URL.
@@ -118,6 +118,10 @@ help() {
 
 	      git merge --allow-unrelated-histories
 
+	    The type name parameter accepts globs which will be interpreted relative to
+	    the source repository's type directory.  Make sure to quote globs so
+	    that the calling shell does not interpret them.
+
 	move -s <src_repo> [-P <src prefix>] [-B <src branch>] -d <dest repo> [-p <dest prefix>] -b <branch> <type name>...
 	    copies a type to an other Git repository like the copy command does, but
 	    it will additionally delete the type from the source (in a branch with
@@ -126,6 +130,10 @@ help() {
 	    if the name of the branch in the source repository should have a
 	    different name, the -B option can be used.
 
+	    The type name parameter accepts globs which will be interpreted relative to
+	    the source repository's type directory.  Make sure to quote globs so
+	    that the calling shell does not interpret them.
+
 	make-set [-m] -s <src repo> [-P <src prefix>] [-B <src branch>] -d <dest repo> <type name>...
 	    splits out a set of types into a skonfig set.
 	    this command expects an empty(!) repository to exist at <dest repo>.
@@ -133,8 +141,8 @@ help() {
 	    setting -m will delete the types exported to the set from the source
 	    repository (it will do so on the <src branch>).
 
-	    the type name option accepts globs which will be interpreted relative to
-	    the source repository's type directory.  Make sure to quote globs to
+	    The type name parameter accepts globs which will be interpreted relative to
+	    the source repository's type directory.  Make sure to quote globs so
 	    that the calling shell does not interpret them.
 
 	EOF
@@ -312,8 +320,8 @@ cmd_copy() {
 	OPTIND=1  # reset
 	unset _opt OPTARG
 
-	# no types, nothing to do
-	test $# -gt 0 || return 0
+	src_path="${src_prefix%/}${src_prefix:+/}type"
+	dst_path="${dest_prefix%/}${dest_prefix:+/}type"
 
 	test -n "${dest_repo-}" || {
 		error 'option -d is required for %s command.' "${command}"
@@ -326,6 +334,13 @@ cmd_copy() {
 	git_is_working_copy "${src_repo:?}" || {
 		error 'conf dir must be the root of a Git repository.'
 	}
+
+	# expand globs
+	# shellcheck disable=SC2048,SC2086
+	cd "${src_repo:?}/${src_path}" && set -- $* && cd - >/dev/null
+
+	# no types, nothing to do
+	test $# -gt 0 || return 0
 
 	lock_repo "${src_repo:?}" || return
 	# shellcheck disable=SC2016
@@ -344,9 +359,6 @@ cmd_copy() {
 		# ensure the path is absolute because the git command will chdir
 		dest_repo=file://$(cd "${dest_repo}" && pwd -P)
 	fi
-
-	src_path="${src_prefix%/}${src_prefix:+/}type"
-	dst_path="${dest_prefix%/}${dest_prefix:+/}type"
 
 	# breify type names
 	for _type_name
@@ -432,11 +444,15 @@ cmd_make_set() {
 	# defaults
 	delete_src=false
 	src_branch=
-	src_prefix=
 
 	# parse options
+	# shellcheck disable=SC2213
 	while getopts ':B:d:mP:s:' _opt
 	do
+		# NOTE: the options overlap with the options for the copy command.
+		#       The only difference is that if the move option -m is set, the
+		#       -B option is required, because in copy -B will default to the
+		#       value of -b which is hard-coded to "main" in make-set.
 		case ${_opt}
 		in
 			(B)
@@ -444,15 +460,6 @@ cmd_make_set() {
 				;;
 			(m)
 				delete_src=true
-				;;
-			(d)
-				dest_repo=${OPTARG}
-				;;
-			(s)
-				src_repo=${OPTARG}
-				;;
-			(P)
-				src_prefix=${OPTARG}
 				;;
 			(\?)
 				error 'illegal option for %s: %s' \
@@ -463,30 +470,17 @@ cmd_make_set() {
 				;;
 		esac
 	done
-	shift $((OPTIND-1))
 	OPTIND=1  # reset
 	unset _opt OPTARG
 
-	git_is_clean "${src_repo:?}" || {
-		error 'this operation requires a clean source Git working copy.'
-	}
-
-	src_path="${src_prefix%/}${src_prefix:+/}type"
-
-	# expand globs
-	# shellcheck disable=SC2048,SC2086
-	cd "${src_repo:?}/${src_path}" && set -- $* && cd - >/dev/null
-
-	if ${delete_src}
+	if ${delete_src} && test -z "${src_branch-}"
 	then
-		test -n "${src_branch-}" || {
-			error 'option -B is required when -m is set.'
-		}
-
-		set -- -m -B "${src_branch:?}" "$@"
+		error 'option -B is required when -m is set.'
 	fi
 
-	cmd_copy -s "${src_repo:?}" -d "${dest_repo:?}" -b main "$@"
+	unset delete_src src_branch
+
+	cmd_copy -b main "$@"
 }
 
 
