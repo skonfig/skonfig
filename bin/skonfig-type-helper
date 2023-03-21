@@ -177,6 +177,56 @@ git_temp_branch() {
 	unset _b _gd
 }
 
+# lock
+
+lock_repo() {
+	# shellcheck disable=SC2015
+	_gd=$(git_gitdir "${1:?}") && test -d "${_gd}" || {
+		printf 'cannot lock "%s", it is not a Git repository.\n' "${1:?}" >&2
+		unset _gd
+		return 2
+	}
+
+	(
+		set -C && echo $$ >"${_gd:?}"/.skonfig-type-helper-is-running
+	) 2>/dev/null || {
+		_pid=$(cat "${_gd:?}"/.skonfig-type-helper-is-running 2>/dev/null) || :
+		case ${_pid}
+		in
+			('')
+				printf 'failed to lock "%s"\n' "${1:?}" >&2
+				;;
+			([0-9]*)
+				printf 'failed to lock "%s" (it is already locked by PID %u)\n' \
+					"${1:?}" $((_pid)) >&2
+				;;
+		esac
+		unset _gd _pid
+		return 1
+	}
+	unset _gd
+	return 0
+}
+
+unlock_repo() {
+	# shellcheck disable=SC2015
+	_gd=$(git_gitdir "${1:?}") && test -d "${_gd}" || {
+		printf 'cannot unlock "%s", it is not a Git repository.\n' "${1:?}" >&2
+		unset _gd
+		return 2
+	}
+
+	if echo $$ | cmp -s "${_gd:?}"/.skonfig-type-helper-is-running - 2>/dev/null
+	then
+		rm "${_gd:?}"/.skonfig-type-helper-is-running
+		unset _gd
+		return 0
+	else
+		unset _gd
+		return 1
+	fi
+}
+
 
 # commands
 
@@ -258,6 +308,15 @@ cmd_copy() {
 	git_is_working_copy "${src_repo:?}" || {
 		error 'conf dir must be the root of a Git repository.'
 	}
+
+	lock_repo "${src_repo:?}" || return
+	# shellcheck disable=SC2016
+	atexit 'unlock_repo "${src_repo:?}"'
+
+	# NOTE: only check for a clean working copy after locking the repo, because
+	#       on systems where no shmdir can be detected, git-filter-branch(1)
+	#       will create a .git-rewrite directory inside the working copy,
+	#       triggering this error instead of the desired "already locked" error.
 	git_is_clean "${src_repo:?}" || {
 		error 'this operation requires a clean Git working copy.'
 	}
