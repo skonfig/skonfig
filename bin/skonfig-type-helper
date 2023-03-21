@@ -81,6 +81,21 @@ require() {
 	fi
 }
 
+getopts_illegal_option() {
+	# usage: getopts_illegal_option "$@"
+	case ${OPTARG:?}
+	in
+		(-)
+			# long option
+			shift $((OPTIND-1))
+			echo "${1}"
+			;;
+		(*)
+			echo "-${OPTARG}"
+			;;
+	esac
+}
+
 
 # Help
 
@@ -285,8 +300,11 @@ cmd_copy() {
 				src_repo=${OPTARG}
 				;;
 			(\?)
-				shift $((OPTIND-2))
-				error 'illegal option for %s: %s' "$0 ${command}" "$1"
+				error 'illegal option for %s: %s' \
+					"$0 ${command}" "$(getopts_illegal_option "$@")"
+				;;
+			(:)
+				error 'option -%s requires an argument' "${OPTARG}"
 				;;
 		esac
 	done
@@ -298,7 +316,7 @@ cmd_copy() {
 	test $# -gt 0 || return 0
 
 	test -n "${dest_repo-}" || {
-		error 'option -r is required for %s command.' "${command}"
+		error 'option -d is required for %s command.' "${command}"
 	}
 	test -n "${dest_branch-}" || {
 		error 'option -b is mandatory for %s command.' "${command}"
@@ -437,9 +455,11 @@ cmd_make_set() {
 				src_prefix=${OPTARG}
 				;;
 			(\?)
-				shift $((OPTIND-2))
-				OPTIND=2
-				error 'illegal option for %s: %s' "$0 ${command}" "$1"
+				error 'illegal option for %s: %s' \
+					"$0 ${command}" "$(getopts_illegal_option "$@")"
+				;;
+			(:)
+				error 'option -%s requires an argument' "${OPTARG}"
 				;;
 		esac
 	done
@@ -472,7 +492,7 @@ cmd_make_set() {
 
 # main
 
-while getopts 'h' _opt
+while getopts ':h' _opt
 do
 	case ${_opt}
 	in
@@ -481,8 +501,23 @@ do
 			exit 0
 			;;
 		(\?)  # others
-			usage
-			exit 2
+			_illopt=$(getopts_illegal_option "$@")
+			case ${_illopt}
+			in
+				(--help)
+					# replace option with -h (we also allow the
+					# long option --help)
+					shift $((OPTIND))
+					set -- -h "$@"
+					OPTIND=1
+					;;
+				(*)
+					printf '%s: illegal option: %s\n' "$0" "${_illopt}" >&2
+					usage
+					exit 2
+					;;
+			esac
+			unset _illopt
 			;;
 	esac
 done
