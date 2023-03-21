@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# 2021-2022 Dennis Camera (skonfig at dtnr.ch)
+# 2021-2023 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -24,12 +24,16 @@ set -e -u
 
 atexit() {
 	# ATTENTION: arguments are not quoted properly
-	_atexit_=${_atexit_-}${_atexit_:+;}$*
+	__atexit__=${__atexit__-}${__atexit__:+;}$*
 	# shellcheck disable=SC2154
-	trap 'eval "${_atexit_-}"' 0
+	trap 'set +e; eval "${__atexit__-}"' 0
 }
 
-quote() { printf '%s\n' "$*" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/'/"; }
+quote() {
+	sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/'/" <<-EOF
+	$*
+	EOF
+}
 
 breify() {
 	# Convert arguments to a POSIX BRE-compatible form, i.e. escape special
@@ -38,10 +42,10 @@ breify() {
 }
 
 error() {
-	_fmt=$1
+	__fmt=$1
 	shift
 	# shellcheck disable=SC2059
-	printf "error: ${_fmt}\n" "$@" >&2
+	printf "error: ${__fmt}\n" "$@" >&2
 	exit 1
 }
 
@@ -49,31 +53,47 @@ join() {
 	# joins the FIELDS using SEP.
 	# usage: join SEP FIELDS
 
-	_sep=$1
+	__sep=$1
 	shift
-	for _a
+	for __a
 	do
-		set -- "$@" "${_sep}" "${_a}"
+		set -- "$@" "${__sep}" "${__a}"
+		shift
 	done
-	shift $(($# + 1))
-	unset _a _sep
+	unset __a __sep
+	shift  # shift away first sep
 	(IFS=''; printf '%s\n' "$*")
 }
 
 require() {
-	for _bin
+	for __bin
 	do
 		shift
-		command -v "${_bin}" >/dev/null 2>&1 || {
-			set -- "$@" "${_bin}"
+		command -v "${__bin}" >/dev/null 2>&1 || {
+			set -- "$@" "${__bin}"
 		}
 	done
-	unset _bin
+	unset __bin
 	if test $# -gt 0
 	then
 		printf 'error: missing: %s\n' "$@" >&2
 		return 1
 	fi
+}
+
+getopts_illegal_option() {
+	# usage: getopts_illegal_option "$@"
+	case ${OPTARG:?}
+	in
+		(-)
+			# long option
+			shift $((OPTIND-1))
+			echo "${1}"
+			;;
+		(*)
+			echo "-${OPTARG}"
+			;;
+	esac
 }
 
 
@@ -88,7 +108,7 @@ help() {
 
 	Commands:
 
-	copy -s <src repo> [-P <src prefix>] -d <dest repo> [-p <dest prefix>] -b <branch>  <type name>...
+	copy -s <src repo> [-P <src prefix>] -d <dest repo> [-p <dest prefix>] -b <branch> <type name>...
 	    copies the given type from the source repository into a new branch in a
 	    destination Git repository, keeping the Git history.
 	    The dest repo can be a local working copy or a remote URL.
@@ -98,6 +118,10 @@ help() {
 
 	      git merge --allow-unrelated-histories
 
+	    The type name parameter accepts globs which will be interpreted relative to
+	    the source repository's type directory.  Make sure to quote globs so
+	    that the calling shell does not interpret them.
+
 	move -s <src_repo> [-P <src prefix>] [-B <src branch>] -d <dest repo> [-p <dest prefix>] -b <branch> <type name>...
 	    copies a type to an other Git repository like the copy command does, but
 	    it will additionally delete the type from the source (in a branch with
@@ -106,6 +130,10 @@ help() {
 	    if the name of the branch in the source repository should have a
 	    different name, the -B option can be used.
 
+	    The type name parameter accepts globs which will be interpreted relative to
+	    the source repository's type directory.  Make sure to quote globs so
+	    that the calling shell does not interpret them.
+
 	make-set [-m] -s <src repo> [-P <src prefix>] [-B <src branch>] -d <dest repo> <type name>...
 	    splits out a set of types into a skonfig set.
 	    this command expects an empty(!) repository to exist at <dest repo>.
@@ -113,8 +141,8 @@ help() {
 	    setting -m will delete the types exported to the set from the source
 	    repository (it will do so on the <src branch>).
 
-	    the type name option accepts globs which will be interpreted relative to
-	    the source repository's type directory.  Make sure to quote globs to
+	    The type name parameter accepts globs which will be interpreted relative to
+	    the source repository's type directory.  Make sure to quote globs so
 	    that the calling shell does not interpret them.
 
 	EOF
@@ -139,7 +167,18 @@ git_is_clean() {
 }
 
 git_gitdir() {
-	GIT_DIR='' git -C "${1:?}" rev-parse --git-dir
+	__gd=$(
+		unset GIT_DIR
+		git -C "${1:?}" rev-parse --git-dir
+	)
+	case ${__gd}
+	in
+		('') unset __gd; return 1 ;;
+		(/*) ;;
+		(*) __gd=${1%/}/${__gd}
+	esac
+	printf '%s\n' "${__gd}"
+	unset __gd
 }
 
 git_is_working_copy() {
@@ -147,25 +186,90 @@ git_is_working_copy() {
 }
 
 git_temp_branch() {
-	mktemp -u "$(git_gitdir "${1:?}")/refs/heads"/skonfig-type-helper.XXXXXX | sed 's:.*/::'
+	# shellcheck disable=SC2015
+	_gd=$(git_gitdir "${1:?}") && test -d "${_gd}" || {
+		unset _gd
+		return 2
+	}
+	# shellcheck disable=SC2015
+	_b=$(mktemp -u "${_gd:?}"/refs/heads/skonfig-type-helper.XXXXXX) || {
+		unset _gd _b
+		return 1
+	}
+	echo "${_b##*/}"
+	unset _b _gd
+}
+
+# lock
+
+lock_repo() {
+	# shellcheck disable=SC2015
+	_gd=$(git_gitdir "${1:?}") && test -d "${_gd}" || {
+		printf 'cannot lock "%s", it is not a Git repository.\n' "${1:?}" >&2
+		unset _gd
+		return 2
+	}
+
+	(
+		set -C && echo $$ >"${_gd:?}"/.skonfig-type-helper-is-running
+	) 2>/dev/null || {
+		_pid=$(cat "${_gd:?}"/.skonfig-type-helper-is-running 2>/dev/null) || :
+		case ${_pid}
+		in
+			('')
+				printf 'failed to lock "%s"\n' "${1:?}" >&2
+				;;
+			([0-9]*)
+				printf 'failed to lock "%s" (it is already locked by PID %u)\n' \
+					"${1:?}" $((_pid)) >&2
+				;;
+		esac
+		unset _gd _pid
+		return 1
+	}
+	unset _gd
+	return 0
+}
+
+unlock_repo() {
+	# shellcheck disable=SC2015
+	_gd=$(git_gitdir "${1:?}") && test -d "${_gd}" || {
+		printf 'cannot unlock "%s", it is not a Git repository.\n' "${1:?}" >&2
+		unset _gd
+		return 2
+	}
+
+	if echo $$ | cmp -s "${_gd:?}"/.skonfig-type-helper-is-running - 2>/dev/null
+	then
+		rm "${_gd:?}"/.skonfig-type-helper-is-running
+		unset _gd
+		return 0
+	else
+		unset _gd
+		return 1
+	fi
 }
 
 
 # commands
 
 _copy_cleanup() {
-	if git_is_branch "${src_repo}" "refs/original/refs/heads/${temp_branch}"
-	then
-		git -C "${src_repo}" update-ref -d "refs/original/refs/heads/${temp_branch}"
-	fi
+	case ${temp_branch-}
+	in
+		(?*)
+			if git_is_branch "${src_repo}" "refs/original/refs/heads/${temp_branch}"
+			then
+				git -C "${src_repo}" update-ref -d "refs/original/refs/heads/${temp_branch}"
+			fi
 
-	if git_is_branch "${src_repo}" "${temp_branch-}"
-	then
-		# Remove temporary branch
-		printf 'Deleting temporary branch (in source): %s\n' "${temp_branch}"
-		git -C "${src_repo}" checkout "${oldref}"
-		git -C "${src_repo}" branch -D "${temp_branch}"
-	fi
+			if git_is_branch "${src_repo}" "${temp_branch}"
+			then
+				# Remove temporary branch
+				printf 'Deleting temporary branch (in source): %s\n' "${temp_branch}"
+				git -C "${src_repo}" checkout "${oldref:?}" &&
+				git -C "${src_repo}" branch -D "${temp_branch}"
+			fi
+	esac
 }
 
 cmd_copy() {
@@ -204,8 +308,11 @@ cmd_copy() {
 				src_repo=${OPTARG}
 				;;
 			(\?)
-				shift $((OPTIND-2))
-				error 'illegal option for %s: %s' "$0 ${command}" "$1"
+				error 'illegal option for %s: %s' \
+					"$0 ${command}" "$(getopts_illegal_option "$@")"
+				;;
+			(:)
+				error 'option -%s requires an argument' "${OPTARG}"
 				;;
 		esac
 	done
@@ -213,11 +320,11 @@ cmd_copy() {
 	OPTIND=1  # reset
 	unset _opt OPTARG
 
-	# no types, nothing to do
-	test $# -gt 0 || return 0
+	src_path="${src_prefix%/}${src_prefix:+/}type"
+	dst_path="${dest_prefix%/}${dest_prefix:+/}type"
 
 	test -n "${dest_repo-}" || {
-		error 'option -r is required for %s command.' "${command}"
+		error 'option -d is required for %s command.' "${command}"
 	}
 	test -n "${dest_branch-}" || {
 		error 'option -b is mandatory for %s command.' "${command}"
@@ -227,6 +334,22 @@ cmd_copy() {
 	git_is_working_copy "${src_repo:?}" || {
 		error 'conf dir must be the root of a Git repository.'
 	}
+
+	# expand globs
+	# shellcheck disable=SC2048,SC2086
+	cd "${src_repo:?}/${src_path}" && set -- $* && cd - >/dev/null
+
+	# no types, nothing to do
+	test $# -gt 0 || return 0
+
+	lock_repo "${src_repo:?}" || return
+	# shellcheck disable=SC2016
+	atexit 'unlock_repo "${src_repo:?}"'
+
+	# NOTE: only check for a clean working copy after locking the repo, because
+	#       on systems where no shmdir can be detected, git-filter-branch(1)
+	#       will create a .git-rewrite directory inside the working copy,
+	#       triggering this error instead of the desired "already locked" error.
 	git_is_clean "${src_repo:?}" || {
 		error 'this operation requires a clean Git working copy.'
 	}
@@ -236,9 +359,6 @@ cmd_copy() {
 		# ensure the path is absolute because the git command will chdir
 		dest_repo=file://$(cd "${dest_repo}" && pwd -P)
 	fi
-
-	src_path="${src_prefix%/}${src_prefix:+/}type"
-	dst_path="${dest_prefix%/}${dest_prefix:+/}type"
 
 	# breify type names
 	for _type_name
@@ -250,6 +370,7 @@ cmd_copy() {
 		set -- "$@" "$(breify "$1")"
 		shift
 	done
+	unset _type_name
 
 	file_filter="^$(breify "${src_path}")/\($(join '\|' "$@")\)/"
 
@@ -270,14 +391,21 @@ cmd_copy() {
 		filter_cmd="${filter_cmd:-:}; cd \$(git rev-parse --show-cdup)./ && mkdir -p $(quote "${dest_prefix%/}") && git mv -f -k $(quote "${src_path}") $(quote "${dest_prefix%/}")"
 	fi
 
-	shmdir=$(find /run/shm /dev/shm -prune | head -n 1)
-	if test -d "${shmdir}"
-	then
-		filter_tmpdir=$(mktemp -u "${shmdir}/skonfig-type-helper.XXXXXX")
-	fi
+	while read -r _shmdir
+	do
+		if test -d "${_shmdir}"
+		then
+			filter_tmpdir=$(mktemp -u "${_shmdir}/skonfig-type-helper.XXXXXX")
+			break
+		fi
+	done <<-EOF
+	$(find /run/shm /dev/shm -prune -print 2>/dev/null)
+	EOF
+	unset shmdir
 
 	FILTER_BRANCH_SQUELCH_WARNING=1 \
-	git -C "${src_repo}" filter-branch ${filter_tmpdir:+-d "${filter_tmpdir}"} \
+	git -C "${src_repo}" filter-branch \
+		${filter_tmpdir:+ -d "${filter_tmpdir}"} \
 		--index-filter "${filter_cmd}" \
 		--prune-empty \
 		--parent-filter "sed 's/-p //g' | xargs git show-branch --independent | sed 's/^/-p /' | tr '\\n' ' '" \
@@ -300,6 +428,7 @@ cmd_copy() {
 			git -C "${src_repo}" rm -q -r "${src_path:?}/${_type_name}/"
 			git -C "${src_repo}" commit -m "[${src_path:?}/${_type_name}] Remove type"
 		done
+		unset _type_name
 
 		git -C "${src_repo}" checkout "${oldref}"
 	fi
@@ -315,11 +444,15 @@ cmd_make_set() {
 	# defaults
 	delete_src=false
 	src_branch=
-	src_prefix=
 
 	# parse options
+	# shellcheck disable=SC2213
 	while getopts ':B:d:mP:s:' _opt
 	do
+		# NOTE: the options overlap with the options for the copy command.
+		#       The only difference is that if the move option -m is set, the
+		#       -B option is required, because in copy -B will default to the
+		#       value of -b which is hard-coded to "main" in make-set.
 		case ${_opt}
 		in
 			(B)
@@ -328,59 +461,32 @@ cmd_make_set() {
 			(m)
 				delete_src=true
 				;;
-			(d)
-				dest_repo=${OPTARG}
-				;;
-			(s)
-				src_repo=${OPTARG}
-				;;
-			(P)
-				src_prefix=${OPTARG}
-				;;
 			(\?)
-				shift $((OPTIND-2))
-				OPTIND=2
-				error 'illegal option for %s: %s' "$0 ${command}" "$1"
+				error 'illegal option for %s: %s' \
+					"$0 ${command}" "$(getopts_illegal_option "$@")"
+				;;
+			(:)
+				error 'option -%s requires an argument' "${OPTARG}"
 				;;
 		esac
 	done
-	shift $((OPTIND-1))
 	OPTIND=1  # reset
 	unset _opt OPTARG
 
-	git_is_clean "${src_repo:?}" || {
-		error 'this operation requires a clean Git working copy.'
-	}
-
-	src_path="${src_prefix%/}${src_prefix:+/}type"
-
-	# expand globs
-	cd "${src_repo:?}/${src_path}" &&
-	for _type_glob
-	do
-		# shellcheck disable=SC2086
-		set -- "$@" ${_type_glob}
-		shift
-	done
-	shift $#
-	cd - >/dev/null
-
-	if ${delete_src}
+	if ${delete_src} && test -z "${src_branch-}"
 	then
-		test -n "${src_branch-}" || {
-			error 'option -B is required when -m is set.'
-		}
-
-		set -- -m -B "${src_branch:?}" "$@"
+		error 'option -B is required when -m is set.'
 	fi
 
-	cmd_copy -s "${src_repo:?}" -d "${dest_repo:?}" -b main "$@"
+	unset delete_src src_branch
+
+	cmd_copy -b main "$@"
 }
 
 
 # main
 
-while getopts 'h' _opt
+while getopts ':h' _opt
 do
 	case ${_opt}
 	in
@@ -389,8 +495,23 @@ do
 			exit 0
 			;;
 		(\?)  # others
-			usage
-			exit 2
+			_illopt=$(getopts_illegal_option "$@")
+			case ${_illopt}
+			in
+				(--help)
+					# replace option with -h (we also allow the
+					# long option --help)
+					shift $((OPTIND))
+					set -- -h "$@"
+					OPTIND=1
+					;;
+				(*)
+					printf '%s: illegal option: %s\n' "$0" "${_illopt}" >&2
+					usage
+					exit 2
+					;;
+			esac
+			unset _illopt
 			;;
 	esac
 done
@@ -402,7 +523,11 @@ if test $# -ge 1
 then
 	command=$1
 	shift
-	cmd_func=cmd_$(printf '%s\n' "${command}" | tr '-' '_')
+	cmd_func=$(
+		tr - _ <<-EOF
+		cmd_${command}
+		EOF
+	)
 
 	if type "${cmd_func}" >/dev/null 2>&1
 	then
