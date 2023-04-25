@@ -10,20 +10,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        os:
+          - ubuntu
+          - macos
+        python-version:
+          - pypy-3.6
+          - pypy-3.7
+          - pypy-3.8
+          - pypy-3.9
         include:
-          - {os: "ubuntu-18.04",  python-version: "3.3"}
-          - {os: "ubuntu-18.04",  python-version: "3.4"}
-          - {os: "ubuntu-18.04",  python-version: "3.5"}
-          - {os: "ubuntu-18.04",  python-version: "3.6"}
-          - {os: "ubuntu-18.04",  python-version: "pypy-3.6"}
-          - {os: "ubuntu-18.04",  python-version: "pypy-3.7"}
-          - {os: "ubuntu-latest", python-version: "pypy-3.8"}
-          - {os: "ubuntu-latest", python-version: "pypy-3.9"}
-          - {os: "macos-latest",  python-version: "3.5"}
-          - {os: "macos-latest",  python-version: "3.6"}
-          - {os: "macos-latest",  python-version: "pypy-3.8"}
-          - {os: "macos-latest",  python-version: "pypy-3.9"}
-    runs-on: ${{ matrix.os }}
+          - {os: "macos",  python-version: "3.5"}
+          - {os: "macos",  python-version: "3.6"}
+        exclude:
+          - {os: "macos",  python-version: "pypy-3.6"}
+          - {os: "macos",  python-version: "pypy-3.9"}
+    runs-on: ${{ matrix.os }}-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
