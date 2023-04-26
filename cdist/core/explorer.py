@@ -2,6 +2,7 @@
 #
 # 2011 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2011 Nico Schottelius (nico-cdist at schottelius.org)
+# 2023 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of cdist.
 #
@@ -159,15 +160,10 @@ class Explorer:
 
     def transfer_global_explorers(self):
         """Transfer the global explorers to the target."""
-        if os.path.isdir(self.local.global_explorer_path) \
-                and os.listdir(self.local.global_explorer_path):
-            # only transfer if there's actually something to transfer,
-            # otherwise chmod(1) will fail.
+        if os.path.isdir(self.local.global_explorer_path):
             self.remote.transfer(self.local.global_explorer_path,
                                  self.remote.global_explorer_path,
-                                 self.jobs)
-            self.remote.run("chmod 0700 %s/*" % (
-                shquot.quote(self.remote.global_explorer_path)))
+                                 self.jobs, umask=0o077)
 
     def run_global_explorer(self, explorer):
         """Run the given global explorer and return it's output."""
@@ -246,9 +242,7 @@ class Explorer:
                                       cdist_type.explorer_path)
                 destination = os.path.join(self.remote.type_path,
                                            cdist_type.explorer_path)
-                self.remote.transfer(source, destination)
-                self.remote.run("chmod 0700 %s/*" % (
-                    shquot.quote(destination)))
+                self.remote.transfer(source, destination, umask=0o077)
                 self._type_explorers_transferred.append(cdist_type.name)
 
     def transfer_object_parameters(self, cdist_object):

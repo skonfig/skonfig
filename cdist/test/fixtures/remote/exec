@@ -21,6 +21,4 @@
 
 target_host=$1
 shift
-/bin/sh <<CODE
-$*
-CODE
+exec /bin/sh -c "$*"

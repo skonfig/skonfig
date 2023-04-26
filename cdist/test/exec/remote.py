@@ -48,7 +48,6 @@ class RemoteTestCase(test.CdistTestCase):
         kwargs.setdefault('base_path', self.base_path)
         user = getpass.getuser()
         kwargs.setdefault('remote_exec', 'ssh -o User={} -q'.format(user))
-        kwargs.setdefault('remote_copy', 'scp -o User={} -q'.format(user))
         if 'stdout_base_path' not in kwargs:
             stdout_path = os.path.join(self.temp_dir, 'stdout')
             os.makedirs(stdout_path, exist_ok=True)
@@ -166,9 +165,7 @@ class RemoteTestCase(test.CdistTestCase):
             fd.writelines(["#!/bin/sh\n", "echo $__target_host"])
         os.chmod(remote_exec_path, 0o755)
         remote_exec = remote_exec_path
-        remote_copy = "echo"
-        r = self.create_remote(remote_exec=remote_exec,
-                               remote_copy=remote_copy)
+        r = self.create_remote(remote_exec=remote_exec)
         self.assertEqual(r.run('true', return_output=True),
                          "{}\n".format(self.target_host[0]))
 
@@ -178,9 +175,7 @@ class RemoteTestCase(test.CdistTestCase):
             fd.writelines(["#!/bin/sh\n", "echo $__target_host"])
         os.chmod(remote_exec_path, 0o755)
         remote_exec = remote_exec_path
-        remote_copy = "echo"
-        r = self.create_remote(remote_exec=remote_exec,
-                               remote_copy=remote_copy)
+        r = self.create_remote(remote_exec=remote_exec)
         handle, script = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines(["#!/bin/sh\n", "true"])
@@ -200,9 +195,7 @@ class RemoteTestCase(test.CdistTestCase):
             fd.writelines(["#!/bin/sh\n", 'shift; cmd=$1; shift; $cmd "$@"\n'])
         os.chmod(remote_exec_path, 0o755)
         remote_exec = remote_exec_path
-        remote_copy = "echo"
-        r = self.create_remote(remote_exec=remote_exec,
-                               remote_copy=remote_copy)
+        r = self.create_remote(remote_exec=remote_exec)
         output = r.run_script(script, return_output=True)
         self.assertEqual(output, "no_env\n")
 
@@ -214,8 +207,7 @@ class RemoteTestCase(test.CdistTestCase):
         env = {
             '__object': 'test_object',
         }
-        r = self.create_remote(remote_exec=remote_exec,
-                               remote_copy=remote_copy)
+        r = self.create_remote(remote_exec=remote_exec)
         output = r.run_script(script, env=env, return_output=True)
         self.assertEqual(output, "test_object\n")
 

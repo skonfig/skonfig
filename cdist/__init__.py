@@ -25,7 +25,6 @@ import os
 from skonfig import __version__
 
 
-REMOTE_COPY = "scp -o User=root -q"
 REMOTE_EXEC = "ssh -o User=root"
 REMOTE_CMDS_CLEANUP_PATTERN = "ssh -o User=root -O exit -S {}"
 

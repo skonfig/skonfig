@@ -1,37 +1,32 @@
 Remote exec and copy commands
 =============================
 
-Cdist interacts with the target host in two ways:
+Cdist interacts with the target host in only one way:
 
 - it executes code (__remote_exec)
-- and it copies files (__remote_copy)
 
-By default this is accomplished with ssh and scp respectively.
-The default implementations used by cdist are::
+By default this is accomplished with ssh. The default command used is:
 
-    __remote_exec: ssh -o User=root
-    __remote_copy: scp -o User=root -q
+   ssh -o User=root
 
 The user can override these defaults by providing custom implementations and
-passing them to cdist with the --remote-exec and/or --remote-copy arguments.
+passing them to cdist with the --remote-exec argument.
 
 For __remote_exec, the custom implementation must behave as if it where ssh.
-For __remote_copy, it must behave like scp.
-Please notice, custom implementations should work like ssh/scp so __remote_copy
+Please notice, custom implementations should work like ssh so the command
 must support IPv6 addresses enclosed in square brackets. For __remote_exec you
 must take into account that for some options (like -L) IPv6 addresses can be
-specified by enclosed in square brackets (see :strong:`ssh`\ (1) and
-:strong:`scp`\ (1)).
+specified by enclosed in square brackets (see :strong:`ssh`\ (1)).
 
 With this simple interface the user can take total control of how cdist
-interacts with the target when required, while the default implementation 
+interacts with the target when required, while the default implementation
 remains as simple as possible.
 
 
 Examples
 --------
 
-Here are examples of using alternative __remote_copy and __remote_exec scripts.
+Here are examples of using alternative __remote_exec scripts.
 
 All scripts from below are present in cdist sources in `other/examples/remote`
 directory.
@@ -39,16 +34,7 @@ directory.
 ssh
 ~~~
 
-Same as cdist default.
-
-**copy**
-
-Usage: cdist config --remote-copy "/path/to/this/script" target_host
-
-.. code-block:: sh
-
-    #echo "$@" | logger -t "cdist-ssh-copy"
-    scp -o User=root -q $@
+Same as skonfig default.
 
 **exec**
 
@@ -77,7 +63,7 @@ for the unit testing.
 .. code-block:: sh
 
     target_host=$1; shift
-    echo "$@" | /bin/sh 
+    echo "$@" | /bin/sh
 
 chroot
 ~~~~~~
@@ -304,13 +290,13 @@ Usage::
           # authority is empty, neither user nor host given
           user=""
           host=""
-       ;; 
+       ;;
        *@*)
           # authority contains @, take user from authority
           user="${authority%@*}"
           host="${authority#*@}"
-       ;; 
-       *) 
+       ;;
+       *)
           # no user in authority, default to root
           user="root"
           host="$authority"

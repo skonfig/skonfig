@@ -68,7 +68,7 @@ def run(skonfig_arguments):
     target_host = cdist_arguments.host[0]
     import cdist.config
     cdist_config = cdist.config.Config
-    cdist_config.construct_remote_exec_copy_patterns(cdist_arguments)
+    cdist_config.construct_remote_exec_patterns(cdist_arguments)
     base_root_path = cdist_config.create_base_root_path(None)
     host_base_path, hostdir = cdist_config.create_host_base_dirs(
         target_host,

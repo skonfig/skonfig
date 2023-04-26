@@ -280,9 +280,6 @@ CDIST_ORDER_DEPENDENCY
 CDIST_REMOTE_EXEC
     Use this command for remote execution (should behave like ssh).
 
-CDIST_REMOTE_COPY
-    Use this command for remote copy (should behave like scp).
-
 CDIST_COLORED_OUTPUT
     Colorize cdist's output. If enabled, cdist will use different colors for
     different log levels.

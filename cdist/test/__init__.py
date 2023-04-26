@@ -35,7 +35,6 @@ global_fixtures_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
 class CdistTestCase(unittest.TestCase):
 
     remote_exec = os.path.join(global_fixtures_dir, "remote", "exec")
-    remote_copy = os.path.join(global_fixtures_dir, "remote", "copy")
 
     target_host = (
         'cdisttesthost',

@@ -286,23 +286,15 @@ class CdistObject:
     def requirements_unfinished(self, requirements):
         """Return unsatisfied requirements"""
 
-        object_list = []
-
-        for requirement in requirements:
-            cdist_object = self.object_from_name(requirement)
-
-            if not cdist_object.state == self.STATE_DONE:
-                object_list.append(cdist_object)
-
-        return object_list
+        return [
+            cdist_object
+            for cdist_object in map(self.object_from_name, requirements)
+            if cdist_object.state != self.STATE_DONE
+        ]
 
     def has_requirements_unfinished(self, requirements):
         """Return whether requirements are satisfied"""
 
-        for requirement in requirements:
-            cdist_object = self.object_from_name(requirement)
-
-            if cdist_object.state != self.STATE_DONE:
-                return True
-
-        return False
+        return any(
+            cdist_object.state != self.STATE_DONE
+            for cdist_object in map(self.object_from_name, requirements))
