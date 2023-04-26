@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with cdist. If not, see <http://www.gnu.org/licenses/>.
 #
-#
 
 import configparser
 import multiprocessing
@@ -26,6 +25,7 @@ import re
 import sys
 
 import cdist
+import cdist.autil
 import cdist.log
 
 
@@ -43,9 +43,6 @@ class Singleton(type):
 
 _VERBOSITY_VALUES = (
     'ERROR', 'WARNING', 'INFO', 'VERBOSE', 'DEBUG', 'TRACE', 'OFF',
-)
-_ARCHIVING_VALUES = (
-    'tar', 'tgz', 'tbz2', 'txz', 'none',
 )
 
 
@@ -217,13 +214,11 @@ class ConfDirOption(DelimitedValuesOption):
 
 class ArchivingOption(SelectOption):
     def __init__(self):
-        super().__init__('archiving', _ARCHIVING_VALUES)
+        super().__init__('archiving', cdist.autil.archiving_values)
 
     def translate(self, val):
-        if val == 'none':
-            return None
-        else:
-            return val
+        mode = cdist.autil.mode_from_str(val)
+        return mode.name() if mode is not None else None
 
 
 class LogLevelOption(OptionBase):
@@ -303,9 +298,6 @@ class Configuration(metaclass=Singleton):
     default_config_files = (_global_config_file, _dist_config_file,
                             _local_config_file, )
     ENV_VAR_CONFIG_FILE = 'CDIST_CONFIG_FILE'
-
-    VERBOSITY_VALUES = _VERBOSITY_VALUES
-    ARCHIVING_VALUES = _ARCHIVING_VALUES
 
     CONFIG_FILE_OPTIONS = {
         'GLOBAL': {

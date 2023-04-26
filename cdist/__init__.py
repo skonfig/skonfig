@@ -23,8 +23,6 @@
 import hashlib
 import os
 
-import cdist.log
-
 from skonfig import __version__
 
 
@@ -48,7 +46,7 @@ class Error(Exception):
     pass
 
 
-class UnresolvableRequirementsError(cdist.Error):
+class UnresolvableRequirementsError(Error):
     """Resolving requirements failed"""
     pass
 

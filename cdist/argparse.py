@@ -1,10 +1,9 @@
 import argparse
-import multiprocessing
+import collections
 import functools
+import multiprocessing
 
 import cdist
-import cdist.config
-import cdist.configuration
 import cdist.log
 
 
@@ -160,11 +159,12 @@ def get_parsers():
            action='store_true', dest='timestamp')
     parser['config_main'].add_argument(
            '-R', '--use-archiving', nargs='?',
-           choices=('tar', 'tgz', 'tbz2', 'txz',),
+           choices=cdist.autil.archiving_values.keys(),
            help=('Operate by using archiving with compression where '
-                 'appropriate. Supported values are: tar - tar archive, '
-                 'tgz - gzip tar archive (the default), '
-                 'tbz2 - bzip2 tar archive and txz - lzma tar archive. '),
+                 'appropriate. Supported values are: '
+                 + ", ".join(
+                     "%s - %s" % (name, doc)
+                     for (name, doc) in cdist.autil.archiving_values.items())),
            action='store', dest='use_archiving',
            const='tgz')
 
@@ -222,7 +222,7 @@ def get_parsers():
                                parser['common'],
                                parser['config_main'],
                                parser['config_args']])
-    parser['config'].set_defaults(func=cdist.config.Config.commandline)
+    parser['config'].set_defaults(cls=cdist.config.Config)
 
     return parser
 

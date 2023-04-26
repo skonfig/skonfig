@@ -77,7 +77,6 @@ def run(skonfig_arguments):
     cdist_config._check_and_prepare_args(cdist_arguments)
     cdist_config.onehost(
         target_host,
-        None,
         host_base_path,
         hostdir,
         cdist_arguments,

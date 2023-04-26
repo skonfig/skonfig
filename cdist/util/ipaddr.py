@@ -21,6 +21,8 @@
 
 import socket
 
+import cdist.log
+
 
 def resolve_target_addresses(host, family=0):
     host_name = resolve_target_host_name(host, family)

@@ -42,7 +42,7 @@ logging.addLevelName(logging.VERBOSE, 'VERBOSE')
 
 
 def _verbose(self, msg, *args, **kwargs):
-    self.log(logging.VERBOSE, msg, args, **kwargs)
+    self.log(logging.VERBOSE, msg, *args, **kwargs)
 
 
 logging.Logger.verbose = _verbose

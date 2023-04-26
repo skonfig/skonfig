@@ -23,7 +23,6 @@ import os
 import subprocess
 
 import cdist
-import cdist.log
 
 from collections import OrderedDict
 from tempfile import TemporaryFile

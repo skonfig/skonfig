@@ -23,6 +23,7 @@
 import os
 import cdist
 import cdist.core
+import cdist.log
 
 
 # FileNotFoundError is added in 3.3.

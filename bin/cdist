@@ -38,10 +38,6 @@ cdist_init_dir = os.path.join(cdist_dir, 'cdist', '__init__.py')
 if os.path.exists(cdist_init_dir):
     sys.path.insert(0, cdist_dir)
 
-import cdist            # noqa 402
-import cdist.argparse   # noqa 402
-import cdist.config     # noqa 402
-
 
 def _check_python_version():
     import textwrap
@@ -100,7 +96,7 @@ def _commandline():
     # FIXME: we always print main help, not
     # the help of the actual parser being used!
     try:
-        getattr(args, "func")
+        getattr(args, "cls")
     except AttributeError:
         parser['main'].print_help()
         sys.exit(0)
@@ -108,7 +104,7 @@ def _commandline():
     if cfg.get_config(section="GLOBAL").get("check_python_version", True):
         _check_python_version()
 
-    args.func(args)
+    args.cls.commandline(args)
 
 
 if __name__ == "__main__":
