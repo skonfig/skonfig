@@ -34,6 +34,7 @@ import socket
 
 from cdist import core
 from cdist.mputil import mp_pool_run, mp_sig_handler
+from cdist.util import shquot
 from cdist.util.remoteutil import inspect_ssh_mux_opts
 
 import cdist
@@ -460,13 +461,9 @@ class Config:
     def cleanup(self):
         self.log.debug("Running cleanup commands")
         for cleanup_cmd in self.cleanup_cmds:
-            cmd = cleanup_cmd.split()
-            cmd.append(self.local.target_host[0])
+            cmd = shquot.split(cleanup_cmd) + [self.local.target_host[0]]
             try:
-                if self.log.getEffectiveLevel() <= logging.DEBUG:
-                    quiet_mode = False
-                else:
-                    quiet_mode = True
+                quiet_mode = self.log.getEffectiveLevel() > logging.DEBUG
                 self.local.run(cmd, return_output=False, save_output=False,
                                quiet_mode=quiet_mode)
             except cdist.Error as e:

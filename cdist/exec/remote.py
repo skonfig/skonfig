@@ -2,6 +2,7 @@
 #
 # 2011-2017 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2011-2013 Nico Schottelius (nico-cdist at schottelius.org)
+# 2022,2023 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of cdist.
 #
@@ -18,21 +19,21 @@
 # You should have received a copy of the GNU General Public License
 # along with cdist. If not, see <http://www.gnu.org/licenses/>.
 #
-#
 
-import os
 import glob
-import subprocess
 import logging
+import os
+import subprocess
 
 import cdist
-import cdist.exec.util as util
-import cdist.util.ipaddr as ipaddr
+
+from cdist.exec import util
+from cdist.util import (ipaddr, shquot)
 
 
 def _wrap_addr(addr):
     """If addr is IPv6 then return addr wrapped between '[' and ']',
-    otherwise return it intact."""
+    otherwise return it unchanged."""
     if ipaddr.is_ipv6(addr):
         return "".join(("[", addr, "]", ))
     else:
@@ -50,18 +51,18 @@ class DecodeError(cdist.Error):
 class Remote:
     """Execute commands remotely.
 
-    All interaction with the remote side should be done through this class.
-    Directly accessing the remote side from python code is a bug.
+    All interaction with the target should be done through this class.
+    Directly accessing the target from Python code is a bug!
 
     """
     def __init__(self,
                  target_host,
                  remote_exec,
                  remote_copy,
-                 base_path=None,
+                 base_path="/var/lib/skonfig",
                  quiet_mode=None,
                  archiving_mode=None,
-                 configuration=None,
+                 configuration={},
                  stdout_base_path=None,
                  stderr_base_path=None,
                  save_output_streams=True):
@@ -69,16 +70,10 @@ class Remote:
         self._exec = remote_exec
         self._copy = remote_copy
 
-        if base_path:
-            self.base_path = base_path
-        else:
-            self.base_path = "/var/lib/skonfig"
+        self.base_path = base_path
         self.quiet_mode = quiet_mode
         self.archiving_mode = archiving_mode
-        if configuration:
-            self.configuration = configuration
-        else:
-            self.configuration = {}
+        self.configuration = configuration
         self.save_output_streams = save_output_streams
 
         self.stdout_base_path = stdout_base_path
@@ -125,22 +120,22 @@ class Remote:
         self.rmdir(self.base_path)
 
     def rmfile(self, path):
-        """Remove file on the remote side."""
+        """Remove file on the target."""
         self.log.trace("Remote rm: %s", path)
         self.run(["rm", "-f",  path])
 
     def rmdir(self, path):
-        """Remove directory on the remote side."""
+        """Remove directory on the target."""
         self.log.trace("Remote rmdir: %s", path)
         self.run(["rm", "-rf",  path])
 
     def mkdir(self, path):
-        """Create directory on the remote side."""
+        """Create directory on the target."""
         self.log.trace("Remote mkdir: %s", path)
         self.run(["mkdir", "-p", path])
 
     def extract_archive(self, path, mode):
-        """Extract archive path on the remote side."""
+        """Extract archive path on the target."""
         import cdist.autil as autil
 
         self.log.trace("Remote extract archive: %s", path)
@@ -155,13 +150,14 @@ class Remote:
         self.run(command)
 
     def _transfer_file(self, source, destination):
-        command = self._copy.split()
-        command.extend([source, '{0}:{1}'.format(
-            _wrap_addr(self.target_host[0]), destination)])
+        command = shquot.split(self._copy) + [
+            source,
+            "%s:%s" % (_wrap_addr(self.target_host[0]), destination)
+        ]
         self._run_command(command)
 
     def transfer(self, source, destination, jobs=None):
-        """Transfer a file or directory to the remote side."""
+        """Transfer a file or directory to the target."""
         self.log.trace("Remote transfer: %s -> %s", source, destination)
         # self.rmdir(destination)
         if os.path.isdir(source):
@@ -187,10 +183,10 @@ class Remote:
                     desttarpath = os.path.join(destination, tarname)
                     self.log.trace("Archiving mode desttarpath: %s",
                                    desttarpath)
-                    # transfer archive to the remote side
+                    # transfer archive to the target
                     self.log.trace("Archiving mode: transferring")
                     self._transfer_file(tarpath, desttarpath)
-                    # extract archive at the remote
+                    # extract archive on the target
                     self.log.trace("Archiving mode: extracting")
                     self.extract_archive(desttarpath, self.archiving_mode)
                     # remove remote archive
@@ -211,8 +207,7 @@ class Remote:
         sources = [os.path.join(source, f) for f in glob.glob1(source, "*")]
         if not sources:
             return
-        command = self._copy.split()
-        command += sources
+        command = shquot.split(self._copy) + sources
         command.append("%s:%s" % (
             _wrap_addr(self.target_host[0]), destination))
 
@@ -220,32 +215,39 @@ class Remote:
 
     def run_script(self, script, env=None, return_output=False, stdout=None,
                    stderr=None):
-        """Run the given script with the given environment on the remote side.
+        """Run the given script with the given environment on the target.
         Return the output as a string.
 
         """
 
         command = [
+            "exec",
             self.configuration.get('remote_shell', "/bin/sh"),
-            "-e"
+            "-e",
+            script
         ]
-        command.append(script)
 
         return self.run(command, env=env, return_output=return_output,
                         stdout=stdout, stderr=stderr)
 
-    def run(self, command, env=None, return_output=False, stdout=None,
-            stderr=None):
-        """Run the given command with the given environment on the remote side.
+    def run(self, command, env=None, return_output=False,
+            stdout=None, stderr=None):
+        """Run the given command with the given environment on the target.
         Return the output as a string.
 
+        If command is a list, each item of the list will be quoted if needed.
+        If you need some part not to be quoted (e.g. the component is a glob),
+        pass command as a str instead.
         """
-        # prefix given command with remote_exec
-        cmd = self._exec.split()
-        cmd.append(self.target_host[0])
 
-        # can't pass environment to remote side, so prepend command with
-        # variable declarations
+        # prefix given command with remote_exec
+        cmd = shquot.split(self._exec) + [self.target_host[0]]
+
+        if isinstance(command, (list, tuple)):
+            command = shquot.join(command)
+
+        # environment variables can't be passed to the target,
+        # so prepend command with variable declarations
 
         # cdist command prepended with variable assignments expects
         # POSIX shell (bourne, bash) at the remote as user default shell.
@@ -262,22 +264,22 @@ class Remote:
         # remotely in e.g. csh and setting up CDIST_REMOTE_SHELL to e.g.
         # /bin/csh will execute this script in the right way.
         if env:
-            remote_env = [" export {env[0]}={env[1]};".format(env=item)
-                          for item in env.items()]
-            string_cmd = ("/bin/sh -c '{}{}'").format(" ".join(remote_env),
-                                                      " ".join(command))
-            cmd.append(string_cmd)
+            remote_env = "export " + (" ".join(
+                "%s=%s" % (
+                    name, shquot.quote(value) if value else "")
+                for (name, value) in env.items())) + "; "
         else:
-            cmd.extend(command)
-        return self._run_command(cmd, env=env, return_output=return_output,
+            remote_env = ""
+
+        cmd.append("exec /bin/sh -c " + shquot.quote(remote_env + command))
+
+        return self._run_command(cmd, return_output=return_output,
                                  stdout=stdout, stderr=stderr)
 
-    def _run_command(self, command, env=None, return_output=False, stdout=None,
-                     stderr=None):
-        """Run the given command with the given environment.
-        Return the output as a string.
+    def _run_command(self, command, return_output=False,
+                     stdout=None, stderr=None):
+        """Run the given command locally and return the output as a string"""
 
-        """
         assert isinstance(command, (list, tuple)), (
                 "list or tuple argument expected, got: {}".format(command))
 
@@ -321,7 +323,7 @@ class Remote:
         except (OSError, subprocess.CalledProcessError) as error:
             emsg = ""
             if not isinstance(command, (str, bytes)):
-                emsg += " ".join(command)
+                emsg += shquot.join(command)
             else:
                 emsg += command
             if error.args:
