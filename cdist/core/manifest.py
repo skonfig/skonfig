@@ -31,7 +31,7 @@ if not hasattr(__builtins__, 'FileNotFoundError'):
     FileNotFoundError = (OSError, IOError, )
 
 
-'''
+"""
 common:
     runs only locally, does not need remote
 
@@ -68,7 +68,7 @@ type manifeste is:
         __type: full qualified path to the type's dir
 
     creates: new objects through type emulator
-'''
+"""
 
 
 class NoInitialManifestError(cdist.Error):
@@ -97,9 +97,7 @@ class NoInitialManifestError(cdist.Error):
 
 
 class Manifest:
-    """Executes cdist manifests.
-
-    """
+    """Executes manifests."""
 
     ORDER_DEP_STATE_NAME = 'order_dep_state'
     TYPEORDER_DEP_NAME = 'typeorder_dep'

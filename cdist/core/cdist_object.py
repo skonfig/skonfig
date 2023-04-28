@@ -53,12 +53,11 @@ class MissingObjectIdError(cdist.Error):
 
 
 class CdistObject:
-    """Represents a cdist object.
+    """Represents an object.
 
-    All interaction with objects in cdist should be done through this class.
-    Directly accessing an object through the file system from python code is
-    a bug.
-
+    All interaction with objects should be done through this class.
+    Directly accessing an object through the file system from Python code is
+    considered a bug.
     """
 
     # Constants for use with Object.state
@@ -268,12 +267,11 @@ class CdistObject:
 
     @property
     def exists(self):
-        """Checks wether this cdist object exists on the file systems."""
+        """Checks whether this object exists on the file system."""
         return os.path.exists(self.absolute_path)
 
     def create(self, allow_overwrite=False):
-        """Create this cdist object on the filesystem.
-        """
+        """Create this object on the file system."""
         try:
             for path in (self.absolute_path,
                          os.path.join(self.base_path, self.parameter_path),
@@ -281,7 +279,7 @@ class CdistObject:
                          self.stderr_path):
                 os.makedirs(path, exist_ok=allow_overwrite)
         except EnvironmentError as error:
-            raise cdist.Error(('Error creating directories for cdist object: '
+            raise cdist.Error(('Error creating directories for object: '
                                '{}: {}').format(self, error))
 
     def requirements_unfinished(self, requirements):

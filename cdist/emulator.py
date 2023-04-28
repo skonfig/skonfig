@@ -186,7 +186,7 @@ class Emulator:
             self.object_id = self.args.object_id[0]
             del self.args.object_id
 
-        # Instantiate the cdist object we are defining
+        # Instantiate the object we are defining
         self.cdist_object = core.CdistObject(
                 self.cdist_type, self.object_base_path, self.object_marker,
                 self.object_id)

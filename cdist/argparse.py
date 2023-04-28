@@ -108,7 +108,7 @@ def get_parsers():
                   'last one wins).'), action='append')
     parser['config_main'].add_argument(
            '-i', '--initial-manifest',
-           help='Path to a cdist manifest or \'-\' to read from stdin.',
+           help='Path to a manifest or \'-\' to read from stdin.',
            dest='manifest', required=False)
     parser['config_main'].add_argument(
            '-j', '--jobs', nargs='?',

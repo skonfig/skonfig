@@ -33,11 +33,11 @@ confdir/manifest/*
     maintain different groups of hosts.
 
 confdir/explorer/<name>
-    Contains explorers to be run on the target hosts, see `cdist explorer <cdist-explorer.html>`_.
+    Contains explorers to be run on the target hosts, see `explorer <cdist-explorer.html>`_.
 
 confdir/type/
     Contains all available types, which are used to provide
-    some kind of functionality. See `cdist type <cdist-type.html>`_.
+    some kind of functionality. See `type <cdist-type.html>`_.
 
 confdir/type/<name>/
     Home of the type <name>.
@@ -72,7 +72,7 @@ confdir/type/<name>/parameter/boolean
 confdir/type/<name>/explorer
     Location of the type specific explorers.
     This directory is referenced by the variable __type_explorer (see below).
-    See `cdist explorer <cdist-explorer.html>`_.
+    See `explorer <cdist-explorer.html>`_.
 
 confdir/type/<name>/files
     This directory is reserved for user data and will not be used
@@ -233,7 +233,7 @@ Environment variables (for writing)
 The following environment variables influence the behaviour of cdist:
 
 require
-    Setup dependencies between objects (see `cdist manifest <cdist-manifest.html>`_).
+    Setup dependencies between objects (see `manifest <cdist-manifest.html>`_).
 
 __cdist_log_level
     cdist log level value. One of:
@@ -271,10 +271,10 @@ CDIST_REMOTE_SHELL
     Use this shell remotely instead of /bin/sh to execute scripts.
 
 CDIST_OVERRIDE
-    Allow overwriting type parameters (see `cdist manifest <cdist-manifest.html>`_).
+    Allow overwriting type parameters (see `manifest <cdist-manifest.html>`_).
 
 CDIST_ORDER_DEPENDENCY
-    Create dependencies based on the execution order (see  `cdist manifest <cdist-manifest.html>`_).
+    Create dependencies based on the execution order (see  `manifest <cdist-manifest.html>`_).
     Note that in version 6.2.0 semantic of this processing mode is finally fixed and well defined.
 
 CDIST_REMOTE_EXEC

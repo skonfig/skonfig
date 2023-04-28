@@ -23,13 +23,13 @@
 def inspect_ssh_mux_opts():
     """Inspect whether or not ssh supports multiplexing options.
 
-       Return string containing multiplexing options if supported.
-       If ControlPath is supported then placeholder for that path is
-       specified and can be used for final string formatting.
-       For example, this function can return string:
-       "-o ControlMaster=auto -o ControlPersist=125 -o ControlPath={}".
-       Then it can be formatted:
-       mux_opts_string.format('/tmp/tmpxxxxxx/ssh-control-path').
+    Return string containing multiplexing options if supported.
+    If ControlPath is supported then placeholder for that path is
+    specified and can be used for final string formatting.
+    For example, this function can return string:
+    "-o ControlMaster=auto -o ControlPersist=125 -o ControlPath={}".
+    Then it can be formatted:
+    mux_opts_string.format('/tmp/tmpxxxxxx/ssh-control-path').
     """
     import subprocess
 

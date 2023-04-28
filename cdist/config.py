@@ -660,10 +660,9 @@ class Config:
         self._open_logger()
 
     def _validate_dependencies(self):
-        '''
-            Build dependency graph for unfinished objects and
-            check for cycles.
-        '''
+        """Build dependency graph for unfinished objects and
+        check for cycles.
+        """
         graph = {}
 
         def _add_requirements(cdist_object, requirements):

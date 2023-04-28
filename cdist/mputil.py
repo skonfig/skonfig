@@ -41,9 +41,10 @@ def _mp_run_method(self, fname, *args, **kwargs):
 
 def mp_pool_run(func, args=None, kwds=None, jobs=multiprocessing.cpu_count()):
     """Run func using concurrent.futures.ProcessPoolExecutor with jobs jobs
-       and supplied iterables of args and kwds with one entry for each
-       parallel func instance.
-       Return list of results.
+    and supplied iterables of args and kwds with one entry for each
+    parallel func instance.
+
+    Return list of results.
     """
     if args and kwds:
         fargs = zip(args, kwds)

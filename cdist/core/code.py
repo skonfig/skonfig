@@ -26,7 +26,7 @@ import os
 import cdist.log
 
 
-'''
+"""
 common:
     runs only locally, does not need remote
 
@@ -90,13 +90,12 @@ code-remote
     - copy script to remote
     - run script remotely
     returns: string containing the output
-'''
+"""
 
 
 class Code:
-    """Generates and executes cdist code scripts.
+    """Generates and executes code scripts."""
 
-    """
     # target_host is tuple (target_host, target_hostname, target_fqdn)
     def __init__(self, target_host, local, remote, dry_run=False):
         self.target_host = target_host
@@ -145,16 +144,17 @@ class Code:
                                              message_prefix=message_prefix)
 
     def run_gencode_local(self, cdist_object):
-        """Run the gencode-local script for the given cdist object."""
+        """Run the gencode-local script for the given object."""
         return self._run_gencode(cdist_object, 'local')
 
     def run_gencode_remote(self, cdist_object):
-        """Run the gencode-remote script for the given cdist object."""
+        """Run the gencode-remote script for the given object."""
         return self._run_gencode(cdist_object, 'remote')
 
     def transfer_code_remote(self, cdist_object):
-        """Transfer the code_remote script for the given object to the
-           remote side."""
+        """Transfer the code_remote script for the given object
+        to the target.
+        """
         source = os.path.join(self.local.object_path,
                               cdist_object.code_remote_path)
         destination = os.path.join(self.remote.object_path,
@@ -179,7 +179,7 @@ class Code:
             return which_exec.run_script(script, env=env)
 
     def run_code_local(self, cdist_object):
-        """Run the code-local script for the given cdist object."""
+        """Run the code-local script for the given object."""
         # Put some env vars, to allow read only access to the parameters
         # over $__object
         env = os.environ.copy()
@@ -191,10 +191,9 @@ class Code:
         return self._run_code(cdist_object, 'local', env=env)
 
     def run_code_remote(self, cdist_object):
-        """Run the code-remote script for the given cdist object on the
-           remote side."""
+        """Run the code-remote script for the given object on the target."""
         # Put some env vars, to allow read only access to the parameters
-        # over $__object which is already on the remote side
+        # over $__object which is already on the target
         env = {
             '__object': os.path.join(self.remote.object_path,
                                      cdist_object.path),

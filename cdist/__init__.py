@@ -127,7 +127,7 @@ class CdistEntityError(Error):
 
 
 class CdistObjectError(CdistEntityError):
-    """Something went wrong while working on a specific cdist object"""
+    """Something went wrong while working on a specific object"""
     def __init__(self, cdist_object, subject=''):
         params = [
             ('name', cdist_object.name, ),
@@ -151,10 +151,7 @@ class CdistObjectError(CdistEntityError):
 
 
 class CdistObjectExplorerError(CdistEntityError):
-    """
-    Something went wrong while working on a specific
-    cdist object explorer
-    """
+    """Something went wrong while working on a specific object explorer"""
     def __init__(self, cdist_object, explorer_name, explorer_path,
                  stderr_path, subject=''):
         params = [

@@ -31,18 +31,17 @@ import cdist.log
 from cdist.mputil import mp_pool_run
 from cdist.util import shquot
 
-'''
+"""
 common:
     runs only remotely, needs local and remote to construct paths
 
     env:
-        __explorer: full qualified path to other global explorers on
-                    remote side
+        __explorer: full qualified path to other global explorers on target
             -> remote.global_explorer_path
 
 a global explorer is:
     - a script
-    - executed on the remote side
+    - executed on the target
     - returns its output as a string
 
     env:
@@ -51,7 +50,7 @@ a global explorer is:
 
 type explorer is:
     - a script
-    - executed on the remote side for each object instance
+    - executed on the target for each object instance
     - returns its output as a string
 
     env:
@@ -59,17 +58,15 @@ type explorer is:
         __object_id: the objects id
         __object_fq: full qualified object id, iow: $type.name + / + object_id
         __type_explorer: full qualified path to the other type explorers on
-                         remote side
+                         target
 
     creates: nothing, returns output
 
-'''
+"""
 
 
 class Explorer:
-    """Executes cdist explorers.
-
-    """
+    """Executes explorers."""
     def __init__(self, target_host, local, remote, jobs=None, dry_run=False):
         self.target_host = target_host
 
@@ -106,7 +103,6 @@ class Explorer:
     def run_global_explorers(self, out_path):
         """Run global explorers and save output to files in the given
         out_path directory.
-
         """
         self.log.verbose("Running global explorers")
         self.transfer_global_explorers()
@@ -162,7 +158,7 @@ class Explorer:
         self._open_logger()
 
     def transfer_global_explorers(self):
-        """Transfer the global explorers to the remote side."""
+        """Transfer the global explorers to the target."""
         if os.path.isdir(self.local.global_explorer_path) \
                 and os.listdir(self.local.global_explorer_path):
             # only transfer if there's actually something to transfer,
@@ -191,7 +187,6 @@ class Explorer:
     def run_type_explorers(self, cdist_object, transfer_type_explorers=True):
         """Run the type explorers for the given object and save their output
         in the object.
-
         """
         self.log.verbose("Running type explorers for %s",
                          cdist_object.cdist_type)
@@ -222,8 +217,9 @@ class Explorer:
                     cdist_object, explorer, path, stderr_path, e)
 
     def run_type_explorer(self, explorer, cdist_object):
-        """Run the given type explorer for the given object and return
-           it's output."""
+        """Run the given type explorer for the given object and
+        return its output.
+        """
         cdist_type = cdist_object.cdist_type
         env = self.env.copy()
         env.update({
@@ -240,8 +236,7 @@ class Explorer:
         return self.remote.run_script(script, env=env, return_output=True)
 
     def transfer_type_explorers(self, cdist_type):
-        """Transfer the type explorers for the given type to the
-           remote side."""
+        """Transfer the type explorers for the given type to the target."""
         if cdist_type.explorers:
             if cdist_type.name in self._type_explorers_transferred:
                 self.log.trace("Skipping retransfer of type explorers for: %s",
@@ -257,7 +252,7 @@ class Explorer:
                 self._type_explorers_transferred.append(cdist_type.name)
 
     def transfer_object_parameters(self, cdist_object):
-        """Transfer the parameters for the given object to the remote side."""
+        """Transfer the parameters for the given object to the target."""
         if cdist_object.parameters:
             source = os.path.join(self.local.object_path,
                                   cdist_object.parameter_path)

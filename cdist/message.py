@@ -25,9 +25,7 @@ import tempfile
 
 
 class Message:
-    """Support messaging between types
-
-    """
+    """Support messaging between types"""
     def __init__(self, prefix, messages):
         self.prefix = prefix
         self.global_messages = messages

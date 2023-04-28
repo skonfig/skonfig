@@ -57,11 +57,11 @@ class OptionBase:
         return val
 
     def update_value(self, currval, newval, update_appends=False):
-        '''Update current option value currval with new option value newval.
+        """Update current option value currval with new option value newval.
         If update_appends is True and if currval and newval are lists then
         resulting list contains all values in currval plus all values in
         newval. Otherwise, newval is returned.
-        '''
+        """
         if (isinstance(currval, list) and isinstance(newval, list) and
                 update_appends):
             rv = []
