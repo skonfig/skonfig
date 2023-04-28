@@ -11,33 +11,6 @@ import cdist.log
 parser = None
 
 
-_verbosity_level_off = -2
-_verbosity_level = {
-    None: cdist.log.WARNING,
-    _verbosity_level_off: cdist.log.OFF,
-    -1: cdist.log.ERROR,
-    0: cdist.log.WARNING,
-    1: cdist.log.INFO,
-    2: cdist.log.VERBOSE,
-    3: cdist.log.DEBUG,
-    4: cdist.log.TRACE,
-}
-
-
-# Generate verbosity level constants:
-# VERBOSE_OFF, VERBOSE_ERROR, VERBOSE_WARNING, VERBOSE_INFO, VERBOSE_VERBOSE,
-# VERBOSE_DEBUG, VERBOSE_TRACE.
-this_globals = globals()
-for level in _verbosity_level:
-    const = 'VERBOSE_' + cdist.log.getLevelName(_verbosity_level[level])
-    this_globals[const] = level
-
-
-# All verbosity levels above 4 are TRACE.
-_verbosity_level = collections.defaultdict(
-    lambda: cdist.log.TRACE, _verbosity_level)
-
-
 def check_lower_bounded_int(value, lower_bound, name):
     try:
         val = int(value)
