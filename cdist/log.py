@@ -165,6 +165,14 @@ class TimestampingParallelLog(TimestampingLog, ParallelLog):
     pass
 
 
+def log_level_env_var_val(log):
+    return str(log.getEffectiveLevel())
+
+
+def log_level_name_env_var_val(log):
+    return logging.getLevelName(log.getEffectiveLevel())
+
+
 def setupDefaultLogging():
     del logging.getLogger().handlers[:]
     logging.setLoggerClass(DefaultLog)

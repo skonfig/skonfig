@@ -21,8 +21,6 @@
 
 import os
 
-import cdist.log
-
 
 def listdir(path='.', include_dot=False):
     """os.listdir but do not include entries whose names begin with a dot('.')
@@ -36,11 +34,3 @@ def listdir(path='.', include_dot=False):
 
 def _ishidden(path):
     return path[0] in ('.', b'.'[0])
-
-
-def log_level_env_var_val(log):
-    return str(log.getEffectiveLevel())
-
-
-def log_level_name_env_var_val(log):
-    return cdist.log.getLevelName(log.getEffectiveLevel())

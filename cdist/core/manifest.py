@@ -23,7 +23,7 @@
 import os
 
 import cdist
-from . import util
+import cdist.log
 
 
 # FileNotFoundError is added in 3.3.
@@ -120,8 +120,8 @@ class Manifest:
             '__target_fqdn': self.target_host[2],
             '__files': self.local.files_path,
             '__target_host_tags': '',  # backwards compatibility with cdist
-            '__cdist_log_level': util.log_level_env_var_val(self.log),
-            '__cdist_log_level_name': util.log_level_name_env_var_val(
+            '__cdist_log_level': cdist.log.log_level_env_var_val(self.log),
+            '__cdist_log_level_name': cdist.log.log_level_name_env_var_val(
                 self.log),
             '__cdist_colored_log': str(
                 cdist.log.CdistFormatter.USE_COLORS).lower(),

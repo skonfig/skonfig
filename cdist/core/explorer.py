@@ -29,8 +29,7 @@ import cdist
 import cdist.log
 
 from cdist.mputil import mp_pool_run
-from cdist.core import util
-import cdist.util.shquot as shquot
+from cdist.util import shquot
 
 '''
 common:
@@ -84,8 +83,8 @@ class Explorer:
             '__target_fqdn': self.target_host[2],
             '__explorer': self.remote.global_explorer_path,
             '__target_host_tags': '',  # backwards compatibility with cdist
-            '__cdist_log_level': util.log_level_env_var_val(self.log),
-            '__cdist_log_level_name': util.log_level_name_env_var_val(
+            '__cdist_log_level': cdist.log.log_level_env_var_val(self.log),
+            '__cdist_log_level_name': cdist.log.log_level_name_env_var_val(
                 self.log),
         }
 
