@@ -94,7 +94,8 @@ class Emulator:
             self.global_path, cdist.core.Manifest.ORDER_DEP_STATE_NAME)
 
         self.type_name = os.path.basename(argv[0])
-        self.cdist_type = cdist.core.CdistType(self.type_base_path, self.type_name)
+        self.cdist_type = cdist.core.CdistType(
+            self.type_base_path, self.type_name)
 
         self.__init_log()
 
