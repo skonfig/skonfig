@@ -26,11 +26,10 @@ import shutil
 import logging
 
 import cdist
-from cdist import core
-from cdist import test
-from cdist.exec import local
-from cdist.exec import remote
+import cdist.util
+from cdist import (core, test)
 from cdist.core import code
+from cdist.exec import (local, remote)
 
 import os.path as op
 my_dir = op.abspath(op.dirname(__file__))
@@ -42,7 +41,7 @@ class CodeTestCase(test.CdistTestCase):
 
     def setUp(self):
         self.local_dir = self.mkdtemp()
-        self.hostdir = cdist.str_hash(self.target_host[0])
+        self.hostdir = cdist.util.str_hash(self.target_host[0])
         self.host_base_path = os.path.join(self.local_dir, self.hostdir)
 
         self.local = local.Local(

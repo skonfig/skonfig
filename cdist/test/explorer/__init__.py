@@ -27,11 +27,11 @@ import glob
 import multiprocessing
 
 import cdist
-from cdist import core
-from cdist import test
-from cdist.exec import local
-from cdist.exec import remote
+import cdist.util
+from cdist import (core, test)
 from cdist.core import explorer
+from cdist.exec import (local, remote)
+
 import logging
 
 import os.path as op
@@ -45,7 +45,7 @@ class ExplorerClassTestCase(test.CdistTestCase):
     def setUp(self):
         self.temp_dir = self.mkdtemp()
         self.local_path = os.path.join(self.temp_dir, "local")
-        hostdir = cdist.str_hash(self.target_host[0])
+        hostdir = cdist.util.str_hash(self.target_host[0])
         base_root_path = os.path.join(self.local_path, hostdir)
         self.remote_base_path = os.path.join(self.temp_dir, "remote")
         os.makedirs(self.remote_base_path)

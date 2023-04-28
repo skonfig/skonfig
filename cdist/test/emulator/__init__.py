@@ -28,10 +28,10 @@ import random
 import logging
 
 import cdist
-from cdist import test
+import cdist.util
+
+from cdist import (core, emulator, test)
 from cdist.exec import local
-from cdist import emulator
-from cdist import core
 
 import os.path as op
 my_dirs = list(map(op.abspath, map(op.dirname, (test.__file__, __file__))))
@@ -45,7 +45,7 @@ class EmulatorTestCase(test.CdistTestCase):
         handle, self.script = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
-        hostdir = cdist.str_hash(self.target_host[0])
+        hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
         self.local = local.Local(
@@ -206,7 +206,7 @@ class EmulatorConflictingRequirementsTestCase(test.CdistTestCase):
         handle, self.script = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
-        hostdir = cdist.str_hash(self.target_host[0])
+        hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
         self.local = local.Local(
@@ -296,7 +296,7 @@ class AutoRequireEmulatorTestCase(test.CdistTestCase):
     def setUp(self):
         self.temp_dir = self.mkdtemp()
         base_path = os.path.join(self.temp_dir, "out")
-        hostdir = cdist.str_hash(self.target_host[0])
+        hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
         self.local = local.Local(
@@ -329,7 +329,7 @@ class OverrideTestCase(test.CdistTestCase):
         handle, self.script = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
-        hostdir = cdist.str_hash(self.target_host[0])
+        hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
         self.local = local.Local(
@@ -372,7 +372,7 @@ class ArgumentsTestCase(test.CdistTestCase):
     def setUp(self):
         self.temp_dir = self.mkdtemp()
         base_path = self.temp_dir
-        hostdir = cdist.str_hash(self.target_host[0])
+        hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
         handle, self.script = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
@@ -560,7 +560,7 @@ class StdinTestCase(test.CdistTestCase):
 
         self.temp_dir = self.mkdtemp()
         base_path = os.path.join(self.temp_dir, "out")
-        hostdir = cdist.str_hash(self.target_host[0])
+        hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
         self.local = local.Local(
@@ -626,7 +626,7 @@ class EmulatorAlreadyExistingRequirementsWarnTestCase(test.CdistTestCase):
         handle, self.script = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
-        hostdir = cdist.str_hash(self.target_host[0])
+        hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
         self.local = local.Local(

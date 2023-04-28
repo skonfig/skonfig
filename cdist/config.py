@@ -38,6 +38,7 @@ import cdist.exec.local
 import cdist.exec.remote
 import cdist.hostsource
 import cdist.log
+import cdist.util
 
 from cdist.mputil import mp_pool_run, mp_sig_handler
 from cdist.util import (ipaddr, shquot)
@@ -424,7 +425,7 @@ class Config:
 
     @staticmethod
     def create_host_base_dirs(host, base_root_path):
-        hostdir = cdist.str_hash(host)
+        hostdir = cdist.util.str_hash(host)
         host_base_path = os.path.join(base_root_path, hostdir)
 
         return (host_base_path, hostdir)

@@ -20,7 +20,6 @@
 #
 #
 
-import hashlib
 import os
 
 from skonfig import __version__
@@ -204,26 +203,3 @@ class GlobalExplorerError(CdistEntityError):
         ]
         super().__init__("global explorer '{}'".format(name),
                          params, [], stderr_paths, subject)
-
-
-def file_to_list(filename):
-    """Return list from \n seperated file"""
-    if os.path.isfile(filename):
-        file_fd = open(filename, "r")
-        lines = file_fd.readlines()
-        file_fd.close()
-
-        # Remove \n from all lines
-        lines = map(lambda s: s.strip(), lines)
-    else:
-        lines = []
-
-    return lines
-
-
-def str_hash(s):
-    """Return hash of string s"""
-    if isinstance(s, str):
-        return hashlib.md5(s.encode('utf-8')).hexdigest()
-    else:
-        raise Error("Param should be string")
