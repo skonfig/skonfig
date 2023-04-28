@@ -20,10 +20,9 @@
 #
 #
 
-from cdist.core.cdist_type import CdistType
-from cdist.core.cdist_type import InvalidTypeError
-from cdist.core.cdist_object import CdistObject
-from cdist.core.cdist_object import IllegalObjectIdError
+from cdist.core.cdist_type import (CdistType, InvalidTypeError)
+from cdist.core.cdist_object import (
+    CdistObject, IllegalObjectIdError, MissingObjectIdError)
 from cdist.core.explorer import Explorer
 from cdist.core.manifest import Manifest
 from cdist.core.code import Code

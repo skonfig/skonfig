@@ -21,6 +21,7 @@
 #
 
 import os
+
 import cdist
 import cdist.core
 import cdist.log

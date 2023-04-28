@@ -27,11 +27,9 @@ import re
 import sys
 
 import cdist
+import cdist.core
+import cdist.flock
 import cdist.log
-
-from cdist import core
-from cdist import flock
-from cdist.core.manifest import Manifest
 
 
 # FileNotFoundError is added in 3.3.
@@ -90,13 +88,13 @@ class Emulator:
         self.object_base_path = os.path.join(self.global_path, "object")
         self.typeorder_path = os.path.join(self.global_path, "typeorder")
 
-        self.typeorder_dep_path = os.path.join(self.global_path,
-                                               Manifest.TYPEORDER_DEP_NAME)
-        self.order_dep_state_path = os.path.join(self.global_path,
-                                                 Manifest.ORDER_DEP_STATE_NAME)
+        self.typeorder_dep_path = os.path.join(
+            self.global_path, cdist.core.Manifest.TYPEORDER_DEP_NAME)
+        self.order_dep_state_path = os.path.join(
+            self.global_path, cdist.core.Manifest.ORDER_DEP_STATE_NAME)
 
         self.type_name = os.path.basename(argv[0])
-        self.cdist_type = core.CdistType(self.type_base_path, self.type_name)
+        self.cdist_type = cdist.core.CdistType(self.type_base_path, self.type_name)
 
         self.__init_log()
 
@@ -107,7 +105,7 @@ class Emulator:
         self.init_object()
 
         # locking for parallel execution
-        with flock.Flock(self.flock_path):
+        with cdist.flock.Flock(self.flock_path):
             self.setup_object()
             self.save_stdin()
             self.record_requirements()
@@ -187,7 +185,7 @@ class Emulator:
             del self.args.object_id
 
         # Instantiate the object we are defining
-        self.cdist_object = core.CdistObject(
+        self.cdist_object = cdist.core.CdistObject(
                 self.cdist_type, self.object_base_path, self.object_marker,
                 self.object_id)
         lockfname = ('.' + self.cdist_type.name +
@@ -197,7 +195,7 @@ class Emulator:
         self.flock_path = os.path.join(self.object_base_path, lockfname)
 
     def _object_params_in_context(self):
-        ''' Get cdist_object parameters dict adopted by context.
+        """Get cdist_object parameters dict adopted by context.
         Context consists of cdist_type boolean, optional, required,
         optional_multiple and required_multiple parameters. If parameter
         is multiple parameter then its value is a list.
@@ -206,7 +204,7 @@ class Emulator:
         file. If there is only one line in the file it is unknown if this
         is a value of required/optional parameter or if it is one value of
         multiple values parameter.
-        '''
+        """
         params = {}
         if self.cdist_object.exists:
             for param in self.cdist_object.parameters:
@@ -306,12 +304,12 @@ class Emulator:
         # Raises an error, if object cannot be created
         try:
             cdist_object = self.cdist_object.object_from_name(requirement)
-        except core.cdist_type.InvalidTypeError as e:
+        except cdist.core.InvalidTypeError as e:
             self.log.error("%s requires object %s, but type %s does not"
                            " exist. Defined at %s", self.cdist_object.name,
                            requirement, e.name, self.object_source)
             raise
-        except core.cdist_object.MissingObjectIdError:
+        except cdist.core.MissingObjectIdError:
             self.log.error("%s requires object %s without object id."
                            " Defined at %s", self.cdist_object.name,
                            requirement, self.object_source)

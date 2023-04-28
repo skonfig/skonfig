@@ -21,6 +21,7 @@
 
 import fcntl
 import os
+
 import cdist.log
 
 

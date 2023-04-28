@@ -31,10 +31,10 @@ import tempfile
 import time
 
 import cdist
+import cdist.core
 import cdist.log
 import cdist.message
 
-from cdist import core
 import cdist.exec.util as util
 
 CONF_SUBDIRS_LINKED = ["explorer", "files", "manifest", "type"]
@@ -364,7 +364,7 @@ class Local:
     def _link_types_for_emulator(self):
         """Link emulator to types"""
         src = os.path.abspath(self.exec_path)
-        for cdist_type in core.CdistType.list_types(self.type_path):
+        for cdist_type in cdist.core.CdistType.list_types(self.type_path):
             dst = os.path.join(self.bin_path, cdist_type.name)
             self.log.trace("Linking emulator: %s to %s", src, dst)
 

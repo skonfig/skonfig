@@ -40,7 +40,7 @@ import cdist.hostsource
 import cdist.log
 import cdist.util
 
-from cdist.mputil import mp_pool_run, mp_sig_handler
+from cdist.mputil import (mp_pool_run, mp_sig_handler)
 from cdist.util import (ipaddr, shquot)
 from cdist.util.remoteutil import inspect_ssh_mux_opts
 

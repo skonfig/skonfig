@@ -25,6 +25,7 @@ import os
 
 import cdist
 import cdist.core
+
 from cdist.util import fsproperty
 
 
