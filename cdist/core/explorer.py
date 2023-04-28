@@ -21,13 +21,16 @@
 #
 
 import glob
+import logging
 import multiprocessing
 import os
 
 import cdist
 import cdist.log
+
 from cdist.mputil import mp_pool_run
 from cdist.core import util
+import cdist.util.shquot as shquot
 
 '''
 common:
@@ -168,8 +171,8 @@ class Explorer:
             self.remote.transfer(self.local.global_explorer_path,
                                  self.remote.global_explorer_path,
                                  self.jobs)
-            self.remote.run(["chmod", "0700", "{}/*".format(
-                self.remote.global_explorer_path)])
+            self.remote.run("chmod 0700 %s/*" % (
+                shquot.quote(self.remote.global_explorer_path)))
 
     def run_global_explorer(self, explorer):
         """Run the given global explorer and return it's output."""
@@ -250,7 +253,8 @@ class Explorer:
                 destination = os.path.join(self.remote.type_path,
                                            cdist_type.explorer_path)
                 self.remote.transfer(source, destination)
-                self.remote.run(["chmod", "0700", "{}/*".format(destination)])
+                self.remote.run("chmod 0700 %s/*" % (
+                    shquot.quote(destination)))
                 self._type_explorers_transferred.append(cdist_type.name)
 
     def transfer_object_parameters(self, cdist_object):
