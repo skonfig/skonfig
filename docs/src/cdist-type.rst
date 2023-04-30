@@ -81,9 +81,9 @@ then this content is printed as a deprecation messages, e.g.:
 
 .. code-block:: sh
 
-    $ ls -l deprecated 
+    $ ls -l deprecated
     -rw-r--r--  1 darko  darko  71 May 20 18:30 deprecated
-    $ cat deprecated 
+    $ cat deprecated
     This type is deprecated. It will be removed in the next minor release.
     $ echo '__foo foo' | ./bin/cdist config -i - 185.203.112.26
     WARNING: 185.203.112.26: Type __foo is deprecated: This type is deprecated. It will be removed in the next minor release.
@@ -92,7 +92,7 @@ If 'deprecated' marker has no content then general message is printed, e.g.:
 
 .. code-block:: sh
 
-    $ ls -l deprecated 
+    $ ls -l deprecated
     -rw-r--r--  1 darko  darko  0 May 20 18:36 deprecated
     $ echo '__bar foo' | ./bin/cdist config -i - 185.203.112.26
     WARNING: 185.203.112.26: Type __bar is deprecated.
@@ -128,13 +128,13 @@ Defining parameters
 -------------------
 Every type consists of required, optional and boolean parameters, which must
 each be declared in a newline separated file in **parameter/required**,
-**parameter/required_multiple**, **parameter/optional**, 
+**parameter/required_multiple**, **parameter/optional**,
 **parameter/optional_multiple** and **parameter/boolean**.
 Parameters which are allowed multiple times should be listed in
 required_multiple or optional_multiple respectively. All other parameters
 follow the standard unix behaviour "the last given wins".
 If either is missing, the type will have no required, no optional, no boolean
-or no parameters at all. 
+or no parameters at all.
 
 Default values for optional parameters can be predefined in
 **parameter/default/<name>**.
@@ -239,7 +239,7 @@ In the __file type, stdin is used as source for the file, if - is used for sourc
         source="$(cat "$__object/parameter/source")"
         if [ "$source" = "-" ]; then
             source="$__object/stdin"
-        fi  
+        fi
     ....
 
 
@@ -335,7 +335,7 @@ As you can see, the type can reference different environment variables,
 which are documented in `cdist reference <cdist-reference.html>`_.
 
 Always ensure the manifest is executable, otherwise cdist will not be able
-to execute it. For more information about manifests see `cdist manifest <cdist-manifest.html>`_.
+to execute it. For more information about manifests see `manifest <cdist-manifest.html>`_.
 
 
 Singleton - one instance only

@@ -17,19 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with cdist. If not, see <http://www.gnu.org/licenses/>.
 #
-#
-
 
 import configparser
-import logging
 import multiprocessing
 import os
 import re
 import sys
 
 import cdist
-import cdist.argparse
 import cdist.autil
+import cdist.log
 
 
 class Singleton(type):
@@ -60,11 +57,11 @@ class OptionBase:
         return val
 
     def update_value(self, currval, newval, update_appends=False):
-        '''Update current option value currval with new option value newval.
+        """Update current option value currval with new option value newval.
         If update_appends is True and if currval and newval are lists then
         resulting list contains all values in currval plus all values in
         newval. Otherwise, newval is returned.
-        '''
+        """
         if (isinstance(currval, list) and isinstance(newval, list) and
                 update_appends):
             rv = []
@@ -188,9 +185,7 @@ class VerbosityOption(SelectOption):
         super().__init__('verbosity', _VERBOSITY_VALUES)
 
     def translate(self, val):
-        name = 'VERBOSE_' + val
-        verbose = getattr(cdist.argparse, name)
-        return verbose
+        return getattr(cdist.log, "VERBOSE_" + val)
 
 
 class DelimitedValuesOption(OptionBase):
@@ -233,7 +228,7 @@ class LogLevelOption(OptionBase):
     def get_converter(self):
         def log_level_converter(val):
             try:
-                val = logging.getLevelName(int(val))
+                val = cdist.log.getLevelName(int(val))
                 return self.translate(val)
             except (ValueError, AttributeError):
                 raise ValueError("Invalid {} value: {}.".format(

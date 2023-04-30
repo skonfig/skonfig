@@ -30,6 +30,8 @@ import io
 import sys
 
 import cdist
+import cdist.util
+
 from cdist import test
 from cdist.exec import local
 from cdist import core
@@ -49,7 +51,7 @@ class ManifestTestCase(test.CdistTestCase):
         self.temp_dir = self.mkdtemp()
 
         out_path = self.temp_dir
-        hostdir = cdist.str_hash(self.target_host[0])
+        hostdir = cdist.util.str_hash(self.target_host[0])
         base_root_path = os.path.join(out_path, hostdir)
         self.local = local.Local(
             target_host=self.target_host,

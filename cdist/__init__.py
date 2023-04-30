@@ -21,11 +21,6 @@
 #
 
 import os
-import hashlib
-import subprocess
-import sys
-
-import cdist.log
 
 from skonfig import __version__
 
@@ -50,7 +45,7 @@ class Error(Exception):
     pass
 
 
-class UnresolvableRequirementsError(cdist.Error):
+class UnresolvableRequirementsError(Error):
     """Resolving requirements failed"""
     pass
 
@@ -132,7 +127,7 @@ class CdistEntityError(Error):
 
 
 class CdistObjectError(CdistEntityError):
-    """Something went wrong while working on a specific cdist object"""
+    """Something went wrong while working on a specific object"""
     def __init__(self, cdist_object, subject=''):
         params = [
             ('name', cdist_object.name, ),
@@ -156,10 +151,7 @@ class CdistObjectError(CdistEntityError):
 
 
 class CdistObjectExplorerError(CdistEntityError):
-    """
-    Something went wrong while working on a specific
-    cdist object explorer
-    """
+    """Something went wrong while working on a specific object explorer"""
     def __init__(self, cdist_object, explorer_name, explorer_path,
                  stderr_path, subject=''):
         params = [
@@ -208,26 +200,3 @@ class GlobalExplorerError(CdistEntityError):
         ]
         super().__init__("global explorer '{}'".format(name),
                          params, [], stderr_paths, subject)
-
-
-def file_to_list(filename):
-    """Return list from \n seperated file"""
-    if os.path.isfile(filename):
-        file_fd = open(filename, "r")
-        lines = file_fd.readlines()
-        file_fd.close()
-
-        # Remove \n from all lines
-        lines = map(lambda s: s.strip(), lines)
-    else:
-        lines = []
-
-    return lines
-
-
-def str_hash(s):
-    """Return hash of string s"""
-    if isinstance(s, str):
-        return hashlib.md5(s.encode('utf-8')).hexdigest()
-    else:
-        raise Error("Param should be string")

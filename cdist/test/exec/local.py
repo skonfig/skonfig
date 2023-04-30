@@ -31,7 +31,9 @@ import datetime
 import argparse
 
 import cdist
+import cdist.util
 import cdist.configuration as cc
+
 from cdist import test
 from cdist.exec import local
 
@@ -55,7 +57,7 @@ class LocalTestCase(test.CdistTestCase):
         )
         self.temp_dir = self.mkdtemp()
         self.out_parent_path = self.temp_dir
-        self.hostdir = cdist.str_hash(target_host[0])
+        self.hostdir = cdist.util.str_hash(target_host[0])
         self.host_base_path = op.join(self.out_parent_path, self.hostdir)
         self.out_path = op.join(self.host_base_path, "data")
 

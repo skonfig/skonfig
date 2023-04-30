@@ -20,8 +20,8 @@
 #
 
 import fcntl
-import logging
 import os
+
 import cdist.log
 
 
@@ -30,7 +30,7 @@ if not hasattr(__builtins__, 'FileNotFoundError'):
     FileNotFoundError = (OSError, IOError, )
 
 
-log = logging.getLogger('cdist-flock')
+log = cdist.log.getLogger('cdist-flock')
 
 
 class Flock():

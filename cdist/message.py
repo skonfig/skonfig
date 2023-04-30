@@ -19,18 +19,13 @@
 #
 #
 
-import logging
 import os
 import shutil
 import tempfile
 
-log = logging.getLogger(__name__)
-
 
 class Message:
-    """Support messaging between types
-
-    """
+    """Support messaging between types"""
     def __init__(self, prefix, messages):
         self.prefix = prefix
         self.global_messages = messages

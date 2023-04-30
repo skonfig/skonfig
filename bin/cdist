@@ -38,10 +38,6 @@ cdist_init_dir = os.path.join(cdist_dir, 'cdist', '__init__.py')
 if os.path.exists(cdist_init_dir):
     sys.path.insert(0, cdist_dir)
 
-import cdist            # noqa 402
-import cdist.argparse   # noqa 402
-import cdist.config     # noqa 402
-
 
 def _check_python_version():
     import textwrap
@@ -85,6 +81,7 @@ def _check_python_version():
 
 def _commandline():
     """Parse command line"""
+    import cdist.argparse
 
     parser, cfg = cdist.argparse.parse_and_configure(sys.argv[1:])
     args = cfg.get_args()
@@ -111,6 +108,8 @@ def _commandline():
 
 
 if __name__ == "__main__":
+    import cdist
+
     if sys.version_info < cdist.MIN_SUPPORTED_PYTHON_VERSION:
         log.error(
             "Python >= %s is required on the source host. "

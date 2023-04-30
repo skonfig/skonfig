@@ -3,12 +3,12 @@ Local cache overview
 
 Description
 -----------
-While executing, cdist stores data to local cache. Currently this feature is
-one way only. That means that cdist does not use stored data for future runs.
-Anyway, those data can be used for debugging cdist, debugging types and
+While executing, skonfig stores data to local cache. Currently this feature is
+one way only. That means that skonfig does not use stored data for future runs.
+Anyway, those data can be used for debugging skonfig, debugging types and
 debugging after host configuration fails.
 
-Local cache is saved under $HOME/.cdist/cache directory, one directory entry
+Local cache is saved under $HOME/.skonfig/dump directory, one directory entry
 for each host. Subdirectory path is specified by
 :strong:`-C/--cache-path-pattern` option, :strong:`cache_path_pattern`
 configuration option or by using :strong:`CDIST_CACHE_PATH_PATTERN`
@@ -24,10 +24,10 @@ As noted above each configured host has got its subdirectory in local cache.
 Entries in host's cache directory are as follows.
 
 bin
-  directory with cdist type emulators
-  
+  directory with cdist-type emulators
+
 conf
-  dynamically determined cdist conf directory, union of all specified
+  dynamically determined conf directory, union of all specified
   conf directories
 
 explorer
@@ -38,10 +38,10 @@ messages
   file containing messages
 
 object
-  directory containing subdirectory for each cdist object
+  directory containing subdirectory for each object
 
 object_marker
-  object marker for this particular cdist run
+  object marker for this particular configuration run
 
 stderr
   directory containing init manifest and remote stderr stream output
@@ -50,8 +50,8 @@ stdout
   directory containing init manifest and remote stdout stream output
 
 target_host
-  file containing target host of this cdist run, as specified when running
-  cdist
+  file containing target host of this configuration run, as specified when
+  running skonfig(1).
 
 typeorder
   file containing types in order of execution.
@@ -83,10 +83,10 @@ explorer
 
 files
     directory with object files created during type execution
-    
+
 parameter
     directory containing type parameter named files containing parameter
-    values   
+    values
 
 parents
     file containing a list of object parents, i.e. objects of types that reuse

@@ -19,16 +19,15 @@
 #
 #
 
-
-import multiprocessing
 import concurrent.futures as cf
 import itertools
+import multiprocessing
 import os
 import signal
-import logging
 
+import cdist.log
 
-log = logging.getLogger("cdist-mputil")
+log = cdist.log.getLogger("cdist-mputil")
 
 
 def mp_sig_handler(signum, frame):
@@ -42,9 +41,10 @@ def _mp_run_method(self, fname, *args, **kwargs):
 
 def mp_pool_run(func, args=None, kwds=None, jobs=multiprocessing.cpu_count()):
     """Run func using concurrent.futures.ProcessPoolExecutor with jobs jobs
-       and supplied iterables of args and kwds with one entry for each
-       parallel func instance.
-       Return list of results.
+    and supplied iterables of args and kwds with one entry for each
+    parallel func instance.
+
+    Return list of results.
     """
     if args and kwds:
         fargs = zip(args, kwds)

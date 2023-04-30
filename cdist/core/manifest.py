@@ -20,11 +20,10 @@
 #
 #
 
-import logging
 import os
 
 import cdist
-from . import util
+import cdist.log
 
 
 # FileNotFoundError is added in 3.3.
@@ -32,7 +31,7 @@ if not hasattr(__builtins__, 'FileNotFoundError'):
     FileNotFoundError = (OSError, IOError, )
 
 
-'''
+"""
 common:
     runs only locally, does not need remote
 
@@ -69,7 +68,7 @@ type manifeste is:
         __type: full qualified path to the type's dir
 
     creates: new objects through type emulator
-'''
+"""
 
 
 class NoInitialManifestError(cdist.Error):
@@ -98,9 +97,7 @@ class NoInitialManifestError(cdist.Error):
 
 
 class Manifest:
-    """Executes cdist manifests.
-
-    """
+    """Executes manifests."""
 
     ORDER_DEP_STATE_NAME = 'order_dep_state'
     TYPEORDER_DEP_NAME = 'typeorder_dep'
@@ -121,8 +118,8 @@ class Manifest:
             '__target_fqdn': self.target_host[2],
             '__files': self.local.files_path,
             '__target_host_tags': '',  # backwards compatibility with cdist
-            '__cdist_log_level': util.log_level_env_var_val(self.log),
-            '__cdist_log_level_name': util.log_level_name_env_var_val(
+            '__cdist_log_level': cdist.log.log_level_env_var_val(self.log),
+            '__cdist_log_level_name': cdist.log.log_level_name_env_var_val(
                 self.log),
             '__cdist_colored_log': str(
                 cdist.log.CdistFormatter.USE_COLORS).lower(),
@@ -132,7 +129,7 @@ class Manifest:
             self.env['__cdist_dry_run'] = '1'
 
     def _open_logger(self):
-        self.log = logging.getLogger(self.target_host[0])
+        self.log = cdist.log.getLogger(self.target_host[0])
 
     # logger is not pickable, so remove it when we pickle
     def __getstate__(self):

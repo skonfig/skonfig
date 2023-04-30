@@ -88,7 +88,7 @@ All commands accept the following options:
    Use specified custom configuration file.
 
 ``-i MANIFEST``, ``--initial-manifest MANIFEST``
-   Path to a cdist manifest or - to read from stdin.
+   Path to a manifest or - to read from stdin.
 
 ``-j [JOBS]``, ``--jobs [JOBS]``
    Operate in parallel in specified maximum number of

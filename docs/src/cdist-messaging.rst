@@ -9,19 +9,19 @@ the initial manifest and types as well as types and types.
 Whenever execution is passed from cdist to one of the
 scripts described below, cdist generate 2 new temporary files
 and exports the environment variables **__messages_in** and
-**__messages_out** to point to them. 
+**__messages_out** to point to them.
 
-Before handing over the control, the content of the global message 
+Before handing over the control, the content of the global message
 file is copied into the file referenced by **$__messages_in**.
 
 After cdist gained control back, the content of the file referenced
 by **$__messages_out** is appended to the global message file.
 
-This way overwriting any of the two files by accident does not 
+This way overwriting any of the two files by accident does not
 interfere with other types.
 
-The order of execution is not defined unless you create dependencies 
-between the different objects (see `cdist manifest <cdist-manifest.html>`_) and thus you
+The order of execution is not defined unless you create dependencies
+between the different objects (see `manifest <cdist-manifest.html>`_) and thus you
 can only react reliably on messages by objects that you depend on.
 
 

@@ -1,44 +1,14 @@
 import argparse
 import collections
 import functools
-import logging
 import multiprocessing
 
 import cdist
-import cdist.config
-import cdist.configuration
 import cdist.log
 
 
 # Parser others can reuse
 parser = None
-
-
-_verbosity_level_off = -2
-_verbosity_level = {
-    None: logging.WARNING,
-    _verbosity_level_off: logging.OFF,
-    -1: logging.ERROR,
-    0: logging.WARNING,
-    1: logging.INFO,
-    2: logging.VERBOSE,
-    3: logging.DEBUG,
-    4: logging.TRACE,
-}
-
-
-# Generate verbosity level constants:
-# VERBOSE_OFF, VERBOSE_ERROR, VERBOSE_WARNING, VERBOSE_INFO, VERBOSE_VERBOSE,
-# VERBOSE_DEBUG, VERBOSE_TRACE.
-this_globals = globals()
-for level in _verbosity_level:
-    const = 'VERBOSE_' + logging.getLevelName(_verbosity_level[level])
-    this_globals[const] = level
-
-
-# All verbosity levels above 4 are TRACE.
-_verbosity_level = collections.defaultdict(
-    lambda: logging.TRACE, _verbosity_level)
 
 
 def check_lower_bounded_int(value, lower_bound, name):
@@ -90,6 +60,7 @@ def get_parsers():
                   'value.'),
             action='count', default=None)
 
+    import cdist.configuration
     parser['colored_output'] = argparse.ArgumentParser(add_help=False)
     parser['colored_output'].add_argument(
             '--colors', metavar='WHEN',
@@ -137,7 +108,7 @@ def get_parsers():
                   'last one wins).'), action='append')
     parser['config_main'].add_argument(
            '-i', '--initial-manifest',
-           help='Path to a cdist manifest or \'-\' to read from stdin.',
+           help='Path to a manifest or \'-\' to read from stdin.',
            dest='manifest', required=False)
     parser['config_main'].add_argument(
            '-j', '--jobs', nargs='?',
@@ -194,6 +165,8 @@ def get_parsers():
            action='store_false', dest='save_output_streams', default=True)
 
     # Config
+    import cdist.config
+
     parser['config_args'] = argparse.ArgumentParser(add_help=False)
     parser['config_args'].add_argument(
             '-f', '--file',
@@ -229,9 +202,9 @@ def get_parsers():
 
 def handle_loglevel(args):
     if hasattr(args, 'quiet') and args.quiet:
-        args.verbose = _verbosity_level_off
+        args.verbose = cdist.log._verbosity_level_off
 
-    logging.getLogger().setLevel(_verbosity_level[args.verbose])
+    cdist.log.getLogger().setLevel(cdist.log._verbosity_level[args.verbose])
 
 
 def handle_log_colors(args):
@@ -252,7 +225,7 @@ def parse_and_configure(argv, singleton=True):
     handle_loglevel(args)
     handle_log_colors(args)
 
-    log = logging.getLogger("cdist")
+    log = cdist.log.getLogger("cdist")
 
     log.verbose("version %s", cdist.__version__)
     log.trace('command line args: %s', cfg.command_line_args)

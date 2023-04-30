@@ -25,10 +25,11 @@ import multiprocessing
 import cdist.configuration as cc
 import os.path as op
 import argparse
-from cdist import test
-import cdist.argparse as cap
 import logging
 import sys
+
+from cdist import test
+import cdist.log
 
 my_dir = op.abspath(op.dirname(__file__))
 fixtures = op.join(my_dir, 'fixtures')
@@ -136,10 +137,10 @@ class ConfigurationOptionsTestCase(test.CdistTestCase):
         converter = option.get_converter()
         value = str(logging.DEBUG)
         conv_val = converter(value)
-        self.assertEqual(conv_val, cap.VERBOSE_DEBUG)
+        self.assertEqual(conv_val, cdist.log.VERBOSE_DEBUG)
         value = str(logging.INFO)
         conv_val = converter(value)
-        self.assertEqual(conv_val, cap.VERBOSE_INFO)
+        self.assertEqual(conv_val, cdist.log.VERBOSE_INFO)
         for value in ('11', '80', 'a'):
             self.assertRaises(ValueError, converter, value)
 
@@ -193,7 +194,7 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_exec': None,
                 'jobs': 0,
                 'parallel': multiprocessing.cpu_count(),
-                'verbosity': cap.VERBOSE_INFO,
+                'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': None,
             },
         }
@@ -441,7 +442,7 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_exec': None,
                 'jobs': 0,
                 'parallel': multiprocessing.cpu_count(),
-                'verbosity': cap.VERBOSE_INFO,
+                'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': None,
             },
         }
@@ -511,7 +512,7 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_exec': 'myexec',
                 'jobs': 0,
                 'parallel': multiprocessing.cpu_count(),
-                'verbosity': cap.VERBOSE_INFO,
+                'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'tar',
             },
         }
@@ -576,7 +577,7 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_exec': None,
                 'jobs': 0,
                 'parallel': multiprocessing.cpu_count(),
-                'verbosity': cap.VERBOSE_INFO,
+                'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': None,
             },
         }
@@ -657,7 +658,7 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_exec': 'myexec',
                 'jobs': 0,
                 'parallel': multiprocessing.cpu_count(),
-                'verbosity': cap.VERBOSE_INFO,
+                'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'tar',
             },
         }
@@ -756,7 +757,7 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_exec': 'myexec',
                 'jobs': 10,
                 'parallel': multiprocessing.cpu_count(),
-                'verbosity': cap.VERBOSE_INFO,
+                'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'tar',
             },
         }
@@ -846,7 +847,7 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_exec': 'sshcustom',
                 'jobs': 0,
                 'parallel': 15,
-                'verbosity': cap.VERBOSE_INFO,
+                'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'txz',
             },
         }
@@ -939,7 +940,7 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_exec': 'sshcustom',
                 'jobs': 0,
                 'parallel': 15,
-                'verbosity': cap.VERBOSE_INFO,
+                'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'txz',
             },
         }
@@ -1032,7 +1033,7 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_exec': 'sshcustom',
                 'jobs': 0,
                 'parallel': 15,
-                'verbosity': cap.VERBOSE_INFO,
+                'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'txz',
             },
         }
@@ -1063,7 +1064,7 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_exec': 'sshcustom',
             'jobs': 0,
             'parallel': 15,
-            'verbose': cap.VERBOSE_INFO,
+            'verbose': cdist.log.VERBOSE_INFO,
             'use_archiving': 'txz',
         }
 
@@ -1106,7 +1107,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         expected_config_dict = {
             'GLOBAL': {
                 'colored_output': colored_output_default,
-                'verbosity': cap.VERBOSE_DEBUG,
+                'verbosity': cdist.log.VERBOSE_DEBUG,
             },
         }
 

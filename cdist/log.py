@@ -2,6 +2,7 @@
 #
 # 2010-2013 Nico Schottelius (nico-cdist at schottelius.org)
 # 2019-2020 Steven Armstrong
+# 2021-2023 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of cdist.
 #
@@ -20,43 +21,66 @@
 #
 #
 
-import datetime
-import logging
-import logging.handlers
-import sys
-import os
-import struct
-import threading
+import collections
+import logging as _logging
 
+from logging import *
+
+root = _logging.root
 
 # Define additional cdist logging levels.
-logging.OFF = logging.CRITICAL + 10  # disable logging
-logging.addLevelName(logging.OFF, 'OFF')
+OFF = CRITICAL + 10  # disable logging
+addLevelName(OFF, 'OFF')
+_logging.OFF = OFF
 
-
-logging.VERBOSE = logging.INFO - 5
-logging.addLevelName(logging.VERBOSE, 'VERBOSE')
+VERBOSE = INFO - 5
+addLevelName(VERBOSE, 'VERBOSE')
+_logging.VERBOSE = VERBOSE
 
 
 def _verbose(self, msg, *args, **kwargs):
-    self.log(logging.VERBOSE, msg, *args, **kwargs)
+    self.log(VERBOSE, msg, *args, **kwargs)
 
 
-logging.Logger.verbose = _verbose
+Logger.verbose = _verbose
 
 
-logging.TRACE = logging.DEBUG - 5
-logging.addLevelName(logging.TRACE, 'TRACE')
+TRACE = DEBUG - 5
+addLevelName(TRACE, 'TRACE')
 
 
 def _trace(self, msg, *args, **kwargs):
-    self.log(logging.TRACE, msg, *args, **kwargs)
+    self.log(TRACE, msg, *args, **kwargs)
 
 
-logging.Logger.trace = _trace
+Logger.trace = _trace
 
 
-class CdistFormatter(logging.Formatter):
+_verbosity_level_off = -2
+
+# All verbosity levels above 4 are TRACE.
+_verbosity_level = collections.defaultdict(lambda: TRACE, {
+    None: WARNING,
+    _verbosity_level_off: OFF,
+    -1: ERROR,
+    0: WARNING,
+    1: INFO,
+    2: VERBOSE,
+    3: DEBUG,
+    4: TRACE,
+    })
+
+# Generate verbosity level constants:
+# VERBOSE_OFF, VERBOSE_ERROR, VERBOSE_WARNING, VERBOSE_INFO, VERBOSE_VERBOSE,
+# VERBOSE_DEBUG, VERBOSE_TRACE.
+globals().update({
+    ("VERBOSE_" + getLevelName(l)): i
+    for i, l in _verbosity_level.items()
+    if i is not None
+    })
+
+
+class CdistFormatter(Formatter):
     USE_COLORS = False
     RESET = '\033[0m'
     COLOR_MAP = {
@@ -80,50 +104,57 @@ class CdistFormatter(logging.Formatter):
         return msg
 
 
-class DefaultLog(logging.Logger):
+class DefaultLog(Logger):
     FORMAT = '%(levelname)s: %(name)s: %(message)s'
 
-    class StdoutFilter(logging.Filter):
+    class StdoutFilter(Filter):
         def filter(self, rec):
-            return rec.levelno != logging.ERROR
+            return rec.levelno != ERROR
 
-    class StderrFilter(logging.Filter):
+    class StderrFilter(Filter):
         def filter(self, rec):
-            return rec.levelno == logging.ERROR
+            return rec.levelno == ERROR
 
     def __init__(self, name):
+        import sys
+
         super().__init__(name)
         self.propagate = False
 
         formatter = CdistFormatter(self.FORMAT)
 
-        stdout_handler = logging.StreamHandler(sys.stdout)
+        stdout_handler = StreamHandler(sys.stdout)
         stdout_handler.addFilter(self.StdoutFilter())
-        stdout_handler.setLevel(logging.TRACE)
+        stdout_handler.setLevel(TRACE)
         stdout_handler.setFormatter(formatter)
 
-        stderr_handler = logging.StreamHandler(sys.stderr)
+        stderr_handler = StreamHandler(sys.stderr)
         stderr_handler.addFilter(self.StderrFilter())
-        stderr_handler.setLevel(logging.ERROR)
+        stderr_handler.setLevel(ERROR)
         stderr_handler.setFormatter(formatter)
 
         self.addHandler(stdout_handler)
         self.addHandler(stderr_handler)
 
     def verbose(self, msg, *args, **kwargs):
-        self.log(logging.VERBOSE, msg, *args, **kwargs)
+        self.log(VERBOSE, msg, *args, **kwargs)
 
     def trace(self, msg, *args, **kwargs):
-        self.log(logging.TRACE, msg, *args, **kwargs)
+        self.log(TRACE, msg, *args, **kwargs)
 
 
 class TimestampingLog(DefaultLog):
+    def __init__(self, name):
+        super().__init__(self, name)
+
+        import datetime
+        self.now = datetime.datetime.now
 
     def filter(self, record):
         """Add timestamp to messages"""
 
         super().filter(record)
-        now = datetime.datetime.now()
+        now = self.now()
         timestamp = now.strftime("%Y%m%d%H%M%S.%f")
         record.msg = "[" + timestamp + "] " + str(record.msg)
 
@@ -138,24 +169,32 @@ class TimestampingParallelLog(TimestampingLog, ParallelLog):
     pass
 
 
+def log_level_env_var_val(log):
+    return str(log.getEffectiveLevel())
+
+
+def log_level_name_env_var_val(log):
+    return getLevelName(log.getEffectiveLevel())
+
+
 def setupDefaultLogging():
-    del logging.getLogger().handlers[:]
-    logging.setLoggerClass(DefaultLog)
+    del getLogger().handlers[:]
+    setLoggerClass(DefaultLog)
 
 
 def setupTimestampingLogging():
-    del logging.getLogger().handlers[:]
-    logging.setLoggerClass(TimestampingLog)
+    del getLogger().handlers[:]
+    setLoggerClass(TimestampingLog)
 
 
 def setupTimestampingParallelLogging():
-    del logging.getLogger().handlers[:]
-    logging.setLoggerClass(TimestampingParallelLog)
+    del getLogger().handlers[:]
+    setLoggerClass(TimestampingParallelLog)
 
 
 def setupParallelLogging():
-    del logging.getLogger().handlers[:]
-    logging.setLoggerClass(ParallelLog)
+    del getLogger().handlers[:]
+    setLoggerClass(ParallelLog)
 
 
 setupDefaultLogging()

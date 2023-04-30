@@ -21,19 +21,20 @@
 #
 #
 
+import datetime
 import os
-import sys
 import re
-import subprocess
 import shutil
-import logging
+import subprocess
+import sys
 import tempfile
 import time
-import datetime
 
 import cdist
+import cdist.core
+import cdist.log
 import cdist.message
-from cdist import core
+
 import cdist.exec.util as util
 
 CONF_SUBDIRS_LINKED = ["explorer", "files", "manifest", "type"]
@@ -81,7 +82,7 @@ class Local:
         self._init_conf_dirs(add_conf_dirs)
 
     def _init_log(self):
-        self.log = logging.getLogger(self.target_host[0])
+        self.log = cdist.log.getLogger(self.target_host[0])
 
     # logger is not pickable, so remove it when we pickle
     def __getstate__(self):
@@ -363,7 +364,7 @@ class Local:
     def _link_types_for_emulator(self):
         """Link emulator to types"""
         src = os.path.abspath(self.exec_path)
-        for cdist_type in core.CdistType.list_types(self.type_path):
+        for cdist_type in cdist.core.CdistType.list_types(self.type_path):
             dst = os.path.join(self.bin_path, cdist_type.name)
             self.log.trace("Linking emulator: %s to %s", src, dst)
 
