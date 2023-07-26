@@ -27,7 +27,6 @@ jobs:
           allow-prereleases: true
           python-version: ${{ matrix.python-version }}
       - name: Install setuptools
-        if: ${{ (0+matrix.python-version) >= 3.12 }}
         run: |
           pip install setuptools
       - name: Information
