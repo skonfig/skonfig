@@ -11,13 +11,56 @@ try:
 except:
     pass
 
-from distutils import log
+import logging
+log = logging.getLogger("setup.py")
 
-try:
-    from packaging.version import Version
-except ImportError:
-    # fallback to distutils.version
-    from distutils.version import LooseVersion as Version
+class Version:
+    """this class is a stripped down version of distutils.version.LooseVersion
+    before it was removed from CPython.
+    """
+
+    component_re = re.compile(r'(\d+ | [a-z]+ | \.)', re.VERBOSE)
+
+    def __eq__(self, other):
+        return self._cmp(other) == 0
+
+    def __lt__(self, other):
+        return self._cmp(other) < 0
+
+    def __le__(self, other):
+        return self._cmp(other) <= 0
+
+    def __gt__(self, other):
+        return self._cmp(other) > 0
+
+    def __ge__(self, other):
+        return self._cmp(other) >= 0
+
+    def __init__(self, vstring):
+        self.parse(vstring)
+
+    def parse(self, vstring):
+        components = [x for x in self.component_re.split(vstring)
+                              if x and x != '.']
+        for i, obj in enumerate(components):
+            try:
+                components[i] = int(obj)
+            except ValueError:
+                pass
+
+        self.version = components
+
+    def _cmp(self, other):
+        if isinstance(other, str):
+            other = Version(other)
+
+        if self.version == other.version:
+            return 0
+        if self.version < other.version:
+            return -1
+        if self.version > other.version:
+            return 1
+
 
 # Import setuptools / distutils
 try:
@@ -37,7 +80,6 @@ except ImportError:
     log.warn("You are running %s using distutils. "
                 "Please consider installing setuptools." % __file__)
 
-from distutils.errors import DistutilsError
 
 import distutils.command.build
 import distutils.command.build_py

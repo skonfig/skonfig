@@ -37,6 +37,9 @@ incubator for new types.
 pip3 install skonfig@git+https://github.com/skonfig/skonfig
 ```
 
+Note: if you run Python 3.12 or later, you need to have
+[setuptools](https://setuptools.pypa.io/) installed.
+
 ### Step 2: Clone sets repositories
 
 Clone the sets you are planning to use. To get started installing the `base` and
