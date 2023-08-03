@@ -97,7 +97,6 @@ class ConfigRunTestCase(test.CdistTestCase):
         os.mkdir(self.remote_dir)
         self.remote = cdist.exec.remote.Remote(
             target_host=self.target_host,
-            remote_copy=self.remote_copy,
             remote_exec=self.remote_exec,
             base_path=self.remote_dir,
             stdout_base_path=self.local.stdout_base_path,

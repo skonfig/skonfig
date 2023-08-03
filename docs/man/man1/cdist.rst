@@ -20,9 +20,8 @@ SYNOPSIS
                  [-g CONFIG_FILE] [-4] [-6] [-C CACHE_PATH_PATTERN]
                  [-c CONF_DIR] [-i MANIFEST] [-j [JOBS]] [-n] [-o OUT_PATH]
                  [-P] [-R [{tar,tgz,tbz2,txz}]] [-r REMOTE_OUT_PATH]
-                 [--remote-copy REMOTE_COPY] [--remote-exec REMOTE_EXEC]
-                 [-S] [-f HOSTFILE] [-p [HOST_MAX]] [-s]
-                 [host [host ...]]
+                 [--remote-exec REMOTE_EXEC] [-S] [-f HOSTFILE] [-p [HOST_MAX]]
+                 [-s] [host [host ...]]
 
 
 DESCRIPTION
@@ -131,9 +130,6 @@ All commands accept the following options:
 ``-s``, ``--sequential``
    Operate on multiple hosts sequentially (default).
 
-``--remote-copy REMOTE_COPY``
-   Command to use for remote copy (should behave like scp).
-
 ``--remote-exec REMOTE_EXEC``
    Command to use for remote execution (should behave like ssh).
 
@@ -224,9 +220,6 @@ The possible keywords and their meanings are as follows:
    If set to positive number then specified maximum number of processes
    will be used.
 
-:strong:`remote_copy`
-   Command to use for remote copy (should behave like scp).
-
 :strong:`remote_exec`
    Command to use for remote execution (should behave like ssh).
 
@@ -302,9 +295,6 @@ ENVIRONMENT
 
 ``CDIST_REMOTE_EXEC``
    Use this command for remote execution (should behave like ssh).
-
-``CDIST_REMOTE_COPY``
-   Use this command for remote copy (should behave like scp).
 
 ``CDIST_CACHE_PATH_PATTERN``
    Custom cache path pattern.

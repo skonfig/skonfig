@@ -53,10 +53,6 @@
 #     will be used.
 # parallel = 0
 #
-# remote_copy
-#     Command to use for remote copy (should behave like scp).
-# remote_copy =
-#
 # remote_exec
 #     Command to use for remote execution (should behave like ssh).
 # remote_exec =

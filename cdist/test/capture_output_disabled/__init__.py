@@ -57,11 +57,9 @@ class CaptureOutputDisabledTestCase(test.CdistTestCase):
 
         self.remote_dir = self.mkdtemp()
         remote_exec = self.remote_exec
-        remote_copy = self.remote_copy
         self.remote = remote.Remote(
             target_host=self.target_host,
             remote_exec=remote_exec,
-            remote_copy=remote_copy,
             base_path=self.remote_dir,
             stdout_base_path=self.local.stdout_base_path,
             stderr_base_path=self.local.stderr_base_path,

@@ -149,11 +149,6 @@ def get_parsers():
            help='Directory to save cdist output in on the target host.',
            dest="remote_out_path")
     parser['config_main'].add_argument(
-           '--remote-copy',
-           help='Command to use for remote copy (should behave like scp).',
-           action='store', dest='remote_copy',
-           default=None)
-    parser['config_main'].add_argument(
            '--remote-exec',
            help=('Command to use for remote execution '
                  '(should behave like ssh).'),

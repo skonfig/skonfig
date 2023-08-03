@@ -138,11 +138,10 @@ class Config:
                         source, e))
 
     @staticmethod
-    def construct_remote_exec_copy_patterns(args):
+    def construct_remote_exec_patterns(args):
         # default remote cmd patterns
         args.remote_cmds_cleanup_pattern = ""
         args.remote_exec_pattern = None
-        args.remote_copy_pattern = None
 
         # Determine forcing IPv4/IPv6 options if any, only for
         # default remote commands.
@@ -154,15 +153,11 @@ class Config:
         args_dict = vars(args)
         # if remote-exec and/or remote-copy args are None then user
         # didn't specify command line options nor env vars:
-        # inspect multiplexing options for default cdist.REMOTE_COPY/EXEC
-        if (args_dict['remote_copy'] is None or
-                args_dict['remote_exec'] is None):
+        # inspect multiplexing options for default cdist.REMOTE_EXEC
+        if (args_dict['remote_exec'] is None):
             mux_opts = inspect_ssh_mux_opts()
             if args_dict['remote_exec'] is None:
                 args.remote_exec_pattern = (cdist.REMOTE_EXEC +
-                                            force_addr_opt + mux_opts)
-            if args_dict['remote_copy'] is None:
-                args.remote_copy_pattern = (cdist.REMOTE_COPY +
                                             force_addr_opt + mux_opts)
             if mux_opts:
                 cleanup_pattern = cdist.REMOTE_CMDS_CLEANUP_PATTERN
@@ -222,7 +217,7 @@ class Config:
         failed_hosts = []
         time_start = time.time()
 
-        cls.construct_remote_exec_copy_patterns(args)
+        cls.construct_remote_exec_patterns(args)
         base_root_path = cls.create_base_root_path(args.out_path)
 
         hostcnt = 0
@@ -305,9 +300,8 @@ class Config:
 
     @classmethod
     def _resolve_remote_cmds(cls, args):
-        if (args.remote_exec_pattern or
-                args.remote_copy_pattern or
-                args.remote_cmds_cleanup_pattern):
+        if (args.remote_exec_pattern
+                or args.remote_cmds_cleanup_pattern):
             control_path = cls._resolve_ssh_control_path()
         # If we constructed patterns for remote commands then there is
         # placeholder for ssh ControlPath, format it and we have unique
@@ -318,16 +312,12 @@ class Config:
             remote_exec = args.remote_exec_pattern.format(control_path)
         else:
             remote_exec = args.remote_exec
-        if args.remote_copy_pattern:
-            remote_copy = args.remote_copy_pattern.format(control_path)
-        else:
-            remote_copy = args.remote_copy
         if args.remote_cmds_cleanup_pattern:
             remote_cmds_cleanup = args.remote_cmds_cleanup_pattern.format(
                 control_path)
         else:
             remote_cmds_cleanup = ""
-        return (remote_exec, remote_copy, remote_cmds_cleanup, )
+        return (remote_exec, remote_cmds_cleanup, )
 
     @staticmethod
     def _address_family(args):
@@ -358,10 +348,9 @@ class Config:
         log = cdist.log.getLogger(host)
 
         try:
-            remote_exec, remote_copy, cleanup_cmd = cls._resolve_remote_cmds(
+            remote_exec, cleanup_cmd = cls._resolve_remote_cmds(
                 args)
             log.debug("remote_exec for host \"%s\": %s", host, remote_exec)
-            log.debug("remote_copy for host \"%s\": %s", host, remote_copy)
 
             family = cls._address_family(args)
             log.debug("address family: %s", family)
@@ -386,7 +375,6 @@ class Config:
             remote = cdist.exec.remote.Remote(
                 target_host=target_host,
                 remote_exec=remote_exec,
-                remote_copy=remote_copy,
                 base_path=args.remote_out_path,
                 quiet_mode=args.quiet,
                 archiving_mode=cdist.autil.mode_from_str(args.use_archiving),

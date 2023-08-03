@@ -22,6 +22,7 @@
 
 import glob
 import os
+import stat
 import subprocess
 
 import cdist
@@ -58,7 +59,6 @@ class Remote:
     def __init__(self,
                  target_host,
                  remote_exec,
-                 remote_copy,
                  base_path=None,
                  quiet_mode=None,
                  archiving_mode=None,
@@ -67,8 +67,7 @@ class Remote:
                  stderr_base_path=None,
                  save_output_streams=True):
         self.target_host = target_host
-        self._exec = remote_exec
-        self._copy = remote_copy
+        self._exec = shquot.split(remote_exec)
 
         self.base_path = base_path or "/var/lib/skonfig"
         self.quiet_mode = quiet_mode
@@ -107,13 +106,11 @@ class Remote:
     def _init_env(self):
         """Setup environment for scripts."""
         # FIXME: better do so in exec functions that require it!
-        os.environ['__remote_copy'] = self._copy
-        os.environ['__remote_exec'] = self._exec
+        os.environ['__remote_exec'] = shquot.join(self._exec)
 
     def create_files_dirs(self):
         self.rmdir(self.base_path)
-        self.mkdir(self.base_path)
-        self.run(["chmod", "0700", self.base_path])
+        self.mkdir(self.base_path, umask=0o077)
         self.mkdir(self.conf_path)
 
     def remove_files_dirs(self):
@@ -127,12 +124,19 @@ class Remote:
     def rmdir(self, path):
         """Remove directory on the target."""
         self.log.trace("Remote rmdir: %s", path)
-        self.run(["rm", "-rf",  path])
+        self.run(["rm", "-r", "-f",  path])
 
-    def mkdir(self, path):
+    def mkdir(self, path, umask=None):
         """Create directory on the target."""
         self.log.trace("Remote mkdir: %s", path)
-        self.run(["mkdir", "-p", path])
+
+        cmd = "mkdir -p %s" % (shquot.quote(path),)
+        if umask is not None:
+            mode = (0o777 & ~umask)
+            cmd = "umask %04o; %s && chmod %o %s" % (
+                umask, cmd, mode, shquot.quote(path))
+
+        self.run(cmd)
 
     def extract_archive(self, path, mode):
         """Extract archive path on the target."""
@@ -149,19 +153,23 @@ class Remote:
             command += mode.extract_opts
         self.run(command)
 
-    def _transfer_file(self, source, destination):
-        command = shquot.split(self._copy) + [
-            source,
-            "%s:%s" % (_wrap_addr(self.target_host[0]), destination)
-        ]
-        self._run_command(command)
+    def _transfer_file(self, source, destination, umask=None):
+        remote_cmd = "cat >%s" % (shquot.quote(destination),)
+        if umask is not None:
+            mode = (stat.S_IMODE(os.stat(source).st_mode) & ~umask)
+            remote_cmd = "umask %04o; %s && chmod %o %s" % (
+                umask, remote_cmd, mode, shquot.quote(destination))
 
-    def transfer(self, source, destination, jobs=None):
+        command = self._exec + [self.target_host[0], remote_cmd]
+        with open(source, "r") as f:
+            self._run_command(command, stdin=f)
+
+    def transfer(self, source, destination, jobs=None, umask=None):
         """Transfer a file or directory to the target."""
         self.log.trace("Remote transfer: %s -> %s", source, destination)
         # self.rmdir(destination)
         if os.path.isdir(source):
-            self.mkdir(destination)
+            self.mkdir(destination, umask=umask)
             used_archiving = False
             if self.archiving_mode is not None:
                 self.log.trace("Remote transfer in archiving mode")
@@ -197,27 +205,26 @@ class Remote:
                     os.remove(tarpath)
                     used_archiving = True
             if not used_archiving:
-                self._transfer_dir(source, destination)
+                self._transfer_dir(source, destination, umask=umask)
         elif jobs:
             raise cdist.Error("Source {} is not a directory".format(source))
         else:
-            self._transfer_file(source, destination)
+            self._transfer_file(source, destination, umask=umask)
 
-    def _transfer_dir(self, source, destination):
-        sources = [os.path.join(source, f) for f in glob.glob1(source, "*")]
-        if not sources:
-            return
-        command = shquot.split(self._copy) + sources
-        command.append("%s:%s" % (
-            _wrap_addr(self.target_host[0]), destination))
-
-        self._run_command(command)
+    def _transfer_dir(self, source, destination, umask=None):
+        for path in glob.glob1(source, "*"):
+            src_path = os.path.join(source, path)
+            dst_path = os.path.join(destination, path)
+            if os.path.isdir(src_path):
+                self.mkdir(dst_path, umask=umask)
+                self._transfer_dir(src_path, dst_path, umask=umask)
+            else:
+                self._transfer_file(src_path, dst_path, umask=umask)
 
     def run_script(self, script, env=None, return_output=False, stdout=None,
                    stderr=None):
         """Run the given script with the given environment on the target.
         Return the output as a string.
-
         """
 
         command = [
@@ -231,7 +238,7 @@ class Remote:
                         stdout=stdout, stderr=stderr)
 
     def run(self, command, env=None, return_output=False,
-            stdout=None, stderr=None):
+            stdin=None, stdout=None, stderr=None):
         """Run the given command with the given environment on the target.
         Return the output as a string.
 
@@ -239,9 +246,8 @@ class Remote:
         If you need some part not to be quoted (e.g. the component is a glob),
         pass command as a str instead.
         """
-
         # prefix given command with remote_exec
-        cmd = shquot.split(self._exec) + [self.target_host[0]]
+        cmd = self._exec + [self.target_host[0]]
 
         if isinstance(command, (list, tuple)):
             command = shquot.join(command)
@@ -264,22 +270,21 @@ class Remote:
         # remotely in e.g. csh and setting up CDIST_REMOTE_SHELL to e.g.
         # /bin/csh will execute this script in the right way.
         if env:
-            remote_env = "export " + (" ".join(
+            remote_env = "export %s; " % (" ".join(
                 "%s=%s" % (
                     name, shquot.quote(value) if value else "")
-                for (name, value) in env.items())) + "; "
+                for (name, value) in env.items()))
+            cmd.append("/bin/sh -c " + shquot.quote(remote_env + command))
         else:
-            remote_env = ""
+            cmd.append(command)
+        return self._run_command(cmd, env=env, return_output=return_output,
+                                 stdin=stdin, stdout=stdout, stderr=stderr)
 
-        cmd.append("exec /bin/sh -c " + shquot.quote(remote_env + command))
-
-        return self._run_command(cmd, return_output=return_output,
-                                 stdout=stdout, stderr=stderr)
-
-    def _run_command(self, command, return_output=False,
-                     stdout=None, stderr=None):
-        """Run the given command locally and return the output as a string"""
-
+    def _run_command(self, command, env=None, return_output=False,
+                     stdin=None, stdout=None, stderr=None):
+        """Run the given command with the given environment.
+        Return the output as a string.
+        """
         assert isinstance(command, (list, tuple)), (
                 "list or tuple argument expected, got: {}".format(command))
 
@@ -307,11 +312,12 @@ class Remote:
                 stderr, close_stderr = util._get_devnull()
                 special_devnull = not close_stderr
             if return_output:
-                output = subprocess.check_output(command, env=os_environ,
-                                                 stderr=stderr).decode()
+                output = subprocess.check_output(
+                     command, env=os_environ,
+                     stderr=stderr, stdin=stdin).decode()
             else:
-                subprocess.check_call(command, env=os_environ, stdout=stdout,
-                                      stderr=stderr)
+                subprocess.check_call(command, env=os_environ, stdin=stdin,
+                                      stdout=stdout, stderr=stderr)
                 output = None
 
             if self.save_output_streams:

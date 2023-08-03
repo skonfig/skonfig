@@ -63,7 +63,6 @@ class ExplorerClassTestCase(test.CdistTestCase):
         self.remote = remote.Remote(
             target_host=self.target_host,
             remote_exec=self.remote_exec,
-            remote_copy=self.remote_copy,
             base_path=self.remote_base_path,
             stdout_base_path=self.local.stdout_base_path,
             stderr_base_path=self.local.stderr_base_path)
