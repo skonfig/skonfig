@@ -198,5 +198,7 @@ class Code:
             '__object': os.path.join(self.remote.object_path,
                                      cdist_object.path),
             '__object_id': cdist_object.object_id,
+            '__type': os.path.join(self.remote.type_path,
+                                   cdist_object.cdist_type.name),
         }
         return self._run_code(cdist_object, 'remote', env=env)
