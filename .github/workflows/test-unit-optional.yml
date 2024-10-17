@@ -11,8 +11,8 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu
-          - macos
+          - ubuntu-latest
+          - macos-13
         python-version:
           - pypy-3.6
           - pypy-3.7
@@ -22,12 +22,8 @@ jobs:
           - graalpy-23.1.2
           - graalpy-24.1.1
         include:
-          - {os: "macos",  python-version: "3.5"}
-          - {os: "macos",  python-version: "3.6"}
-        exclude:
-          - {os: "macos",  python-version: "pypy-3.6"}
-          - {os: "macos",  python-version: "pypy-3.9"}
-    runs-on: ${{ matrix.os }}-latest
+          - {os: "macos-13", python-version: "3.6"}
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
