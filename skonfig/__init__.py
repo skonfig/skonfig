@@ -8,9 +8,13 @@ THIS_IS_SKONFIG = False
 
 
 def run():
+    import cdist
     import skonfig.cdist
     if os.path.basename(sys.argv[0])[:2] == "__":
-        return skonfig.cdist.emulator()
+        try:
+            return skonfig.cdist.emulator()
+        except cdist.Error:
+            pass
     import skonfig.arguments
     parser, arguments = skonfig.arguments.get()
     if arguments.version:
@@ -22,4 +26,7 @@ def run():
     if arguments.dump:
         import skonfig.dump
         return skonfig.dump.run(arguments.host)
-    return skonfig.cdist.run(arguments)
+    try:
+        return skonfig.cdist.run(arguments)
+    except cdist.Error:
+        pass
