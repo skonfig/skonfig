@@ -14,7 +14,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install python3 pycodestyle shellcheck
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Information
