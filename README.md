@@ -16,6 +16,8 @@ You can find us in `#skonfig:matrix.org` ([matrix?](https://matrix.org/faq/)).
 Most parts of [cdist documentation](https://www.cdi.st/manual/latest/) apply, but there are differences:
 
 * `skonfig` does only `config` (see `skonfig -h`),
+* types are managed in sets,
+* type manifest can be directory of manifests,
 * some types behave differently and it's recommended to consult manuals in *base* and *extra*.
 
 ## Split between *base* and *extra*
