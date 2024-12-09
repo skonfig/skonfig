@@ -200,14 +200,17 @@ class Manifest:
     def run_type_manifest(self, cdist_object):
         type_manifest = os.path.join(self.local.type_path,
                                      cdist_object.cdist_type.manifest_path)
-        type_init_manifest = os.path.join(type_manifest, "init")
-        if os.path.isfile(type_init_manifest):
-            type_manifests = [type_init_manifest]
-        elif os.path.isdir(type_manifest):
-            type_manifests = []
-            for m in os.listdir(type_manifest):
-                type_manifests.append(os.path.join(type_manifest, m))
-            type_manifests.sort()
+        if os.path.isdir(type_manifest):
+            type_init_manifest = os.path.join(type_manifest, "init")
+            if os.path.isfile(type_init_manifest):
+                type_manifests = [type_init_manifest]
+            else:
+                type_manifests = []
+                for m in os.listdir(type_manifest):
+                    m = os.path.join(type_manifest, m)
+                    if os.path.isfile(m):
+                        type_manifests.append(m)
+                type_manifests.sort()
         elif os.path.isfile(type_manifest):
             type_manifests = [type_manifest]
         else:
