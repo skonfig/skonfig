@@ -120,7 +120,23 @@ class Code:
         cdist_type = cdist_object.cdist_type
         gencode_attr = getattr(cdist_type, 'gencode_{}_path'.format(which))
         script = os.path.join(self.local.type_path, gencode_attr)
-        if os.path.isfile(script):
+        if os.path.isdir(script):
+            init = os.path.join(script, "init")
+            if os.path.isfile(init):
+                scripts = [init]
+            else:
+                scripts = []
+                for s in os.listdir(script):
+                    s = os.path.join(script, s)
+                    if os.path.isfile(s):
+                        scripts.append(s)
+                scripts.sort()
+        elif os.path.isfile(script):
+            scripts = [script]
+        else:
+            return
+        code = ""
+        for script in scripts:
             env = os.environ.copy()
             env.update(self.env)
             env.update({
@@ -134,14 +150,23 @@ class Code:
                 stderr_path = os.path.join(cdist_object.stderr_path,
                                            'gencode-' + which)
                 with open(stderr_path, 'ba+') as stderr:
-                    return self.local.run_script(script, env=env,
-                                                 return_output=True,
-                                                 message_prefix=message_prefix,
-                                                 stderr=stderr)
+                    code += self.local.run_script(
+                        script,
+                        env=env,
+                        return_output=True,
+                        message_prefix=message_prefix,
+                        stderr=stderr)
             else:
-                return self.local.run_script(script, env=env,
-                                             return_output=True,
-                                             message_prefix=message_prefix)
+                code += self.local.run_script(
+                    script,
+                    env=env,
+                    return_output=True,
+                    message_prefix=message_prefix)
+            # Ensure generated code has an ending newline because
+            # types can generate oneliners with printf without \n.
+            if code and not code.endswith("\n"):
+                code += "\n"
+        return code
 
     def run_gencode_local(self, cdist_object):
         """Run the gencode-local script for the given object."""
