@@ -18,6 +18,7 @@ Most parts of [cdist documentation](https://www.cdi.st/manual/latest/) apply, bu
 * `skonfig` does only `config` (see `skonfig -h`),
 * types are managed in sets,
 * type manifest can be directory of manifests,
+* `gencode-*` can be directory of scripts,
 * some types behave differently and it's recommended to consult manuals in *base* and *extra*.
 
 ## Split between *base* and *extra*
