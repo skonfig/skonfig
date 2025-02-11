@@ -8,9 +8,8 @@ _logger = logging.getLogger(__name__)
 
 def _arguments(skonfig_arguments):
     cdist_argv = ["config"]
-    if skonfig_arguments.manifest:
-        cdist_argv.append("-i")
-        cdist_argv.append(skonfig_arguments.manifest)
+    if not sys.stdin.isatty():
+        cdist_argv += ["-i", "-"]
     # how cdist parses -j flag:
     # no -j = single job
     # only -j = use cpu count

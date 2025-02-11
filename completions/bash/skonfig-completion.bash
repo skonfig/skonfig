@@ -6,7 +6,7 @@ _skonfig()
 
     case "$cur" in
         -*)
-            COMPREPLY=( $( compgen -W '-h -V -d -i -n -v' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W '-h -V -d -n -v' -- "$cur" ) )
         ;;
         *)
             case "$prev" in

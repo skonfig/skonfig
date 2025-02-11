@@ -23,7 +23,9 @@ def _set_logging_level(argument_level):
 
 
 def get():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        usage="skonfig [-hVdjnv] [host] [</path/to/manifest]"
+    )
     parser.add_argument(
         "-V",
         dest="version",
@@ -35,12 +37,6 @@ def get():
         dest="dump",
         action="store_true",
         help="print dumped hosts, -d <host> = print dump",
-    )
-    parser.add_argument(
-        "-i",
-        dest="manifest",
-        metavar="path",
-        help="initial manifest or '-' to read from stdin",
     )
     parser.add_argument(
         "-j",
