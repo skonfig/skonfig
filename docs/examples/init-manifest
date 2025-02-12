@@ -1,12 +1,21 @@
 #!/bin/sh -e
 
-hostname="$( cat "$__global/explorer/hostname" )"
+hostname="$(cat "${__global}/explorer/hostname")"
 
-if [ -f "$__manifest/$__target_host" ]
-then
-    . "$__manifest/$__target_host"
-elif
-    [ -f "$__manifest/$hostname" ]
-then
-    . "$__manifest/$hostname"
-fi
+for host_manifest in \
+    "${__manifest}/host_${__target_host}" \
+    "${__manifest}/host_${hostname}"
+do
+    ! test -f "${host_manifest}" && continue
+    . "${host_manifest}"
+    exit
+done
+
+for host_type in \
+    "__host_${__target_host}" \
+    "__host_${hostname}"
+do
+    ! command -v "${host_type}" >/dev/null && continue
+    "${host_type}"
+    exit
+done
