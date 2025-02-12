@@ -24,6 +24,7 @@ jobs:
           - graalpy-24.1.1
         include:
           - {os: "macos-13", python-version: "3.6"}
+          - {os: "macos-13", python-version: "3.7"}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository code
