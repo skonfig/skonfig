@@ -46,7 +46,7 @@ def get():
         "-j",
         dest="jobs",
         metavar="jobs",
-        help="maximum number of jobs (defaults to host CPU count)"
+        help="maximum number of jobs (defaults to host CPU count, maximum: 4)"
     )
     parser.add_argument(
         "-n",

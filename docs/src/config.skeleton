@@ -32,11 +32,12 @@
 # init_manifest = <path-to-init-manifest>
 #
 # jobs
-#     Specify number of jobs for parallel processing. If -1 then the default,
-#     number of CPUs in this system is used. If 0 then parallel processing in
-#     jobs is disabled. If set to positive number then specified maximum
-#     number of processes will be used.
-# jobs = 0
+#     Specify number of jobs for parallel processing.
+#     If -1 then the number of CPUs in this system (maximum: 4) is used.
+#     If 0 or 1 then parallel processing is disabled.
+#     If set to a positive number then the specified maximum number of processes
+#     will be used.
+# jobs = -1
 #
 # local_shell
 #     Shell command used for local execution.

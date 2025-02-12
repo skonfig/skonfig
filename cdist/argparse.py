@@ -118,7 +118,7 @@ def get_parsers():
                  'Global explorers, object prepare and object run are '
                  'supported. Without argument CPU count is used by default. '),
            action='store', dest='jobs',
-           const=multiprocessing.cpu_count())
+           const=min(4, multiprocessing.cpu_count()))
     parser['config_main'].add_argument(
            '-n', '--dry-run',
            help='Do not execute code.', action='store_true')
