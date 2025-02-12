@@ -143,11 +143,12 @@ class Remote:
         import cdist.autil as autil
 
         self.log.trace("Remote extract archive: %s", path)
+        # AIX only allows -C at the end
         command = [
             "tar",
-            "-C", os.path.dirname(path),
             "-x",
-            "-f", path
+            "-f", path,
+            "-C", os.path.dirname(path)
         ]
         if mode is not None:
             command += mode.extract_opts
