@@ -1,17 +1,64 @@
 import logging
+import multiprocessing
 import os
 
 
 _logger = logging.getLogger(__name__)
 
+_config_options = {
+    "archiving": {
+        "options": ["none", "tar", "tgz", "tbz2", "txz"],
+        "default": "tar",
+        },
+    "cache_path_pattern": {
+        "default": "%h",
+        },
+    "colored_output": {
+        "options": ["always", "never", "auto"],
+        "default": "auto",
+        },
+    "conf_dir": {
+        },
+    "init_manifest": {
+        },
+    "jobs": {
+        "type": "int",
+        "default": -1,
+        "special_cases": {
+            -1: multiprocessing.cpu_count(),
+            }
+        },
+    "local_shell": {
+        "default": "/bin/sh",
+        },
+    "out_path": {
+        },
+    "parallel": {
+        "type": "int",
+        "default": 0,
+        },
+    "remote_exec": {
+        },
+    "remote_out_path": {
+        },
+    "remote_shell": {
+        "default": "/bin/sh",
+        },
+    "verbosity": {
+        "options": [
+            "ERROR", "WARNING", "INFO", "VERBOSE", "DEBUG", "TRACE", "OFF"
+            ],
+        "default": "INFO",
+        },
+    }
+
 
 def _set_defaults(configuration):
     configuration["cache_path_pattern"] = "%N"
     defaults = {
-        "archiving": "tar",
-        "colored_output": "never",
-        "parallel": 0
-    }
+        k: v["default"]
+        for (k, v) in _config_options.items()
+        if "default" in v}
     for option in defaults:
         if option not in configuration:
             configuration[option] = defaults[option]
@@ -22,9 +69,8 @@ def _get_search_dirs():
     search_dirs = []
     for search_dir in pathsep_search_dirs.split(":"):
         search_dir = os.path.expanduser(search_dir)
-        if not os.path.isdir(search_dir):
-            continue
-        search_dirs.append(search_dir)
+        if os.path.isdir(search_dir):
+            search_dirs.append(search_dir)
     # In cdist "last wins", but from user perspective we want "first wins"
     # (just like with $PATH). This is also useful in next function,
     # _set_from_files, where we overwrite previous value(s).
@@ -41,7 +87,34 @@ def _set_from_files(configuration):
         _logger.debug("reading configuration from %s", configuration_file)
         parser = configparser.RawConfigParser()
         parser.read(configuration_file)
-        configuration.update(dict(parser.items("skonfig")))
+
+        for k in parser["skonfig"]:
+            if k not in _config_options:
+                _logger.error(
+                    "Invalid configuration option \"%s\" found in file %s. "
+                    "Ignoring.",
+                    k, configuration_file)
+                continue
+
+            spec = _config_options[k]
+
+            if "type" in spec:
+                config_value = \
+                    getattr(parser, ("get" + spec["type"]))("skonfig", k)
+            else:
+                config_value = parser.get("skonfig", k)
+
+            if "options" in spec and config_value not in spec["options"]:
+                _logger.error(
+                    "Invalid value for configuration option \"%s\": \"%s\". "
+                    "Ignoring.",
+                    k, config_value)
+                continue
+
+            if config_value in spec.get("special_cases", {}):
+                config_value = spec["special_cases"][config_value]
+
+            configuration[k] = config_value
 
 
 def _set_cdist_conf_dir(configuration):
