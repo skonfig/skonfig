@@ -25,7 +25,7 @@ _config_options = {
         "type": "int",
         "default": -1,
         "special_cases": {
-            -1: multiprocessing.cpu_count(),
+            -1: min(4, multiprocessing.cpu_count()),
             }
         },
     "local_shell": {
