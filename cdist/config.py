@@ -36,7 +36,6 @@ import cdist.autil
 import cdist.configuration
 import cdist.exec.local
 import cdist.exec.remote
-import cdist.hostsource
 import cdist.log
 import cdist.util
 
@@ -129,15 +128,6 @@ class Config:
         self.manifest.cleanup()
 
     @staticmethod
-    def hosts(source):
-        try:
-            return cdist.hostsource.HostSource(source).hosts()
-        except (IOError, OSError, UnicodeError) as e:
-            raise cdist.Error(
-                    "Error reading hosts from \'{}\': {}".format(
-                        source, e))
-
-    @staticmethod
     def construct_remote_exec_patterns(args):
         # default remote cmd patterns
         args.remote_cmds_cleanup_pattern = ""
@@ -160,11 +150,7 @@ class Config:
 
     @classmethod
     def _check_and_prepare_args(cls, args):
-        if args.manifest == '-' and args.hostfile == '-':
-            raise cdist.Error(("Cannot read both, manifest and host file, "
-                               "from stdin"))
-
-        if not (args.hostfile or args.host):
+        if not args.host:
             raise cdist.Error(("Target host(s) missing"))
 
         if args.manifest == '-':
@@ -218,7 +204,7 @@ class Config:
         cfg = cdist.configuration.Configuration(args)
         configuration = cfg.get_config(section='GLOBAL')
 
-        it = itertools.chain(cls.hosts(args.host), cls.hosts(args.hostfile))
+        it = iter(args.host)
 
         process_args = []
         if args.parallel:
