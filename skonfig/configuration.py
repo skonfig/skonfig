@@ -17,7 +17,7 @@ _config_options = {
         },
     "colored_output": {
         "options": ["always", "never", "auto"],
-        "default": "auto",
+        "default": "never",
         },
     "conf_dir": {
         },
