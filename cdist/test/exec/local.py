@@ -155,7 +155,7 @@ class LocalTestCase(test.CdistTestCase):
             base_root_path=self.host_base_path,
             host_dir_name=self.hostdir,
             exec_path=test.cdist_exec_path,
-            configuration=configuration.get_config(section='GLOBAL')
+            configuration=configuration.get_config(section='skonfig')
         )
 
         link_test_local._create_conf_path_and_link_conf_dirs()

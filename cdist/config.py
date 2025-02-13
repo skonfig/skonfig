@@ -191,7 +191,7 @@ class Config:
         hostcnt = 0
 
         cfg = cdist.configuration.Configuration(args)
-        configuration = cfg.get_config(section='GLOBAL')
+        configuration = cfg.get_config(section='skonfig')
 
         it = iter(args.host)
 

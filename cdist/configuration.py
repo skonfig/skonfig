@@ -298,7 +298,7 @@ class Configuration(metaclass=Singleton):
     ENV_VAR_CONFIG_FILE = 'CDIST_CONFIG_FILE'
 
     CONFIG_FILE_OPTIONS = {
-        'GLOBAL': {
+        'skonfig': {
             'local_shell': StringOption('local_shell'),
             'remote_shell': StringOption('remote_shell'),
             'cache_path_pattern': StringOption('cache_path_pattern'),
@@ -336,7 +336,7 @@ class Configuration(metaclass=Singleton):
     ARG_OPTION_MAPPING = _ARG_OPTION_MAPPING
     ADJUST_ARG_OPTION_MAPPING = {v: k for k, v in _ARG_OPTION_MAPPING.items()}
     REQUIRED_DEFAULT_CONFIG_VALUES = {
-        'GLOBAL': {
+        'skonfig': {
             'colored_output': 'auto',
             'verbosity': 0,
         },
@@ -379,7 +379,7 @@ class Configuration(metaclass=Singleton):
             rv = val
         return (name, rv)
 
-    def get_args(self, section='GLOBAL'):
+    def get_args(self, section='skonfig'):
         args = self.command_line_args
         cfg = self.get_config(section)
         for option in self.ADJUST_ARG_OPTION_MAPPING:
@@ -434,7 +434,7 @@ class Configuration(metaclass=Singleton):
         for option in self.ARG_OPTION_MAPPING:
             if option in args:
                 dst_opt = self.ARG_OPTION_MAPPING[option]
-                option_object = self.CONFIG_FILE_OPTIONS['GLOBAL'][dst_opt]
+                option_object = self.CONFIG_FILE_OPTIONS['skonfig'][dst_opt]
                 # If option is in args.
                 # Also if it is boolean but only if not None - this allows
                 # False to override True.
@@ -479,9 +479,9 @@ class Configuration(metaclass=Singleton):
         config = self._read_config_file(self.config_files)
         # default empty config if needed
         if not config:
-            config['GLOBAL'] = dict()
+            config['skonfig'] = dict()
         # environment variables
-        newconfig = self._read_env_var_config(self.env, 'GLOBAL')
+        newconfig = self._read_env_var_config(self.env, 'skonfig')
         for section in config:
             self._update_config_dict_section(section, config, newconfig)
         # config file in CDIST_CONFIG_FILE env var

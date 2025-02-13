@@ -46,7 +46,7 @@ def _configuration(cdist_arguments):
     if cdist_arguments.verbose:
         skonfig_configuration["verbosity"] = cdist_arguments.verbose
     for option in skonfig_configuration:
-        cdist_configuration_init.config["GLOBAL"][option] = \
+        cdist_configuration_init.config["skonfig"][option] = \
             skonfig_configuration[option]
     cdist_configuration_args = cdist_configuration_init.get_args()
     import cdist.argparse

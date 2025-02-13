@@ -205,7 +205,7 @@ def resolve_conf_dirs(configuration, add_conf_dirs):
 def resolve_conf_dirs_from_config_and_args(args):
     import cdist.configuration
     cfg = cdist.configuration.Configuration(args)
-    configuration = cfg.get_config(section='GLOBAL')
+    configuration = cfg.get_config(section='skonfig')
     return resolve_conf_dirs(configuration, args.conf_dir)
 
 
