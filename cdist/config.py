@@ -143,13 +143,6 @@ class Config:
         args.remote_cmds_cleanup_pattern = ""
         args.remote_exec_pattern = None
 
-        # Determine forcing IPv4/IPv6 options if any, only for
-        # default remote commands.
-        if args.force_ipv:
-            force_addr_opt = " -{}".format(args.force_ipv)
-        else:
-            force_addr_opt = ""
-
         args_dict = vars(args)
         # if remote-exec and/or remote-copy args are None then user
         # didn't specify command line options nor env vars:
@@ -320,19 +313,9 @@ class Config:
         return (remote_exec, remote_cmds_cleanup, )
 
     @staticmethod
-    def _address_family(args):
-        if args.force_ipv == 4:
-            family = socket.AF_INET
-        elif args.force_ipv == 6:
-            family = socket.AF_INET6
-        else:
-            family = 0
-        return family
-
-    @staticmethod
-    def resolve_target_addresses(host, family):
+    def resolve_target_addresses(host):
         try:
-            return ipaddr.resolve_target_addresses(host, family)
+            return ipaddr.resolve_target_addresses(host)
         except:  # noqa
             e = sys.exc_info()[1]
             raise cdist.Error(("Error resolving target addresses for host '{}'"
@@ -352,9 +335,7 @@ class Config:
                 args)
             log.debug("remote_exec for host \"%s\": %s", host, remote_exec)
 
-            family = cls._address_family(args)
-            log.debug("address family: %s", family)
-            target_host = cls.resolve_target_addresses(host, family)
+            target_host = cls.resolve_target_addresses(host)
             log.debug("target_host for host \"%s\": %s", host, target_host)
 
             local = cdist.exec.local.Local(
