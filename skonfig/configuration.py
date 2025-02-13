@@ -2,6 +2,8 @@ import logging
 import multiprocessing
 import os
 
+from cdist.configuration import _VERBOSITY_VALUES
+
 
 _logger = logging.getLogger(__name__)
 
@@ -45,9 +47,7 @@ _config_options = {
         "default": "/bin/sh",
         },
     "verbosity": {
-        "options": [
-            "ERROR", "WARNING", "INFO", "VERBOSE", "DEBUG", "TRACE", "OFF"
-            ],
+        "options": _VERBOSITY_VALUES,
         "default": "INFO",
         },
     }
