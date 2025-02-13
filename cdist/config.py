@@ -286,7 +286,6 @@ class Config:
                 initial_manifest=args.manifest,
                 add_conf_dirs=args.conf_dir,
                 cache_path_pattern=args.cache_path_pattern,
-                quiet_mode=args.quiet,
                 configuration=configuration,
                 exec_path=sys.argv[0],
                 save_output_streams=args.save_output_streams)
@@ -298,7 +297,6 @@ class Config:
                 target_host=target_host,
                 remote_exec=remote_exec,
                 base_path=args.remote_out_path,
-                quiet_mode=args.quiet,
                 archiving_mode=cdist.autil.mode_from_str(args.use_archiving),
                 configuration=configuration,
                 stdout_base_path=local.stdout_base_path,
@@ -366,9 +364,9 @@ class Config:
         for cleanup_cmd in self.cleanup_cmds:
             cmd = shquot.split(cleanup_cmd) + [self.local.target_host[0]]
             try:
-                quiet_mode = self.log.getEffectiveLevel() > cdist.log.DEBUG
-                self.local.run(cmd, return_output=False, save_output=False,
-                               quiet_mode=quiet_mode)
+                self.local.run(
+                    cmd, return_output=False, save_output=False,
+                    quiet_mode=(self.log.getEffectiveLevel() > cdist.log.DEBUG))
             except cdist.Error as e:
                 # Log warning but continue.
                 self.log.warning("Cleanup command failed: %s", e)

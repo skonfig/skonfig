@@ -55,7 +55,6 @@ class Local:
                  initial_manifest=None,
                  add_conf_dirs=None,
                  cache_path_pattern=None,
-                 quiet_mode=False,
                  configuration=None,
                  save_output_streams=True):
 
@@ -66,11 +65,7 @@ class Local:
         self.exec_path = exec_path
         self.custom_initial_manifest = initial_manifest
         self.cache_path_pattern = cache_path_pattern
-        self.quiet_mode = quiet_mode
-        if configuration:
-            self.configuration = configuration
-        else:
-            self.configuration = {}
+        self.configuration = configuration if configuration else {}
         self.save_output_streams = save_output_streams
 
         self._init_log()
@@ -168,7 +163,7 @@ class Local:
         os.makedirs(path, exist_ok=True)
 
     def run(self, command, env=None, return_output=False, message_prefix=None,
-            stdout=None, stderr=None, save_output=True, quiet_mode=False):
+            stdout=None, stderr=None, save_output=True):
         """Run the given command with the given environment.
         Return the output as a string.
 
@@ -176,20 +171,13 @@ class Local:
         assert isinstance(command, (list, tuple)), (
                 "list or tuple argument expected, got: {}".format(command))
 
-        quiet = self.quiet_mode or quiet_mode
-        do_save_output = save_output and not quiet and self.save_output_streams
+        do_save_output = save_output and self.save_output_streams
 
         close_stdout = False
         close_stderr = False
         stderr_special_devnull = False
         stdout_special_devnull = False
-        if quiet:
-            stderr, close_stderr = util._get_devnull()
-            stderr_special_devnull = not close_stderr
-
-            stdout, close_stdout = util._get_devnull()
-            stdout_special_devnull = not close_stdout
-        elif do_save_output:
+        if do_save_output:
             if not return_output and stdout is None:
                 stdout = util.get_std_fd(self.stdout_base_path, 'local')
                 close_stdout = True

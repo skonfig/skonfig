@@ -60,7 +60,6 @@ class Remote:
                  target_host,
                  remote_exec,
                  base_path=None,
-                 quiet_mode=None,
                  archiving_mode=None,
                  configuration=None,
                  stdout_base_path=None,
@@ -70,7 +69,6 @@ class Remote:
         self._exec = shquot.split(remote_exec)
 
         self.base_path = base_path or "/var/lib/skonfig"
-        self.quiet_mode = quiet_mode
         self.archiving_mode = archiving_mode
         self.configuration = configuration or {}
         self.save_output_streams = save_output_streams
@@ -309,9 +307,6 @@ class Remote:
         self.log.trace("Remote run: %s", command)
         special_devnull = False
         try:
-            if self.quiet_mode:
-                stderr, close_stderr = util._get_devnull()
-                special_devnull = not close_stderr
             if return_output:
                 output = subprocess.check_output(
                      command, env=os_environ,
