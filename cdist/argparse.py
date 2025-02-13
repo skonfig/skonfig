@@ -34,21 +34,6 @@ def get_parsers():
     # Options _all_ parsers have in common
     parser['loglevel'] = argparse.ArgumentParser(add_help=False)
     parser['loglevel'].add_argument(
-            '-l', '--log-level', metavar='LOGLEVEL',
-            type=functools.partial(check_lower_bounded_int, lower_bound=-1,
-                                   name="log level"),
-            help=('Set the specified verbosity level. '
-                  'The levels, in order from the lowest to the highest, are: '
-                  'ERROR (-1), WARNING (0), INFO (1), VERBOSE (2), DEBUG (3), '
-                  'TRACE (4 or higher). If used along with -v then -v '
-                  'increases last set value and -l overwrites last set '
-                  'value.'),
-            action='store', dest='verbose', required=False)
-    parser['loglevel'].add_argument(
-            '-q', '--quiet',
-            help='Quiet mode: disables logging, including WARNING and ERROR.',
-            action='store_true', default=False)
-    parser['loglevel'].add_argument(
             '-v', '--verbose',
             help=('Increase the verbosity level. Every instance of -v '
                   'increments the verbosity level by one. Its default value '
@@ -72,30 +57,11 @@ def get_parsers():
     # Main subcommand parser
     parser['main'] = argparse.ArgumentParser(
             description='%(prog)s ' + cdist.__version__)
-    parser['main'].add_argument(
-            '-V', '--version', help='Show version.', action='version',
-            version='%(prog)s ' + cdist.__version__)
     parser['sub'] = parser['main'].add_subparsers(
             title="Commands", dest="command")
 
-    parser['common'] = argparse.ArgumentParser(add_help=False)
-    parser['common'].add_argument(
-           '-g', '--config-file',
-           help=('Use specified custom configuration file.'),
-           dest="config_file", required=False)
-
     # Config
     parser['config_main'] = argparse.ArgumentParser(add_help=False)
-    parser['config_main'].add_argument(
-           '-4', '--force-ipv4',
-           help=('Force to use IPv4 addresses only. No influence for custom'
-                 ' remote commands.'),
-           action='store_const', dest='force_ipv', const=4)
-    parser['config_main'].add_argument(
-           '-6', '--force-ipv6',
-           help=('Force to use IPv6 addresses only. No influence for custom'
-                 ' remote commands.'),
-           action='store_const', dest='force_ipv', const=6)
     parser['config_main'].add_argument(
             '-C', '--cache-path-pattern',
             help=('Specify custom cache path pattern. If '
@@ -126,11 +92,6 @@ def get_parsers():
            '-o', '--out-dir',
            help='Directory to save cdist output in.', dest="out_path")
     parser['config_main'].add_argument(
-           '-P', '--timestamp',
-           help=('Timestamp log messages with the current local date and time '
-                 'in the format: YYYYMMDDHHMMSS.us.'),
-           action='store_true', dest='timestamp')
-    parser['config_main'].add_argument(
            '-R', '--use-archiving', nargs='?',
            choices=cdist.autil.archiving_values.keys(),
            help=('Operate by using archiving with compression where '
@@ -154,40 +115,16 @@ def get_parsers():
                  '(should behave like ssh).'),
            action='store', dest='remote_exec',
            default=None)
-    parser['config_main'].add_argument(
-           '-S', '--disable-saving-output-streams',
-           help='Disable saving output streams.',
-           action='store_false', dest='save_output_streams', default=True)
 
     # Config
     import cdist.config
 
     parser['config_args'] = argparse.ArgumentParser(add_help=False)
     parser['config_args'].add_argument(
-            '-f', '--file',
-            help=('Read specified file for a list of additional hosts to '
-                  'operate on or if \'-\' is given, read stdin (one host per '
-                  'line).'),
-            dest='hostfile', required=False)
-    parser['config_args'].add_argument(
-           '-p', '--parallel', nargs='?', metavar='HOST_MAX',
-           type=functools.partial(check_lower_bounded_int, lower_bound=1,
-                                  name="positive int"),
-           help=('Operate on multiple hosts in parallel for specified maximum '
-                 'hosts at a time. Without argument CPU count is used by '
-                 'default.'),
-           action='store', dest='parallel',
-           const=multiprocessing.cpu_count())
-    parser['config_args'].add_argument(
-           '-s', '--sequential',
-           help='Operate on multiple hosts sequentially (default).',
-           action='store_const', dest='parallel', const=0)
-    parser['config_args'].add_argument(
             'host', nargs='*', help='Host(s) to operate on.')
     parser['config'] = parser['sub'].add_parser(
             'config', parents=[parser['loglevel'],
                                parser['colored_output'],
-                               parser['common'],
                                parser['config_main'],
                                parser['config_args']])
     parser['config'].set_defaults(cls=cdist.config.Config)
@@ -196,9 +133,6 @@ def get_parsers():
 
 
 def handle_loglevel(args):
-    if hasattr(args, 'quiet') and args.quiet:
-        args.verbose = cdist.log._verbosity_level_off
-
     cdist.log.getLogger().setLevel(cdist.log._verbosity_level[args.verbose])
 
 
