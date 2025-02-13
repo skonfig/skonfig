@@ -2,14 +2,14 @@ import logging
 import multiprocessing
 import os
 
+from cdist.autil import archiving_values
 from cdist.configuration import _VERBOSITY_VALUES
-
 
 _logger = logging.getLogger(__name__)
 
 _config_options = {
     "archiving": {
-        "options": ["none", "tar", "tgz", "tbz2", "txz"],
+        "options": archiving_values.keys(),
         "default": "tar",
         },
     "cache_path_pattern": {
