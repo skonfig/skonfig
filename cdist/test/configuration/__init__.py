@@ -161,19 +161,16 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
         config_custom = newConfigParser()
         config_custom['GLOBAL'] = {
-            'parallel': '4',
             'archiving': 'txz',
         }
 
         config_custom2 = newConfigParser()
         config_custom2['GLOBAL'] = {
-            'parallel': '16',
             'archiving': 'tbz2',
         }
 
@@ -190,7 +187,6 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_out_path': None,
                 'remote_exec': None,
                 'jobs': 0,
-                'parallel': multiprocessing.cpu_count(),
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': None,
             },
@@ -309,20 +305,17 @@ class ConfigurationTestCase(test.CdistTestCase):
         config = {
             'GLOBAL': {
                 'conf_dir': ['/usr/local/cdist', ],
-                'parallel': -1,
             },
         }
         newconfig = {
             'GLOBAL': {
                 'conf_dir': ['~/.cdist', ],
-                'parallel': 2,
                 'local_shell': '/usr/local/bin/sh',
             },
         }
         expected = {
             'GLOBAL': {
                 'conf_dir': ['/usr/local/cdist', '~/.cdist', ],
-                'parallel': 2,
                 'local_shell': '/usr/local/bin/sh',
             },
         }
@@ -333,7 +326,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         expected = {
             'GLOBAL': {
                 'conf_dir': ['~/.cdist', ],
-                'parallel': 2,
                 'local_shell': '/usr/local/bin/sh',
             },
         }
@@ -345,18 +337,15 @@ class ConfigurationTestCase(test.CdistTestCase):
         config = {
             'GLOBAL': {
                 'conf_dir': ['/usr/local/cdist', ],
-                'parallel': -1,
             },
         }
         newconfig = {
             'conf_dir': ['~/.cdist', ],
-            'parallel': 2,
             'local_shell': '/usr/local/bin/sh',
         }
         expected = {
             'GLOBAL': {
                 'conf_dir': ['/usr/local/cdist', '~/.cdist', ],
-                'parallel': 2,
                 'local_shell': '/usr/local/bin/sh',
             },
         }
@@ -367,7 +356,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         expected = {
             'GLOBAL': {
                 'conf_dir': ['~/.cdist', ],
-                'parallel': 2,
                 'local_shell': '/usr/local/bin/sh',
             },
         }
@@ -415,7 +403,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -436,7 +423,6 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_out_path': None,
                 'remote_exec': None,
                 'jobs': 0,
-                'parallel': multiprocessing.cpu_count(),
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': None,
             },
@@ -468,7 +454,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -483,7 +468,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_shell': '/usr/bin/sh',
             'conf_dir': '/opt/cdist',
             'remote_exec': 'myexec',
-            'parallel': '-1',
             'archiving': 'tar',
         }
 
@@ -503,7 +487,6 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_out_path': None,
                 'remote_exec': 'myexec',
                 'jobs': 0,
-                'parallel': multiprocessing.cpu_count(),
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'tar',
             },
@@ -540,7 +523,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -565,7 +547,6 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_out_path': None,
                 'remote_exec': None,
                 'jobs': 0,
-                'parallel': multiprocessing.cpu_count(),
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': None,
             },
@@ -602,7 +583,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -618,7 +598,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'colored_output': colored_output_default,
             'conf_dir': '/opt/cdist',
             'remote_exec': 'myexec',
-            'parallel': '-1',
             'archiving': 'tar',
         }
 
@@ -642,7 +621,6 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_out_path': None,
                 'remote_exec': 'myexec',
                 'jobs': 0,
-                'parallel': multiprocessing.cpu_count(),
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'tar',
             },
@@ -693,7 +671,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -708,7 +685,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_shell': '/usr/bin/sh',
             'conf_dir': '/opt/cdist',
             'remote_exec': 'myexec',
-            'parallel': '-1',
             'archiving': 'tar',
         }
 
@@ -737,7 +713,6 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_out_path': None,
                 'remote_exec': 'myexec',
                 'jobs': 10,
-                'parallel': multiprocessing.cpu_count(),
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'tar',
             },
@@ -773,7 +748,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -788,7 +762,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_shell': '/usr/bin/sh',
             'conf_dir': '/opt/cdist',
             'remote_exec': 'myexec',
-            'parallel': '-1',
             'archiving': 'tar',
         }
 
@@ -800,7 +773,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'conf_dir': '/opt/conf/cdist',
             'remote_exec': 'sshcustom',
-            'parallel': '15',
             'archiving': 'txz',
         }
 
@@ -822,7 +794,6 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_out_path': None,
                 'remote_exec': 'sshcustom',
                 'jobs': 0,
-                'parallel': 15,
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'txz',
             },
@@ -861,7 +832,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -876,7 +846,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_shell': '/usr/bin/sh',
             'conf_dir': '/opt/cdist',
             'remote_exec': 'myexec',
-            'parallel': '-1',
             'archiving': 'tar',
         }
 
@@ -888,7 +857,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'conf_dir': '/opt/conf/cdist',
             'remote_exec': 'sshcustom',
-            'parallel': '15',
             'archiving': 'txz',
         }
 
@@ -910,7 +878,6 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_out_path': None,
                 'remote_exec': 'sshcustom',
                 'jobs': 0,
-                'parallel': 15,
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'txz',
             },
@@ -949,7 +916,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -964,7 +930,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_shell': '/usr/bin/sh',
             'conf_dir': '/opt/cdist',
             'remote_exec': 'myexec',
-            'parallel': '-1',
             'archiving': 'tar',
         }
 
@@ -976,7 +941,6 @@ class ConfigurationTestCase(test.CdistTestCase):
         config['GLOBAL'] = {
             'conf_dir': '/opt/conf/cdist',
             'remote_exec': 'sshcustom',
-            'parallel': '15',
             'archiving': 'txz',
         }
 
@@ -998,7 +962,6 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_out_path': None,
                 'remote_exec': 'sshcustom',
                 'jobs': 0,
-                'parallel': 15,
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'txz',
             },
@@ -1028,7 +991,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': None,
             'remote_exec': 'sshcustom',
             'jobs': 0,
-            'parallel': 15,
             'verbose': cdist.log.VERBOSE_INFO,
             'use_archiving': 'txz',
         }

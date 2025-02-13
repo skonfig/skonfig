@@ -80,7 +80,6 @@ def run(skonfig_arguments):
         host_base_path,
         hostdir,
         cdist_arguments,
-        False,
         cdist_configuration,
         (skonfig_arguments.verbose < 2)
     )

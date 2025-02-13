@@ -35,10 +35,6 @@ _config_options = {
         },
     "out_path": {
         },
-    "parallel": {
-        "type": "int",
-        "default": 0,
-        },
     "remote_exec": {
         },
     "remote_out_path": {
