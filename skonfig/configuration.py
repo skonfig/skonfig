@@ -23,7 +23,7 @@ _config_options = {
         },
     "jobs": {
         "type": "int",
-        "default": -1,
+        "default": min(4, multiprocessing.cpu_count()),
         "special_cases": {
             -1: min(4, multiprocessing.cpu_count()),
             }
