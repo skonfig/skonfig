@@ -2,8 +2,9 @@ import logging
 import shutil
 import sys
 
+import cdist.log
 
-_logger = logging.getLogger(__name__)
+_logger = cdist.log.getLogger(__name__)
 
 
 def _arguments(skonfig_arguments):
@@ -28,8 +29,8 @@ def _arguments(skonfig_arguments):
     import cdist.argparse
     cdist_parser = cdist.argparse.get_parsers()
     cdist_arguments = cdist_parser["main"].parse_args(cdist_argv)
-    for argument, value in vars(cdist_arguments).items():
-        _logger.debug("%s: %s", argument, value)
+    # for argument, value in vars(cdist_arguments).items():
+    #     _logger.debug("cdist argv: %s: %s", argument, value)
     return cdist_arguments
 
 
@@ -51,8 +52,8 @@ def _configuration(cdist_arguments):
     cdist.argparse.handle_loglevel(cdist_configuration_args)
     cdist.argparse.handle_log_colors(cdist_configuration_args)
     cdist_configuration = vars(cdist_configuration_args)
-    for option in cdist_configuration:
-        _logger.debug("%s: %s", option, cdist_configuration[option])
+    # for option in cdist_configuration:
+    #     _logger.debug("%s: %s", option, cdist_configuration[option])
     return cdist_configuration
 
 
@@ -83,7 +84,8 @@ def run(skonfig_arguments):
         cdist_configuration,
         (skonfig_arguments.verbose < 2))
 
-    shutil.rmtree(base_root_path)
+    _logger.debug("Cleaning up %s", host_base_path)
+    shutil.rmtree(host_base_path)
 
     return True
 
