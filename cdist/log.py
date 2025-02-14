@@ -143,32 +143,6 @@ class DefaultLog(Logger):
         self.log(TRACE, msg, *args, **kwargs)
 
 
-class TimestampingLog(DefaultLog):
-    def __init__(self, name):
-        super().__init__(self, name)
-
-        import datetime
-        self.now = datetime.datetime.now
-
-    def filter(self, record):
-        """Add timestamp to messages"""
-
-        super().filter(record)
-        now = self.now()
-        timestamp = now.strftime("%Y%m%d%H%M%S.%f")
-        record.msg = "[" + timestamp + "] " + str(record.msg)
-
-        return True
-
-
-class ParallelLog(DefaultLog):
-    FORMAT = '%(levelname)s: [%(process)d]: %(name)s: %(message)s'
-
-
-class TimestampingParallelLog(TimestampingLog, ParallelLog):
-    pass
-
-
 def log_level_env_var_val(log):
     return str(log.getEffectiveLevel())
 
@@ -180,21 +154,6 @@ def log_level_name_env_var_val(log):
 def setupDefaultLogging():
     del getLogger().handlers[:]
     setLoggerClass(DefaultLog)
-
-
-def setupTimestampingLogging():
-    del getLogger().handlers[:]
-    setLoggerClass(TimestampingLog)
-
-
-def setupTimestampingParallelLogging():
-    del getLogger().handlers[:]
-    setLoggerClass(TimestampingParallelLog)
-
-
-def setupParallelLogging():
-    del getLogger().handlers[:]
-    setLoggerClass(ParallelLog)
 
 
 setupDefaultLogging()
