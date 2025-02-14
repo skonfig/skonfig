@@ -4,9 +4,6 @@ import sys
 from skonfig.version import VERSION as __version__
 
 
-THIS_IS_SKONFIG = False
-
-
 def run():
     import cdist
     import skonfig.cdist
