@@ -162,67 +162,6 @@ class Config:
             atexit.register(lambda: os.remove(initial_manifest_temp_path))
 
     @classmethod
-    def commandline(cls, args):
-        """Configure remote system"""
-        if args.jobs:
-            if args.timestamp:
-                cdist.log.setupTimestampingParallelLogging()
-            else:
-                cdist.log.setupParallelLogging()
-        elif args.timestamp:
-            cdist.log.setupTimestampingLogging()
-
-        log = cdist.log.getLogger("config")
-
-        cls._check_and_prepare_args(args)
-
-        failed_hosts = []
-        time_start = time.time()
-
-        cls.construct_remote_exec_patterns(args)
-        base_root_path = cls.create_base_root_path(args.out_path)
-
-        hostcnt = 0
-
-        cfg = cdist.configuration.Configuration(args)
-        configuration = cfg.get_config(section='skonfig')
-
-        it = iter(args.host)
-
-        process_args = []
-        for entry in it:
-            host = entry
-            host_base_path, hostdir = cls.create_host_base_dirs(
-                host, base_root_path)
-            log.debug("Base root path for target host \"%s\" is \"%s\"",
-                      host, host_base_path)
-
-            hostcnt += 1
-            try:
-                cls.onehost(host, host_base_path, hostdir,
-                            args, parallel=False,
-                            configuration=configuration)
-            except cdist.Error:
-                failed_hosts.append(host)
-
-        try:
-            cls.onehost(*process_args[0])
-        except cdist.Error:
-            failed_hosts.append(host)
-
-        time_end = time.time()
-        log.verbose("Total processing time for %s host(s): %s", hostcnt,
-                    (time_end - time_start))
-
-        if len(failed_hosts) > 0:
-            raise cdist.Error("Failed to configure the following hosts: " +
-                              " ".join(failed_hosts))
-        elif not args.out_path:
-            # If tmp out path created then remove it, but only if no failed
-            # hosts.
-            shutil.rmtree(base_root_path)
-
-    @classmethod
     def _resolve_ssh_control_path(cls):
         base_path = tempfile.mkdtemp()
         cls._register_path_for_removal(base_path)
