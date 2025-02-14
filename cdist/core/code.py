@@ -25,6 +25,8 @@ import os
 
 import cdist.log
 
+from cdist.exec.util import get_std_fd
+
 
 """
 common:
@@ -146,22 +148,15 @@ class Code:
                 '__object_name': cdist_object.name,
             })
             message_prefix = cdist_object.name
-            if self.local.save_output_streams:
-                stderr_path = os.path.join(cdist_object.stderr_path,
-                                           'gencode-' + which)
-                with open(stderr_path, 'ba+') as stderr:
-                    code += self.local.run_script(
-                        script,
-                        env=env,
-                        return_output=True,
-                        message_prefix=message_prefix,
-                        stderr=stderr)
-            else:
+            with get_std_fd(
+                    cdist_object.stderr_path, "gencode-%s" % which) as stderr:
                 code += self.local.run_script(
                     script,
                     env=env,
                     return_output=True,
-                    message_prefix=message_prefix)
+                    message_prefix=message_prefix,
+                    stderr=stderr)
+
             # Ensure generated code has an ending newline because
             # types can generate oneliners with printf without \n.
             if code and not code.endswith("\n"):
@@ -191,17 +186,10 @@ class Code:
         which_exec = getattr(self, which)
         code_attr = getattr(cdist_object, 'code_{}_path'.format(which))
         script = os.path.join(which_exec.object_path, code_attr)
-        if which_exec.save_output_streams:
-            stderr_path = os.path.join(cdist_object.stderr_path,
-                                       'code-' + which)
-            stdout_path = os.path.join(cdist_object.stdout_path,
-                                       'code-' + which)
-            with open(stderr_path, 'ba+') as stderr, \
-                    open(stdout_path, 'ba+') as stdout:
-                return which_exec.run_script(script, env=env, stdout=stdout,
-                                             stderr=stderr)
-        else:
-            return which_exec.run_script(script, env=env)
+        with get_std_fd(cdist_object.stdout_path, "code-" + which) as stdout, \
+             get_std_fd(cdist_object.stderr_path, "code-" + which) as stderr:
+            return which_exec.run_script(
+                script, env=env, stdout=stdout, stderr=stderr)
 
     def run_code_local(self, cdist_object):
         """Run the code-local script for the given object."""

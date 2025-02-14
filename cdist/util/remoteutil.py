@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # 2016 Darko Poljak (darko.poljak at gmail.com)
+# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of cdist.
 #
@@ -19,6 +20,8 @@
 #
 #
 
+from cdist.util.shquot import split as sh_split
+
 
 def inspect_ssh_mux_opts():
     """Inspect whether or not ssh supports multiplexing options.
@@ -33,18 +36,23 @@ def inspect_ssh_mux_opts():
     """
     import subprocess
 
-    wanted_mux_opts = {
+    mux_opts = {
         "ControlPath": "{}",
         "ControlMaster": "auto",
         "ControlPersist": "2h",
     }
-    mux_opts = " ".join([" -o {}={}".format(
-        x, wanted_mux_opts[x]) for x in wanted_mux_opts])
+
+    mux_opts_str = \
+        " ".join("-o %s=%s" % (k, v) for (k, v) in mux_opts.items())
     try:
-        subprocess.check_output("ssh {}".format(mux_opts),
-                                stderr=subprocess.STDOUT, shell=True)
+        # check if SSH connections with mux options work
+        subprocess.check_output(
+            ["ssh", *sh_split(mux_opts_str)],
+            stderr=subprocess.STDOUT,
+            shell=False)
     except subprocess.CalledProcessError as e:
         subproc_output = e.output.decode().lower()
         if "bad configuration option" in subproc_output:
             return ""
-    return mux_opts
+
+    return mux_opts_str

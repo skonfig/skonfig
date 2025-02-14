@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # 2017 Darko Poljak (darko.poljak at gmail.com)
+# 2023,2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of cdist.
 #
@@ -39,13 +40,16 @@ class Flock():
         self.lockfd = None
 
     def flock(self):
-        log.debug('Acquiring lock on %s', self.path)
         self.lockfd = open(self.path, 'w+')
-        fcntl.flock(self.lockfd, fcntl.LOCK_EX)
-        log.debug('Acquired lock on %s', self.path)
+        try:
+            fcntl.flock(self.lockfd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            log.debug('Acquired lock on %s', self.path)
+        except OSError as e:
+            log.debug('Waiting for lock on %s', self.path)
+            fcntl.flock(self.lockfd, fcntl.LOCK_EX)
+            log.debug('Acquired lock on %s', self.path)
 
     def funlock(self):
-        log.debug('Releasing lock on %s', self.path)
         fcntl.flock(self.lockfd, fcntl.LOCK_UN)
         self.lockfd.close()
         self.lockfd = None

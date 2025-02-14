@@ -61,7 +61,7 @@ def get():
         default=0,
         help="-v = VERBOSE, -vv = DEBUG, -vvv = TRACE",
     )
-    parser.add_argument("host", nargs="?", help="host to configure")
+    parser.add_argument("host", nargs='?', help="host to configure")
     arguments = parser.parse_args()
     _set_logging_level(arguments.verbose)
     for argument, value in vars(arguments).items():

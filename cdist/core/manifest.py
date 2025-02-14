@@ -25,6 +25,8 @@ import os
 import cdist
 import cdist.log
 
+from cdist.exec.util import get_std_fd
+
 
 # FileNotFoundError is added in 3.3.
 if not hasattr(__builtins__, 'FileNotFoundError'):
@@ -165,21 +167,14 @@ class Manifest:
         message_prefix = "initialmanifest"
         self.log.verbose("Running initial manifest %s", initial_manifest)
         which = "init"
-        if self.local.save_output_streams:
-            stderr_path = os.path.join(self.local.stderr_base_path, which)
-            stdout_path = os.path.join(self.local.stdout_base_path, which)
-            with open(stderr_path, 'ba+') as stderr, \
-                    open(stdout_path, 'ba+') as stdout:
-                self.local.run_script(
-                    initial_manifest,
-                    env=self.env_initial_manifest(initial_manifest),
-                    message_prefix=message_prefix,
-                    stdout=stdout, stderr=stderr)
-        else:
+
+        with get_std_fd(self.local.stdout_base_path, which) as stdout, \
+             get_std_fd(self.local.stderr_base_path, which) as stderr:
             self.local.run_script(
                 initial_manifest,
                 env=self.env_initial_manifest(initial_manifest),
-                message_prefix=message_prefix)
+                message_prefix=message_prefix,
+                stdout=stdout, stderr=stderr)
 
     def env_type_manifest(self, cdist_object):
         type_manifest = os.path.join(self.local.type_path,
@@ -220,21 +215,14 @@ class Manifest:
         for type_manifest in type_manifests:
             self.log.verbose("Running type manifest %s for object %s",
                              type_manifest, cdist_object.name)
-            if self.local.save_output_streams:
-                stderr_path = os.path.join(cdist_object.stderr_path, which)
-                stdout_path = os.path.join(cdist_object.stdout_path, which)
-                with open(stderr_path, 'ba+') as stderr, \
-                        open(stdout_path, 'ba+') as stdout:
-                    self.local.run_script(
-                        type_manifest,
-                        env=self.env_type_manifest(cdist_object),
-                        message_prefix=message_prefix,
-                        stdout=stdout, stderr=stderr)
-            else:
+
+            with get_std_fd(cdist_object.stdout_path, which) as stdout, \
+                 get_std_fd(cdist_object.stderr_path, which) as stderr:
                 self.local.run_script(
                     type_manifest,
                     env=self.env_type_manifest(cdist_object),
-                    message_prefix=message_prefix)
+                    message_prefix=message_prefix,
+                    stdout=stdout, stderr=stderr)
 
     def cleanup(self):
         def _rm_file(fname):

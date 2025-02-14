@@ -36,7 +36,7 @@ def _wrap_addr(addr):
     """If addr is IPv6 then return addr wrapped between '[' and ']',
     otherwise return it unchanged."""
     if ipaddr.is_ipv6(addr):
-        return "".join(("[", addr, "]", ))
+        return "[%s]" % addr
     else:
         return addr
 
@@ -60,20 +60,16 @@ class Remote:
                  target_host,
                  remote_exec,
                  base_path=None,
-                 quiet_mode=None,
                  archiving_mode=None,
                  configuration=None,
                  stdout_base_path=None,
-                 stderr_base_path=None,
-                 save_output_streams=True):
+                 stderr_base_path=None):
         self.target_host = target_host
         self._exec = shquot.split(remote_exec)
 
         self.base_path = base_path or "/var/lib/skonfig"
-        self.quiet_mode = quiet_mode
         self.archiving_mode = archiving_mode
         self.configuration = configuration or {}
-        self.save_output_streams = save_output_streams
 
         self.stdout_base_path = stdout_base_path
         self.stderr_base_path = stderr_base_path
@@ -289,15 +285,15 @@ class Remote:
         assert isinstance(command, (list, tuple)), (
                 "list or tuple argument expected, got: {}".format(command))
 
-        close_stdout = False
-        close_stderr = False
-        if self.save_output_streams:
-            if not return_output and stdout is None:
-                stdout = util.get_std_fd(self.stdout_base_path, 'remote')
-                close_stdout = True
-            if stderr is None:
-                stderr = util.get_std_fd(self.stderr_base_path, 'remote')
-                close_stderr = True
+        close_stdout_afterwards = False
+        close_stderr_afterwards = False
+
+        if not return_output and stdout is None:
+            stdout = util.get_std_fd(self.stdout_base_path, 'remote')
+            close_stdout_afterwards = True
+        if stderr is None:
+            stderr = util.get_std_fd(self.stderr_base_path, 'remote')
+            close_stderr_afterwards = True
 
         # export target_host, target_hostname, target_fqdn
         # for use in __remote_{exec,copy} scripts
@@ -307,11 +303,7 @@ class Remote:
         os_environ['__target_fqdn'] = self.target_host[2]
 
         self.log.trace("Remote run: %s", command)
-        special_devnull = False
         try:
-            if self.quiet_mode:
-                stderr, close_stderr = util._get_devnull()
-                special_devnull = not close_stderr
             if return_output:
                 output = subprocess.check_output(
                      command, env=os_environ,
@@ -321,10 +313,8 @@ class Remote:
                                       stdout=stdout, stderr=stderr)
                 output = None
 
-            if self.save_output_streams:
-                if not special_devnull:
-                    util.log_std_fd(self.log, command, stderr, 'Remote stderr')
-                util.log_std_fd(self.log, command, stdout, 'Remote stdout')
+            util.log_std_fd(self.log, command, stderr, 'Remote stderr')
+            util.log_std_fd(self.log, command, stdout, 'Remote stdout')
 
             return output
         except (OSError, subprocess.CalledProcessError) as error:
@@ -339,9 +329,9 @@ class Remote:
         except UnicodeDecodeError:
             raise DecodeError(command)
         finally:
-            if close_stdout:
+            if close_stdout_afterwards:
                 stdout.close()
-            if close_stderr:
+            if close_stderr_afterwards:
                 if isinstance(stderr, int):
                     os.close(stderr)
                 else:

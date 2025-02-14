@@ -150,7 +150,7 @@ class ConfigurationTestCase(test.CdistTestCase):
     def setUp(self):
         # Create test config file.
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'cache_path_pattern': '',
@@ -161,24 +161,21 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
         config_custom = newConfigParser()
-        config_custom['GLOBAL'] = {
-            'parallel': '4',
+        config_custom['skonfig'] = {
             'archiving': 'txz',
         }
 
         config_custom2 = newConfigParser()
-        config_custom2['GLOBAL'] = {
-            'parallel': '16',
+        config_custom2['skonfig'] = {
             'archiving': 'tbz2',
         }
 
         self.expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'local_shell': '/bin/sh',
                 'remote_shell': '/bin/sh',
                 'cache_path_pattern': None,
@@ -190,7 +187,6 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_out_path': None,
                 'remote_exec': None,
                 'jobs': 0,
-                'parallel': multiprocessing.cpu_count(),
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': None,
             },
@@ -215,14 +211,14 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         del config['TEST']
-        config['GLOBAL']['test'] = 'test'
+        config['skonfig']['test'] = 'test'
         self.invalid_config_file2 = os.path.join(fixtures,
                                                  'cdist_invalid2.cfg')
         with open(self.invalid_config_file2, 'w') as f:
             config.write(f)
 
-        del config['GLOBAL']['test']
-        config['GLOBAL']['archiving'] = 'zip'
+        del config['skonfig']['test']
+        config['skonfig']['archiving'] = 'zip'
         self.invalid_config_file3 = os.path.join(fixtures,
                                                  'cdist_invalid3.cfg')
         with open(self.invalid_config_file3, 'w') as f:
@@ -277,12 +273,12 @@ class ConfigurationTestCase(test.CdistTestCase):
         config = cc.Configuration(None, env={}, config_files=())
         env = {
             'a': 'a',
-            'CDIST_PATH': '/usr/local/cdist:~/.cdist',
+            'CDIST_PATH': '/usr/local/skonfig:~/.skonfig',
         }
         expected = {
-            'conf_dir': ['/usr/local/cdist', '~/.cdist', ],
+            'conf_dir': ['/usr/local/skonfig', '~/.skonfig', ],
         }
-        section = 'GLOBAL'
+        section = 'skonfig'
         d = config._read_env_var_config(env, section)
         self.assertEqual(d, expected)
 
@@ -292,12 +288,12 @@ class ConfigurationTestCase(test.CdistTestCase):
     def test_read_args_config(self):
         config = cc.Configuration(None, env={}, config_files=())
         args = argparse.Namespace()
-        args.conf_dir = ['/usr/local/cdist1', ]
+        args.conf_dir = ['/usr/local/skonfig1', ]
         args.verbose = 3
         args.tag = 'test'
 
         expected = {
-            'conf_dir': ['/usr/local/cdist1', ],
+            'conf_dir': ['/usr/local/skonfig1', ],
             'verbosity': 3,
         }
         args_dict = vars(args)
@@ -307,22 +303,19 @@ class ConfigurationTestCase(test.CdistTestCase):
 
     def test_update_config_dict(self):
         config = {
-            'GLOBAL': {
-                'conf_dir': ['/usr/local/cdist', ],
-                'parallel': -1,
+            'skonfig': {
+                'conf_dir': ['/usr/local/skonfig', ],
             },
         }
         newconfig = {
-            'GLOBAL': {
-                'conf_dir': ['~/.cdist', ],
-                'parallel': 2,
+            'skonfig': {
+                'conf_dir': ['~/.skonfig', ],
                 'local_shell': '/usr/local/bin/sh',
             },
         }
         expected = {
-            'GLOBAL': {
-                'conf_dir': ['/usr/local/cdist', '~/.cdist', ],
-                'parallel': 2,
+            'skonfig': {
+                'conf_dir': ['/usr/local/skonfig', '~/.skonfig', ],
                 'local_shell': '/usr/local/bin/sh',
             },
         }
@@ -331,9 +324,8 @@ class ConfigurationTestCase(test.CdistTestCase):
                                           update_appends=True)
         self.assertEqual(config, expected)
         expected = {
-            'GLOBAL': {
-                'conf_dir': ['~/.cdist', ],
-                'parallel': 2,
+            'skonfig': {
+                'conf_dir': ['~/.skonfig'],
                 'local_shell': '/usr/local/bin/sh',
             },
         }
@@ -343,36 +335,32 @@ class ConfigurationTestCase(test.CdistTestCase):
 
     def test_update_config_dict_section(self):
         config = {
-            'GLOBAL': {
-                'conf_dir': ['/usr/local/cdist', ],
-                'parallel': -1,
+            'skonfig': {
+                'conf_dir': ['/usr/local/skonfig'],
             },
         }
         newconfig = {
-            'conf_dir': ['~/.cdist', ],
-            'parallel': 2,
+            'conf_dir': ['~/.skonfig'],
             'local_shell': '/usr/local/bin/sh',
         }
         expected = {
-            'GLOBAL': {
-                'conf_dir': ['/usr/local/cdist', '~/.cdist', ],
-                'parallel': 2,
+            'skonfig': {
+                'conf_dir': ['/usr/local/skonfig', '~/.skonfig'],
                 'local_shell': '/usr/local/bin/sh',
             },
         }
         configuration = cc.Configuration(None, env={}, config_files=())
-        configuration._update_config_dict_section('GLOBAL', config, newconfig,
-                                                  update_appends=True)
+        configuration._update_config_dict_section(
+            'skonfig', config, newconfig, update_appends=True)
         self.assertEqual(config, expected)
         expected = {
-            'GLOBAL': {
-                'conf_dir': ['~/.cdist', ],
-                'parallel': 2,
+            'skonfig': {
+                'conf_dir': ['~/.skonfig'],
                 'local_shell': '/usr/local/bin/sh',
             },
         }
-        configuration._update_config_dict_section('GLOBAL', config, newconfig,
-                                                  update_appends=False)
+        configuration._update_config_dict_section(
+            'skonfig', config, newconfig, update_appends=False)
         self.assertEqual(config, expected)
 
     def test_configuration1(self):
@@ -382,7 +370,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         }
         args = argparse.Namespace()
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'colored_output': colored_output_default,
                 'verbosity': 0,
             },
@@ -405,7 +393,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         args = argparse.Namespace()
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'cache_path_pattern': '',
@@ -415,7 +403,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -425,7 +412,7 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'local_shell': '/bin/sh',
                 'remote_shell': '/bin/sh',
                 'cache_path_pattern': None,
@@ -436,7 +423,6 @@ class ConfigurationTestCase(test.CdistTestCase):
                 'remote_out_path': None,
                 'remote_exec': None,
                 'jobs': 0,
-                'parallel': multiprocessing.cpu_count(),
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': None,
             },
@@ -458,7 +444,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         args = argparse.Namespace()
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'cache_path_pattern': '',
@@ -468,7 +454,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -478,12 +463,11 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
-            'conf_dir': '/opt/cdist',
+            'conf_dir': '/opt/skonfig',
             'remote_exec': 'myexec',
-            'parallel': '-1',
             'archiving': 'tar',
         }
 
@@ -492,18 +476,17 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'cache_path_pattern': None,
                 'colored_output': colored_output_default,
-                'conf_dir': ['/opt/cdist', ],
+                'conf_dir': ['/opt/skonfig'],
                 'init_manifest': None,
                 'out_path': None,
                 'remote_out_path': None,
                 'remote_exec': 'myexec',
                 'jobs': 0,
-                'parallel': multiprocessing.cpu_count(),
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'tar',
             },
@@ -521,7 +504,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         env = {
             'PATH': '/usr/local/bin:/usr/bin:/bin',
             'TEST': 'test',
-            'CDIST_PATH': '/opt/cdist/conf:/usr/local/share/cdist/conf',
+            'CDIST_PATH': '/opt/skonfig/conf:/usr/local/share/skonfig/conf',
             'REMOTE_EXEC': 'ssh',
             'CDIST_LOCAL_SHELL': '/usr/bin/sh',
             'CDIST_REMOTE_SHELL': '/usr/bin/sh',
@@ -529,7 +512,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         args = argparse.Namespace()
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'cache_path_pattern': '',
@@ -540,7 +523,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -550,22 +532,21 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'cache_path_pattern': None,
                 'colored_output': cc.ColoredOutputOption.translate(
                     colored_output_default),
                 'conf_dir': [
-                    '/opt/cdist/conf',
-                    '/usr/local/share/cdist/conf',
+                    '/opt/skonfig/conf',
+                    '/usr/local/share/skonfig/conf',
                 ],
                 'init_manifest': None,
                 'out_path': None,
                 'remote_out_path': None,
                 'remote_exec': None,
                 'jobs': 0,
-                'parallel': multiprocessing.cpu_count(),
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': None,
             },
@@ -583,7 +564,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         env = {
             'PATH': '/usr/local/bin:/usr/bin:/bin',
             'TEST': 'test',
-            'CDIST_PATH': '/opt/cdist/conf:/usr/local/share/cdist/conf',
+            'CDIST_PATH': '/opt/skonfig/conf:/usr/local/share/skonfig/conf',
             'REMOTE_EXEC': 'ssh',
             'CDIST_LOCAL_SHELL': '/usr/bin/sh',
             'CDIST_REMOTE_SHELL': '/usr/bin/sh',
@@ -591,7 +572,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         args = argparse.Namespace()
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'cache_path_pattern': '',
@@ -602,7 +583,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -612,13 +592,12 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
             'colored_output': colored_output_default,
             'conf_dir': '/opt/cdist',
             'remote_exec': 'myexec',
-            'parallel': '-1',
             'archiving': 'tar',
         }
 
@@ -627,22 +606,21 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'cache_path_pattern': None,
                 'colored_output': cc.ColoredOutputOption.translate(
                     colored_output_default),
                 'conf_dir': [
-                    '/opt/cdist/conf',
-                    '/usr/local/share/cdist/conf',
+                    '/opt/skonfig/conf',
+                    '/usr/local/share/skonfig/conf',
                 ],
                 'init_manifest': None,
                 'out_path': None,
                 'remote_out_path': None,
                 'remote_exec': 'myexec',
                 'jobs': 0,
-                'parallel': multiprocessing.cpu_count(),
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'tar',
             },
@@ -658,11 +636,10 @@ class ConfigurationTestCase(test.CdistTestCase):
 
     def test_update_defaults_for_unset(self):
         config = {
-            'GLOBAL': {
-            },
+            'skonfig': {},
         }
         expected_config = {
-            'GLOBAL': {
+            'skonfig': {
                 'colored_output': colored_output_default,
                 'verbosity': 0,
             },
@@ -675,7 +652,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         env = {
             'PATH': '/usr/local/bin:/usr/bin:/bin',
             'TEST': 'test',
-            'CDIST_PATH': '/opt/cdist/conf:/usr/local/share/cdist/conf',
+            'CDIST_PATH': '/opt/skonfig/conf:/usr/local/share/skonfig/conf',
             'REMOTE_EXEC': 'ssh',
             'CDIST_LOCAL_SHELL': '/usr/bin/sh',
             'CDIST_REMOTE_SHELL': '/usr/bin/sh',
@@ -683,7 +660,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         args = argparse.Namespace()
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'cache_path_pattern': '',
@@ -693,7 +670,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -703,12 +679,11 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
-            'conf_dir': '/opt/cdist',
+            'conf_dir': '/opt/skonfig',
             'remote_exec': 'myexec',
-            'parallel': '-1',
             'archiving': 'tar',
         }
 
@@ -716,28 +691,27 @@ class ConfigurationTestCase(test.CdistTestCase):
         with open(local_config_file, 'w') as f:
             config.write(f)
 
-        args.conf_dir = ['/opt/sysadmin/cdist/conf', ]
-        args.manifest = '/opt/sysadmin/cdist/conf/manifest/init'
+        args.conf_dir = ['/opt/sysadmin/skonfig/conf', ]
+        args.manifest = '/opt/sysadmin/skonfig/conf/manifest/init'
         args.jobs = 10
         args.verbose = None
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'cache_path_pattern': None,
                 'colored_output': colored_output_default,
                 'conf_dir': [
-                    '/opt/cdist/conf',
-                    '/usr/local/share/cdist/conf',
-                    '/opt/sysadmin/cdist/conf',
+                    '/opt/skonfig/conf',
+                    '/usr/local/share/skonfig/conf',
+                    '/opt/sysadmin/skonfig/conf',
                 ],
-                'init_manifest': '/opt/sysadmin/cdist/conf/manifest/init',
+                'init_manifest': '/opt/sysadmin/skonfig/conf/manifest/init',
                 'out_path': None,
                 'remote_out_path': None,
                 'remote_exec': 'myexec',
                 'jobs': 10,
-                'parallel': multiprocessing.cpu_count(),
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'tar',
             },
@@ -755,7 +729,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         env = {
             'PATH': '/usr/local/bin:/usr/bin:/bin',
             'TEST': 'test',
-            'CDIST_PATH': '/opt/cdist/conf:/usr/local/share/cdist/conf',
+            'CDIST_PATH': '/opt/skonfig/conf:/usr/local/share/skonfig/conf',
             'REMOTE_EXEC': 'ssh',
             'CDIST_LOCAL_SHELL': '/usr/bin/sh',
             'CDIST_REMOTE_SHELL': '/usr/bin/sh',
@@ -763,7 +737,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         args = argparse.Namespace()
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'cache_path_pattern': '',
@@ -773,7 +747,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -783,12 +756,11 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
-            'conf_dir': '/opt/cdist',
+            'conf_dir': '/opt/skonfig',
             'remote_exec': 'myexec',
-            'parallel': '-1',
             'archiving': 'tar',
         }
 
@@ -797,10 +769,9 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         config = newConfigParser()
-        config['GLOBAL'] = {
-            'conf_dir': '/opt/conf/cdist',
+        config['skonfig'] = {
+            'conf_dir': '/opt/conf/skonfig',
             'remote_exec': 'sshcustom',
-            'parallel': '15',
             'archiving': 'txz',
         }
 
@@ -809,20 +780,19 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'cache_path_pattern': None,
                 'colored_output': colored_output_default,
                 'conf_dir': [
-                    '/opt/conf/cdist',
+                    '/opt/conf/skonfig',
                 ],
                 'init_manifest': None,
                 'out_path': None,
                 'remote_out_path': None,
                 'remote_exec': 'sshcustom',
                 'jobs': 0,
-                'parallel': 15,
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'txz',
             },
@@ -843,7 +813,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         env = {
             'PATH': '/usr/local/bin:/usr/bin:/bin',
             'TEST': 'test',
-            'CDIST_PATH': '/opt/cdist/conf:/usr/local/share/cdist/conf',
+            'CDIST_PATH': '/opt/skonfig/conf:/usr/local/share/skonfig/conf',
             'REMOTE_EXEC': 'ssh',
             'CDIST_LOCAL_SHELL': '/usr/bin/sh',
             'CDIST_REMOTE_SHELL': '/usr/bin/sh',
@@ -851,7 +821,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         args = argparse.Namespace()
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'cache_path_pattern': '',
@@ -861,7 +831,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -871,12 +840,11 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
-            'conf_dir': '/opt/cdist',
+            'conf_dir': '/opt/skonfig',
             'remote_exec': 'myexec',
-            'parallel': '-1',
             'archiving': 'tar',
         }
 
@@ -885,10 +853,9 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         config = newConfigParser()
-        config['GLOBAL'] = {
-            'conf_dir': '/opt/conf/cdist',
+        config['skonfig'] = {
+            'conf_dir': '/opt/conf/skonfig',
             'remote_exec': 'sshcustom',
-            'parallel': '15',
             'archiving': 'txz',
         }
 
@@ -897,20 +864,19 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'cache_path_pattern': None,
                 'colored_output': colored_output_default,
                 'conf_dir': [
-                    '/opt/conf/cdist',
+                    '/opt/conf/skonfig',
                 ],
                 'init_manifest': None,
                 'out_path': None,
                 'remote_out_path': None,
                 'remote_exec': 'sshcustom',
                 'jobs': 0,
-                'parallel': 15,
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'txz',
             },
@@ -931,7 +897,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         env = {
             'PATH': '/usr/local/bin:/usr/bin:/bin',
             'TEST': 'test',
-            'CDIST_PATH': '/opt/cdist/conf:/usr/local/share/cdist/conf',
+            'CDIST_PATH': '/opt/skonfig/conf:/usr/local/share/skonfig/conf',
             'REMOTE_EXEC': 'ssh',
             'CDIST_LOCAL_SHELL': '/usr/bin/sh',
             'CDIST_REMOTE_SHELL': '/usr/bin/sh',
@@ -939,7 +905,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         args = argparse.Namespace()
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/bin/sh',
             'remote_shell': '/bin/sh',
             'cache_path_pattern': '',
@@ -949,7 +915,6 @@ class ConfigurationTestCase(test.CdistTestCase):
             'remote_out_path': '',
             'remote_exec': '',
             'jobs': '0',
-            'parallel': '-1',
             'verbosity': 'INFO',
             'archiving': 'none',
         }
@@ -959,12 +924,11 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'local_shell': '/usr/bin/sh',
             'remote_shell': '/usr/bin/sh',
-            'conf_dir': '/opt/cdist',
+            'conf_dir': '/opt/skonfig',
             'remote_exec': 'myexec',
-            'parallel': '-1',
             'archiving': 'tar',
         }
 
@@ -973,10 +937,9 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         config = newConfigParser()
-        config['GLOBAL'] = {
-            'conf_dir': '/opt/conf/cdist',
+        config['skonfig'] = {
+            'conf_dir': '/opt/conf/skonfig',
             'remote_exec': 'sshcustom',
-            'parallel': '15',
             'archiving': 'txz',
         }
 
@@ -985,20 +948,19 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'local_shell': '/usr/bin/sh',
                 'remote_shell': '/usr/bin/sh',
                 'cache_path_pattern': None,
                 'colored_output': colored_output_default,
                 'conf_dir': [
-                    '/opt/conf/cdist',
+                    '/opt/conf/skonfig',
                 ],
                 'init_manifest': None,
                 'out_path': None,
                 'remote_out_path': None,
                 'remote_exec': 'sshcustom',
                 'jobs': 0,
-                'parallel': 15,
                 'verbosity': cdist.log.VERBOSE_INFO,
                 'archiving': 'txz',
             },
@@ -1021,14 +983,13 @@ class ConfigurationTestCase(test.CdistTestCase):
             'cache_path_pattern': None,
             'colored_output': colored_output_default,
             'conf_dir': [
-                '/opt/conf/cdist',
+                '/opt/conf/skonfig',
             ],
             'manifest': None,
             'out_path': None,
             'remote_out_path': None,
             'remote_exec': 'sshcustom',
             'jobs': 0,
-            'parallel': 15,
             'verbose': cdist.log.VERBOSE_INFO,
             'use_archiving': 'txz',
         }
@@ -1037,7 +998,7 @@ class ConfigurationTestCase(test.CdistTestCase):
 
     def test_configuration_empty_value_in_file(self):
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'conf_dir': '',
         }
 
@@ -1046,7 +1007,7 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'colored_output': colored_output_default,
                 'conf_dir': None,
                 'verbosity': 0,
@@ -1070,7 +1031,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         args = argparse.Namespace()
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'colored_output': colored_output_default,
                 'verbosity': cdist.log.VERBOSE_DEBUG,
             },
@@ -1099,7 +1060,7 @@ class ConfigurationTestCase(test.CdistTestCase):
 
     def test_configuration_disable_saving_output_streams1(self):
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'save_output_streams': 'True',
         }
 
@@ -1108,7 +1069,7 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'colored_output': colored_output_default,
                 'save_output_streams': True,
                 'verbosity': 0,
@@ -1128,7 +1089,7 @@ class ConfigurationTestCase(test.CdistTestCase):
 
     def test_configuration_disable_saving_output_streams2(self):
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'save_output_streams': 'False',
         }
 
@@ -1137,7 +1098,7 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'colored_output': colored_output_default,
                 'save_output_streams': False,
                 'verbosity': 0,
@@ -1157,7 +1118,7 @@ class ConfigurationTestCase(test.CdistTestCase):
 
     def test_configuration_disable_saving_output_streams3(self):
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'save_output_streams': 'False',
         }
 
@@ -1166,7 +1127,7 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'colored_output': colored_output_default,
                 'save_output_streams': False,
                 'verbosity': 0,
@@ -1186,7 +1147,7 @@ class ConfigurationTestCase(test.CdistTestCase):
 
     def test_configuration_disable_saving_output_streams4(self):
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'save_output_streams': 'True',
         }
 
@@ -1195,7 +1156,7 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'colored_output': colored_output_default,
                 'save_output_streams': False,
                 'verbosity': 0,
@@ -1217,7 +1178,7 @@ class ConfigurationTestCase(test.CdistTestCase):
         try:
             config = cc.Configuration(None, env={}, config_files=())
             d = config._read_config_file(interpolation_config_file)
-            val = d['GLOBAL']['cache_path_pattern']
+            val = d['skonfig']['cache_path_pattern']
             self.assertIsNotNone(val)
             self.assertEqual(val, '%N')
         except configparser.InterpolationSyntaxError as e:
@@ -1226,7 +1187,7 @@ class ConfigurationTestCase(test.CdistTestCase):
 
     def test_configuration_timestamping_log_1(self):
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'timestamp': 'True',
         }
 
@@ -1235,7 +1196,7 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'colored_output': colored_output_default,
                 'timestamp': True,
                 'verbosity': 0,
@@ -1255,7 +1216,7 @@ class ConfigurationTestCase(test.CdistTestCase):
 
     def test_configuration_timestamping_log_2(self):
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'timestamp': 'False',
         }
 
@@ -1264,7 +1225,7 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'colored_output': colored_output_default,
                 'timestamp': True,
                 'verbosity': 0,
@@ -1284,7 +1245,7 @@ class ConfigurationTestCase(test.CdistTestCase):
 
     def test_configuration_timestamping_log_3(self):
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'timestamp': 'False',
         }
 
@@ -1293,7 +1254,7 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'colored_output': colored_output_default,
                 'timestamp': False,
                 'verbosity': 0,
@@ -1313,7 +1274,7 @@ class ConfigurationTestCase(test.CdistTestCase):
 
     def test_configuration_timestamping_log_4(self):
         config = newConfigParser()
-        config['GLOBAL'] = {
+        config['skonfig'] = {
             'timestamp': 'True',
         }
 
@@ -1322,7 +1283,7 @@ class ConfigurationTestCase(test.CdistTestCase):
             config.write(f)
 
         expected_config_dict = {
-            'GLOBAL': {
+            'skonfig': {
                 'colored_output': colored_output_default,
                 'timestamp': False,
                 'verbosity': 0,

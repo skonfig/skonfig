@@ -2,12 +2,14 @@ import logging
 import multiprocessing
 import os
 
+from cdist.autil import archiving_values
+from cdist.configuration import _VERBOSITY_VALUES
 
 _logger = logging.getLogger(__name__)
 
 _config_options = {
     "archiving": {
-        "options": ["none", "tar", "tgz", "tbz2", "txz"],
+        "options": archiving_values.keys(),
         "default": "tar",
         },
     "cache_path_pattern": {
@@ -15,7 +17,7 @@ _config_options = {
         },
     "colored_output": {
         "options": ["always", "never", "auto"],
-        "default": "auto",
+        "default": "never",
         },
     "conf_dir": {
         },
@@ -33,10 +35,6 @@ _config_options = {
         },
     "out_path": {
         },
-    "parallel": {
-        "type": "int",
-        "default": 0,
-        },
     "remote_exec": {
         },
     "remote_out_path": {
@@ -45,9 +43,7 @@ _config_options = {
         "default": "/bin/sh",
         },
     "verbosity": {
-        "options": [
-            "ERROR", "WARNING", "INFO", "VERBOSE", "DEBUG", "TRACE", "OFF"
-            ],
+        "options": _VERBOSITY_VALUES,
         "default": "INFO",
         },
     }

@@ -47,13 +47,6 @@
 #     Working directory for skonfig on this machine.
 # out_path =
 #
-# parallel
-#     Process hosts in parallel. If -1 then the default, number of CPU's in
-#     the system is used. If 0 then parallel processing of hosts is disabled.
-#     If set to positive number then specified maximum number of processes
-#     will be used.
-# parallel = 0
-#
 # remote_exec
 #     Command to use for remote execution (should behave like ssh).
 # remote_exec =
