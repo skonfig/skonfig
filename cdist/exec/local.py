@@ -50,7 +50,6 @@ class Local:
     def __init__(self,
                  target_host,
                  base_root_path,
-                 host_dir_name,
                  exec_path=sys.argv[0],
                  initial_manifest=None,
                  add_conf_dirs=None,
@@ -58,7 +57,7 @@ class Local:
                  configuration=None):
 
         self.target_host = target_host
-        self.hostdir = host_dir_name
+        self.hostdir = os.path.basename(base_root_path.rstrip("/"))
         self.base_path = os.path.join(base_root_path, "data")
 
         self.exec_path = exec_path

@@ -73,8 +73,7 @@ class ConfigRunTestCase(test.CdistTestCase):
         os.makedirs(self.host_base_path)
         self.local = cdist.exec.local.Local(
             target_host=self.target_host,
-            base_root_path=self.host_base_path,
-            host_dir_name=self.hostdir)
+            base_root_path=self.host_base_path)
 
         # Setup test objects
         self.object_base_path = op.join(self.temp_dir, 'object')
@@ -197,7 +196,6 @@ class ConfigRunTestCase(test.CdistTestCase):
         drylocal = cdist.exec.local.Local(
             target_host=self.target_host,
             base_root_path=self.host_base_path,
-            host_dir_name=self.hostdir,
             # exec_path can not derivated from sys.argv in case of unittest
             exec_path=test.cdist_exec_path,
             initial_manifest=os.path.join(fixtures,
@@ -213,7 +211,6 @@ class ConfigRunTestCase(test.CdistTestCase):
         local = cdist.exec.local.Local(
             target_host=self.target_host,
             base_root_path=self.host_base_path,
-            host_dir_name=self.hostdir,
             exec_path=test.cdist_exec_path,
             initial_manifest=os.path.join(
                 fixtures, 'manifest/init-deps-resolver'),

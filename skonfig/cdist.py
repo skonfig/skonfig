@@ -66,19 +66,19 @@ def run(skonfig_arguments):
         return False
 
     target_host = cdist_arguments.host[0]
-    import cdist.config
-    cdist_config = cdist.config.Config
-    cdist_config.construct_remote_exec_patterns(cdist_arguments)
-    base_root_path = cdist_config.create_base_root_path(None)
-    host_base_path, hostdir = cdist_config.create_host_base_dirs(
-        target_host,
-        base_root_path
-    )
+
+    from cdist.config import Config as cdist_config
+
     cdist_config._check_and_prepare_args(cdist_arguments)
+    cdist_config.construct_remote_exec_patterns(cdist_arguments)
+    host_base_path = cdist_config.create_temp_host_base_dir(
+        cdist_arguments.out_path)
+    _logger.debug("Created temporary working directory for host \"%s\": %s",
+                  target_host, host_base_path)
+
     cdist_config.onehost(
         target_host,
         host_base_path,
-        hostdir,
         cdist_arguments,
         cdist_configuration,
         (skonfig_arguments.verbose < 2))

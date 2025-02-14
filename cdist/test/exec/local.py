@@ -64,7 +64,6 @@ class LocalTestCase(test.CdistTestCase):
         self.local = local.Local(
             target_host=target_host,
             base_root_path=self.host_base_path,
-            host_dir_name=self.hostdir,
             exec_path=test.cdist_exec_path
         )
 
@@ -121,7 +120,6 @@ class LocalTestCase(test.CdistTestCase):
                 'localhost',
             ),
             base_root_path=self.host_base_path,
-            host_dir_name=self.hostdir,
             exec_path=test.cdist_exec_path,
             add_conf_dirs=conf_dirs
         )
@@ -153,7 +151,6 @@ class LocalTestCase(test.CdistTestCase):
                 'localhost',
             ),
             base_root_path=self.host_base_path,
-            host_dir_name=self.hostdir,
             exec_path=test.cdist_exec_path,
             configuration=configuration.get_config(section='skonfig')
         )

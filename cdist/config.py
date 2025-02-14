@@ -262,8 +262,8 @@ class Config:
                                ": {}").format(host, e))
 
     @classmethod
-    def onehost(cls, host, host_base_path, host_dir_name, args,
-                configuration, remove_remote_files_dirs=False):
+    def onehost(cls, host, host_base_path, args, configuration,
+                remove_remote_files_dirs=False):
         """Configure ONE system."""
         log = cdist.log.getLogger(host)
 
@@ -277,7 +277,6 @@ class Config:
             local = cdist.exec.local.Local(
                 target_host=target_host,
                 base_root_path=host_base_path,
-                host_dir_name=host_dir_name,
                 initial_manifest=args.manifest,
                 add_conf_dirs=args.conf_dir,
                 cache_path_pattern=args.cache_path_pattern,
@@ -310,20 +309,8 @@ class Config:
             raise
 
     @staticmethod
-    def create_base_root_path(out_path=None):
-        if out_path:
-            base_root_path = out_path
-        else:
-            base_root_path = tempfile.mkdtemp()
-
-        return base_root_path
-
-    @staticmethod
-    def create_host_base_dirs(host, base_root_path):
-        hostdir = cdist.util.str_hash(host)
-        host_base_path = os.path.join(base_root_path, hostdir)
-
-        return (host_base_path, hostdir)
+    def create_temp_host_base_dir(tmpdir=None):
+        return tempfile.mkdtemp(prefix="skonfig.", dir=tmpdir)
 
     def run(self):
         """Do what is most often done: deploy & cleanup"""
