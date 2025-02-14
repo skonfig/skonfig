@@ -24,6 +24,7 @@ def _arguments(skonfig_arguments):
     # but for skonfig we use -v = VERBOSE, -vv = DEBUG and -vvv = TRACE.
     cdist_argv += ["-v"] * (skonfig_arguments.verbose + 1)
     cdist_argv.append(skonfig_arguments.host)
+
     import cdist.argparse
     cdist_parser = cdist.argparse.get_parsers()
     cdist_arguments = cdist_parser["main"].parse_args(cdist_argv)

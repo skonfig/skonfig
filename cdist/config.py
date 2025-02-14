@@ -147,14 +147,11 @@ class Config:
 
     @classmethod
     def _check_and_prepare_args(cls, args):
-        if not args.host:
-            raise cdist.Error(("Target host(s) missing"))
-
         if args.manifest == '-':
             # read initial manifest from stdin
             try:
-                handle, initial_manifest_temp_path = tempfile.mkstemp(
-                        prefix='cdist.stdin.')
+                (handle, initial_manifest_temp_path) = tempfile.mkstemp(
+                        prefix='skonfig.stdin.')
                 with os.fdopen(handle, 'w') as fd:
                     fd.write(sys.stdin.read())
             except (IOError, OSError) as e:

@@ -112,7 +112,7 @@ def get_parsers():
     parser['config_main'].add_argument(
            '--remote-exec',
            help=('Command to use for remote execution '
-                 '(should behave like ssh).'),
+                 '(should behave like SSH).'),
            action='store', dest='remote_exec',
            default=None)
 
@@ -121,7 +121,7 @@ def get_parsers():
 
     parser['config_args'] = argparse.ArgumentParser(add_help=False)
     parser['config_args'].add_argument(
-            'host', nargs='*', help='Host(s) to operate on.')
+            'host', nargs=1, help='Host to operate on.')
     parser['config'] = parser['sub'].add_parser(
             'config', parents=[parser['loglevel'],
                                parser['colored_output'],
