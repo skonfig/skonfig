@@ -129,18 +129,21 @@ class Config:
     @staticmethod
     def construct_remote_exec_patterns(args):
         # default remote cmd patterns
-        args.remote_cmds_cleanup_pattern = ""
         args.remote_exec_pattern = None
+        args.remote_cmds_cleanup_pattern = None
 
         args_dict = vars(args)
-        # if remote-exec and/or remote-copy args are None then user
-        # didn't specify command line options nor env vars:
-        # inspect multiplexing options for default cdist.REMOTE_EXEC
-        if args_dict['remote_exec'] is None:
-            mux_opts = inspect_ssh_mux_opts()
-            args.remote_exec_pattern = (cdist.REMOTE_EXEC + mux_opts)
+
+        if args_dict['remote_exec'] is not None:
+            # if remote_exec is not None then then user specified a custom
+            # remote_exec command. In this case, we don’t add mux options.
+            return
+
+        mux_opts = inspect_ssh_mux_opts()
+        if mux_opts:
+            args.remote_exec_pattern = "%s %s" % (cdist.REMOTE_EXEC, mux_opts)
             args.remote_cmds_cleanup_pattern = \
-                cdist.REMOTE_CMDS_CLEANUP_PATTERN if mux_opts else ""
+                cdist.REMOTE_CMDS_CLEANUP_PATTERN
 
     @classmethod
     def _check_and_prepare_args(cls, args):
@@ -233,11 +236,12 @@ class Config:
     def _resolve_remote_cmds(cls, args):
         if args.remote_exec_pattern or args.remote_cmds_cleanup_pattern:
             control_path = cls._resolve_ssh_control_path()
-        # If we constructed patterns for remote commands then there is
-        # placeholder for ssh ControlPath, format it and we have unique
-        # ControlPath for each host.
+
+        # If we constructed patterns for remote commands then there is a {}
+        # placeholder for SSH’s ControlPath option, format the pattern and we
+        # have unique ControlPath for each host.
         #
-        # If not then use args.remote_exec/copy that user specified.
+        # If not then use remote_exec as the user specified.
         if args.remote_exec_pattern:
             remote_exec = args.remote_exec_pattern.format(control_path)
         else:
