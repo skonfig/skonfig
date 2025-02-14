@@ -55,8 +55,7 @@ class Local:
                  initial_manifest=None,
                  add_conf_dirs=None,
                  cache_path_pattern=None,
-                 configuration=None,
-                 save_output_streams=True):
+                 configuration=None):
 
         self.target_host = target_host
         self.hostdir = host_dir_name
@@ -66,7 +65,6 @@ class Local:
         self.custom_initial_manifest = initial_manifest
         self.cache_path_pattern = cache_path_pattern
         self.configuration = configuration if configuration else {}
-        self.save_output_streams = save_output_streams
 
         self._init_log()
         self._init_permissions()
@@ -166,27 +164,21 @@ class Local:
             stdout=None, stderr=None, save_output=True):
         """Run the given command with the given environment.
         Return the output as a string.
-
         """
         assert isinstance(command, (list, tuple)), (
                 "list or tuple argument expected, got: {}".format(command))
 
-        do_save_output = save_output and self.save_output_streams
-
-        close_stdout = False
-        close_stderr = False
-        stderr_special_devnull = False
-        stdout_special_devnull = False
-        if do_save_output:
+        close_stdout_afterwards = False
+        close_stderr_afterwards = False
+        if save_output:
             if not return_output and stdout is None:
                 stdout = util.get_std_fd(self.stdout_base_path, 'local')
-                close_stdout = True
+                close_stdout_afterwards = True
             if stderr is None:
                 stderr = util.get_std_fd(self.stderr_base_path, 'local')
-                close_stderr = True
+                close_stderr_afterwards = True
 
-        if env is None:
-            env = os.environ.copy()
+        env = env if env is not None else os.environ.copy()
         # Export __target_host, __target_hostname, __target_fqdn
         # for use in __remote_{copy,exec} scripts
         env['__target_host'] = self.target_host[0]
@@ -203,19 +195,17 @@ class Local:
         self.log.trace("Local run: %s", command)
         try:
             if return_output:
-                output = subprocess.check_output(
+                result = subprocess.check_output(
                     command, env=env, stderr=stderr).decode()
             else:
-                subprocess.check_call(command, env=env, stderr=stderr,
-                                      stdout=stdout)
-                output = None
+                subprocess.check_call(
+                    command, env=env, stdout=stdout, stderr=stderr)
+                result = None
 
-            if do_save_output:
-                if not stderr_special_devnull:
-                    util.log_std_fd(self.log, command, stderr, 'Local stderr')
-                if not stdout_special_devnull:
-                    util.log_std_fd(self.log, command, stdout, 'Local stdout')
-            return output
+            util.log_std_fd(self.log, command, stderr, 'Local stderr')
+            util.log_std_fd(self.log, command, stdout, 'Local stdout')
+
+            return result
         except subprocess.CalledProcessError as e:
             raise cdist.Error("%s: %d" % (" ".join(e.cmd), e.returncode))
         except OSError as e:
@@ -223,12 +213,12 @@ class Local:
         finally:
             if message_prefix:
                 message.merge_messages()
-            if close_stdout:
+            if close_stdout_afterwards:
                 if isinstance(stdout, int):
                     os.close(stdout)
                 else:
                     stdout.close()
-            if close_stderr:
+            if close_stderr_afterwards:
                 if isinstance(stderr, int):
                     os.close(stderr)
                 else:

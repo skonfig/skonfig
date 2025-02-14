@@ -3,6 +3,7 @@
 # 2010-2015 Nico Schottelius (nico-cdist at schottelius.org)
 # 2013-2017 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2016-2017 Darko Poljak (darko.poljak at gmail.com)
+# 2020-2021,2023,2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of cdist.
 #
@@ -39,6 +40,7 @@ import cdist.exec.remote
 import cdist.log
 import cdist.util
 
+from cdist.exec.util import get_std_fd
 from cdist.mputil import (mp_pool_run, mp_sig_handler)
 from cdist.util import (ipaddr, shquot)
 from cdist.util.remoteutil import inspect_ssh_mux_opts
@@ -287,8 +289,7 @@ class Config:
                 add_conf_dirs=args.conf_dir,
                 cache_path_pattern=args.cache_path_pattern,
                 configuration=configuration,
-                exec_path=sys.argv[0],
-                save_output_streams=args.save_output_streams)
+                exec_path=sys.argv[0])
 
             # Make __global state dir available to custom remote scripts.
             os.environ['__global'] = local.base_path
@@ -300,8 +301,7 @@ class Config:
                 archiving_mode=cdist.autil.mode_from_str(args.use_archiving),
                 configuration=configuration,
                 stdout_base_path=local.stdout_base_path,
-                stderr_base_path=local.stderr_base_path,
-                save_output_streams=args.save_output_streams)
+                stderr_base_path=local.stderr_base_path)
 
             cleanup_cmds = []
             if cleanup_cmd:
@@ -361,12 +361,15 @@ class Config:
 
     def cleanup(self):
         self.log.debug("Running cleanup commands")
+        local = self.local
+
         for cleanup_cmd in self.cleanup_cmds:
             cmd = shquot.split(cleanup_cmd) + [self.local.target_host[0]]
             try:
-                self.local.run(
-                    cmd, return_output=False, save_output=False,
-                    quiet_mode=(self.log.getEffectiveLevel() > cdist.log.DEBUG))
+                with get_std_fd(local.stdout_base_path, "cleanup") as stdout, \
+                     get_std_fd(local.stderr_base_path, "cleanup") as stderr:
+                    local.run(
+                        cmd, return_output=False, stdout=stdout, stderr=stderr)
             except cdist.Error as e:
                 # Log warning but continue.
                 self.log.warning("Cleanup command failed: %s", e)

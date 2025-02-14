@@ -207,11 +207,3 @@ def resolve_conf_dirs_from_config_and_args(args):
     cfg = cdist.configuration.Configuration(args)
     configuration = cfg.get_config(section='skonfig')
     return resolve_conf_dirs(configuration, args.conf_dir)
-
-
-# subprocess.DEVNULL is added in 3.3.
-def _get_devnull():
-    if hasattr(subprocess, 'DEVNULL'):
-        return (subprocess.DEVNULL, False)
-    else:
-        return (os.open(os.devnull, os.O_RDWR), True)
