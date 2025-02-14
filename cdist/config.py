@@ -100,10 +100,7 @@ class Config:
         self._open_logger()
         self.dry_run = dry_run
         self.jobs = jobs
-        if cleanup_cmds:
-            self.cleanup_cmds = cleanup_cmds
-        else:
-            self.cleanup_cmds = []
+        self.cleanup_cmds = cleanup_cmds if cleanup_cmds else []
         self.remove_remote_files_dirs = remove_remote_files_dirs
 
         self.explorer = cdist.core.Explorer(self.local.target_host, self.local,
@@ -139,16 +136,11 @@ class Config:
         # if remote-exec and/or remote-copy args are None then user
         # didn't specify command line options nor env vars:
         # inspect multiplexing options for default cdist.REMOTE_EXEC
-        if (args_dict['remote_exec'] is None):
+        if args_dict['remote_exec'] is None:
             mux_opts = inspect_ssh_mux_opts()
-            if args_dict['remote_exec'] is None:
-                args.remote_exec_pattern = (cdist.REMOTE_EXEC +
-                                            force_addr_opt + mux_opts)
-            if mux_opts:
-                cleanup_pattern = cdist.REMOTE_CMDS_CLEANUP_PATTERN
-            else:
-                cleanup_pattern = ""
-            args.remote_cmds_cleanup_pattern = cleanup_pattern
+            args.remote_exec_pattern = (cdist.REMOTE_EXEC + mux_opts)
+            args.remote_cmds_cleanup_pattern = \
+                cdist.REMOTE_CMDS_CLEANUP_PATTERN if mux_opts else ""
 
     @classmethod
     def _check_and_prepare_args(cls, args):
@@ -239,8 +231,7 @@ class Config:
 
     @classmethod
     def _resolve_remote_cmds(cls, args):
-        if (args.remote_exec_pattern
-                or args.remote_cmds_cleanup_pattern):
+        if args.remote_exec_pattern or args.remote_cmds_cleanup_pattern:
             control_path = cls._resolve_ssh_control_path()
         # If we constructed patterns for remote commands then there is
         # placeholder for ssh ControlPath, format it and we have unique
@@ -251,12 +242,14 @@ class Config:
             remote_exec = args.remote_exec_pattern.format(control_path)
         else:
             remote_exec = args.remote_exec
+
         if args.remote_cmds_cleanup_pattern:
             remote_cmds_cleanup = args.remote_cmds_cleanup_pattern.format(
                 control_path)
         else:
             remote_cmds_cleanup = ""
-        return (remote_exec, remote_cmds_cleanup, )
+
+        return (remote_exec, remote_cmds_cleanup)
 
     @staticmethod
     def resolve_target_addresses(host):
@@ -274,8 +267,7 @@ class Config:
         log = cdist.log.getLogger(host)
 
         try:
-            remote_exec, cleanup_cmd = cls._resolve_remote_cmds(
-                args)
+            (remote_exec, cleanup_cmd) = cls._resolve_remote_cmds(args)
             log.debug("remote_exec for host \"%s\": %s", host, remote_exec)
 
             target_host = cls.resolve_target_addresses(host)
@@ -391,10 +383,9 @@ class Config:
             iterate_until_finished
         """
         if self.jobs:
-            objects_changed = self._iterate_once_parallel()
+            return self._iterate_once_parallel()
         else:
-            objects_changed = self._iterate_once_sequential()
-        return objects_changed
+            return self._iterate_once_sequential()
 
     def _iterate_once_sequential(self):
         self.log.debug("Iteration in sequential mode")
@@ -469,9 +460,7 @@ class Config:
             else:
                 self.log.trace("Starting multiprocessing Pool for %d "
                                "parallel types explorers transferring", nt)
-                args = [
-                    (ct, ) for ct in cargo_types
-                ]
+                args = [(ct, ) for ct in cargo_types]
                 mp_pool_run(self.explorer.transfer_type_explorers, args,
                             jobs=self.jobs)
                 self.log.trace(("Multiprocessing for parallel transferring "
@@ -479,9 +468,7 @@ class Config:
 
             self.log.trace("Starting multiprocessing Pool for %d parallel "
                            "objects preparation", n)
-            args = [
-                (c, False, ) for c in cargo
-            ]
+            args = [(c, False) for c in cargo]
             mp_pool_run(self.object_prepare, args, jobs=self.jobs)
             self.log.trace(("Multiprocessing for parallel object "
                             "preparation finished"))
@@ -520,7 +507,7 @@ class Config:
                         chunk.append(cdist_object)
                         break
                 else:
-                    chunk = [cdist_object, ]
+                    chunk = [cdist_object]
                     cargo.append(chunk)
 
         for chunk in cargo:
@@ -539,9 +526,7 @@ class Config:
                         multiprocessing.get_start_method())
                 self.log.trace("Starting multiprocessing Pool for %d "
                                "parallel object run", n)
-                args = [
-                    (c, ) for c in chunk
-                ]
+                args = [(c, ) for c in chunk]
                 mp_pool_run(self.object_run, args, jobs=self.jobs)
                 self.log.trace(("Multiprocessing for parallel object "
                                 "run finished"))
@@ -614,7 +599,6 @@ class Config:
             info_string = []
 
             for cdist_object in unfinished_objects:
-
                 requirement_names = []
                 autorequire_names = []
 
@@ -678,28 +662,32 @@ class Config:
 
     def object_run(self, cdist_object):
         """Run gencode and code for an object"""
+        if cdist_object.state == cdist.core.CdistObject.STATE_DONE:
+            raise cdist.CdistObjectError(
+                "Attempting to run an already finished object: %s" % (
+                    cdist_object))
+
         try:
             self.log.verbose("Running object %s", cdist_object.name)
-            if cdist_object.state == cdist.core.CdistObject.STATE_DONE:
-                raise cdist.Error(("Attempting to run an already finished "
-                                   "object: {}").format(cdist_object))
 
-            # Generate
+            # Generate code
             self.log.debug("Generating code for %s", cdist_object.name)
             cdist_object.code_local = self.code.run_gencode_local(cdist_object)
             cdist_object.code_remote = self.code.run_gencode_remote(
                 cdist_object)
-            if cdist_object.code_local or cdist_object.code_remote:
-                cdist_object.changed = True
+            cdist_object.changed = \
+                (cdist_object.code_local or cdist_object.code_remote)
 
             # Execute
             if cdist_object.code_local or cdist_object.code_remote:
                 self.log.info("Processing %s", cdist_object.name)
+
             if not self.dry_run:
                 if cdist_object.code_local:
                     self.log.trace("Executing local code for %s",
                                    cdist_object.name)
                     self.code.run_code_local(cdist_object)
+
                 if cdist_object.code_remote:
                     self.log.trace("Executing remote code for %s",
                                    cdist_object.name)

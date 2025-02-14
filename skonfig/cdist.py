@@ -37,17 +37,14 @@ def _configuration(cdist_arguments):
     cdist_configuration_init = cdist.configuration.Configuration(
         cdist_arguments,
         config_files=(),
-        singleton=False
-    )
+        singleton=False)
     import skonfig.configuration
     skonfig_configuration = skonfig.configuration.get()
     if not skonfig_configuration:
         return False
     if cdist_arguments.verbose:
         skonfig_configuration["verbosity"] = cdist_arguments.verbose
-    for option in skonfig_configuration:
-        cdist_configuration_init.config["skonfig"][option] = \
-            skonfig_configuration[option]
+    cdist_configuration_init.config["skonfig"].update(skonfig_configuration)
     cdist_configuration_args = cdist_configuration_init.get_args()
     import cdist.argparse
     cdist.argparse.handle_loglevel(cdist_configuration_args)
@@ -62,9 +59,11 @@ def run(skonfig_arguments):
     cdist_arguments = _arguments(skonfig_arguments)
     if not cdist_arguments:
         return False
+
     cdist_configuration = _configuration(cdist_arguments)
     if not cdist_configuration:
         return False
+
     target_host = cdist_arguments.host[0]
     import cdist.config
     cdist_config = cdist.config.Config
@@ -81,9 +80,10 @@ def run(skonfig_arguments):
         hostdir,
         cdist_arguments,
         cdist_configuration,
-        (skonfig_arguments.verbose < 2)
-    )
+        (skonfig_arguments.verbose < 2))
+
     shutil.rmtree(base_root_path)
+
     return True
 
 

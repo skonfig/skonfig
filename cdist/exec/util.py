@@ -137,10 +137,7 @@ def handle_called_process_error(err, command):
     #                    "stdout: {}\n"
     #                    "stderr: {}").format(
     #                       err.returncode, err.output, errout))
-    if err.output:
-        output = err.output
-    else:
-        output = ''
+    output = err.output if err.output else ""
     raise cdist.Error(("Command failed: '{}'\n"
                       "return code: {}\n"
                        "---- BEGIN stdout ----\n"
@@ -167,8 +164,7 @@ def _call_get_stdout(command, env=None, stderr=None):
 
 def get_std_fd(base_path, name):
     path = os.path.join(base_path, name)
-    stdfd = open(path, 'ba+')
-    return stdfd
+    return open(path, 'ba+')
 
 
 # subprocess.DEVNULL is added in 3.3.
