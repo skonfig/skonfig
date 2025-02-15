@@ -1,4 +1,4 @@
-_skonfig()
+_comp_cmd_skonfig()
 {
     cur="${COMP_WORDS[COMP_CWORD]}"
 
@@ -11,10 +11,16 @@ _skonfig()
         *)
             case "$prev" in
                 -i)
+                    compopt -o filenames
                     COMPREPLY=( $( compgen -f -- "$cur" ) )
                 ;;
                 *)
-                    COMPREPLY=( $( compgen -W "$( skonfig -d )" -- "$cur" ) )
+                    if hash _comp_compgen_known_hosts 2>/dev/null
+                    then
+                        _comp_compgen_known_hosts -a -- "$cur"
+                    fi
+
+                    COMPREPLY+=( $( compgen -W "$( skonfig -d )" -- "$cur" ) )
                 ;;
             esac
         ;;
@@ -23,4 +29,4 @@ _skonfig()
     return 0
 }
 
-complete -F _skonfig skonfig
+complete -F _comp_cmd_skonfig skonfig
