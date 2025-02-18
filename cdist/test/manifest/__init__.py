@@ -31,16 +31,16 @@ import sys
 
 import cdist
 import cdist.util
+import skonfig.settings
 
 from cdist import test
 from cdist.exec import local
 from cdist import core
 from cdist.core import manifest
 
-import os.path as op
-my_dir = op.abspath(op.dirname(__file__))
-fixtures = op.join(my_dir, 'fixtures')
-conf_dir = op.join(fixtures, 'conf')
+my_dir = os.path.abspath(os.path.dirname(__file__))
+fixtures = os.path.join(my_dir, 'fixtures')
+conf_dir = os.path.join(fixtures, 'conf')
 
 
 class ManifestTestCase(test.CdistTestCase):
@@ -53,11 +53,16 @@ class ManifestTestCase(test.CdistTestCase):
         out_path = self.temp_dir
         hostdir = cdist.util.str_hash(self.target_host[0])
         base_root_path = os.path.join(out_path, hostdir)
+
+        self.settings = skonfig.settings.SettingsContainer()
+        self.settings.conf_dir = [conf_dir]
+
         self.local = local.Local(
-            target_host=self.target_host,
-            base_root_path=base_root_path,
-            exec_path=cdist.test.cdist_exec_path,
-            add_conf_dirs=[conf_dir])
+            self.target_host,
+            base_root_path,
+            self.settings,
+            exec_path=cdist.test.cdist_exec_path)
+
         self.local.create_files_dirs()
 
         self.manifest = manifest.Manifest(self.target_host, self.local)

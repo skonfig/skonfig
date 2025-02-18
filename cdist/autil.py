@@ -74,13 +74,11 @@ class TXZ(ArchivingMode):
 
 archiving_modes = [TAR, TGZ, TBZ2, TXZ]
 
-# for CLI or config
-archiving_values = dict(
-    none="no archiving",
-    **{m.name(): m.doc() for m in archiving_modes})
-
 
 def mode_from_str(s):
+    if s is None:
+        return None
+
     s_lc = s.lower()
 
     if s_lc == "none":

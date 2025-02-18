@@ -3,86 +3,80 @@ import shutil
 import sys
 
 import cdist.log
+import skonfig.settings
 
 _logger = cdist.log.getLogger(__name__)
 
 
-def _arguments(skonfig_arguments):
-    cdist_argv = ["config"]
-    if skonfig_arguments.manifest:
-        cdist_argv.append("-i")
-        cdist_argv.append(skonfig_arguments.manifest)
-    # how cdist parses -j flag:
-    # no -j = single job
-    # only -j = use cpu count
-    # -j n = n jobs
-    cdist_argv.append("-j")
-    if skonfig_arguments.jobs:
-        cdist_argv.append(skonfig_arguments.jobs)
-    if skonfig_arguments.dry_run:
-        cdist_argv.append("-n")
-    # skonfig default verbosity level is INFO, which in cdist is one -v,
-    # but for skonfig we use -v = VERBOSE, -vv = DEBUG and -vvv = TRACE.
-    cdist_argv += ["-v"] * (skonfig_arguments.verbose + 1)
-    cdist_argv.append(skonfig_arguments.host)
+def _initialise_global_settings():
+    settings = skonfig.settings.SettingsContainer()
 
-    import cdist.argparse
-    cdist_parser = cdist.argparse.get_parsers()
-    cdist_arguments = cdist_parser["main"].parse_args(cdist_argv)
-    # for argument, value in vars(cdist_arguments).items():
-    #     _logger.debug("cdist argv: %s: %s", argument, value)
-    return cdist_arguments
+    # read values from config file(s)
+    settings.update_settings_from_config_files()
 
+    # read values from environment variables
+    settings.update_settings_from_env()
 
-def _configuration(cdist_arguments):
-    import cdist.configuration
-    cdist_configuration_init = cdist.configuration.Configuration(
-        cdist_arguments,
-        config_files=(),
-        singleton=False)
-    import skonfig.configuration
-    skonfig_configuration = skonfig.configuration.get()
-    if not skonfig_configuration:
-        return False
-    if cdist_arguments.verbose:
-        skonfig_configuration["verbosity"] = cdist_arguments.verbose
-    cdist_configuration_init.config["skonfig"].update(skonfig_configuration)
-    cdist_configuration_args = cdist_configuration_init.get_args()
-    import cdist.argparse
-    cdist.argparse.handle_loglevel(cdist_configuration_args)
-    cdist.argparse.handle_log_colors(cdist_configuration_args)
-    cdist_configuration = vars(cdist_configuration_args)
-    # for option in cdist_configuration:
-    #     _logger.debug("%s: %s", option, cdist_configuration[option])
-    return cdist_configuration
+    return settings
 
 
 def run(skonfig_arguments):
-    cdist_arguments = _arguments(skonfig_arguments)
-    if not cdist_arguments:
-        return False
+    settings = _initialise_global_settings()
 
-    cdist_configuration = _configuration(cdist_arguments)
-    if not cdist_configuration:
-        return False
+    # configure logging
+    if skonfig_arguments.verbosity:
+        loglevel = skonfig.arguments.verbosity_to_logging_level(
+            skonfig_arguments.verbosity)
+    else:
+        loglevel = settings.verbosity
 
-    target_host = cdist_arguments.host[0]
+    logging.basicConfig(level=loglevel)
+
+    if settings.colored_output:
+        cdist.log.CdistFormatter.USE_COLORS = True
+
+    target_host = skonfig_arguments.host
+
+    jobs = skonfig_arguments.jobs or settings.jobs
+
+    if skonfig_arguments.manifest:
+        # first, we use the initial manifest provided in argv (-i)
+        init_manifest = skonfig_arguments.manifest
+
+        if init_manifest == '-':
+            # read initial manifest from stdin, only possible using argv option
+            try:
+                (handle, initial_manifest_temp_path) = tempfile.mkstemp(
+                    prefix='skonfig.stdin.')
+                atexit.register(lambda: os.remove(initial_manifest_temp_path))
+                with os.fdopen(handle, 'w') as fd:
+                    fd.write(sys.stdin.read())
+                init_manifest = initial_manifest_temp_path
+            except (IOError, OSError) as e:
+                raise cdist.Error(
+                    "Creating tempfile for stdin data failed: %s" % (e))
+    elif settings.init_manifest is not None:
+        # then, we respect the setting chosen in the config file
+        init_manifest = settings.init_manifest
+    else:
+        # default: use the default as cdist.exec.local detects it.
+        init_manifest = None
 
     from cdist.config import Config as cdist_config
 
-    cdist_config._check_and_prepare_args(cdist_arguments)
-    cdist_config.construct_remote_exec_patterns(cdist_arguments)
     host_base_path = cdist_config.create_temp_host_base_dir(
-        cdist_arguments.out_path)
+        settings.out_path)
     _logger.debug("Created temporary working directory for host \"%s\": %s",
                   target_host, host_base_path)
 
     cdist_config.onehost(
         target_host,
         host_base_path,
-        cdist_arguments,
-        cdist_configuration,
-        (skonfig_arguments.verbose < 2))
+        override_init_manifest=init_manifest,
+        settings=settings,
+        dry_run=skonfig_arguments.dry_run,
+        jobs=jobs,
+        remove_remote_files_dirs=(skonfig_arguments.verbosity < 2))
 
     _logger.debug("Cleaning up %s", host_base_path)
     shutil.rmtree(host_base_path)

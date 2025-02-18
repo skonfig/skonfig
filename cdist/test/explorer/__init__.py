@@ -20,24 +20,23 @@
 #
 #
 
+import glob
+import logging
 import os
 import shutil
-import getpass
-import glob
-import multiprocessing
 
 import cdist
 import cdist.util
+import skonfig.settings
+
 from cdist import (core, test)
 from cdist.core import explorer
 from cdist.exec import (local, remote)
 
-import logging
 
-import os.path as op
-my_dir = op.abspath(op.dirname(__file__))
-fixtures = op.join(my_dir, 'fixtures')
-conf_dir = op.join(fixtures, "conf")
+my_dir = os.path.abspath(os.path.dirname(__file__))
+fixtures = os.path.join(my_dir, 'fixtures')
+conf_dir = os.path.join(fixtures, "conf")
 
 
 class ExplorerClassTestCase(test.CdistTestCase):
@@ -50,19 +49,22 @@ class ExplorerClassTestCase(test.CdistTestCase):
         self.remote_base_path = os.path.join(self.temp_dir, "remote")
         os.makedirs(self.remote_base_path)
 
+        self.settings = skonfig.settings.SettingsContainer()
+        self.settings.conf_dir = [conf_dir]
+
         self.local = local.Local(
-            target_host=self.target_host,
-            base_root_path=base_root_path,
-            exec_path=test.cdist_exec_path,
-            add_conf_dirs=[conf_dir],
-            )
+            self.target_host,
+            base_root_path,
+            self.settings,
+            exec_path=test.cdist_exec_path)
 
         self.local.create_files_dirs()
 
         self.remote = remote.Remote(
-            target_host=self.target_host,
-            remote_exec=self.remote_exec,
-            base_path=self.remote_base_path,
+            self.target_host,
+            self.remote_exec,
+            self.remote_base_path,
+            self.settings,
             stdout_base_path=self.local.stdout_base_path,
             stderr_base_path=self.local.stderr_base_path)
         self.remote.create_files_dirs()
@@ -195,7 +197,7 @@ class ExplorerClassTestCase(test.CdistTestCase):
             self.target_host,
             self.local,
             self.remote,
-            jobs=multiprocessing.cpu_count())
+            jobs=4)
         self.assertIsNotNone(expl.jobs)
 
         expl.transfer_global_explorers()
@@ -210,7 +212,7 @@ class ExplorerClassTestCase(test.CdistTestCase):
             self.target_host,
             self.local,
             self.remote,
-            jobs=multiprocessing.cpu_count())
+            jobs=4)
         self.assertIsNotNone(expl.jobs)
         out_path = self.mkdtemp()
 

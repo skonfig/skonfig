@@ -32,15 +32,14 @@ import argparse
 
 import cdist
 import cdist.util
-import cdist.configuration as cc
+import skonfig.settings
 
 from cdist import test
 from cdist.exec import local
 
-import os.path as op
-my_dir = op.abspath(op.dirname(test.__file__))
-fixtures = op.join(my_dir, 'fixtures')
-conf_dirs = [op.join(fixtures, "conf")]
+my_dir = os.path.abspath(os.path.dirname(test.__file__))
+fixtures = os.path.join(my_dir, 'fixtures')
+conf_dirs = [os.path.join(fixtures, "conf")]
 
 bin_true = "true"
 bin_false = "false"
@@ -49,23 +48,22 @@ bin_false = "false"
 class LocalTestCase(test.CdistTestCase):
 
     def setUp(self):
-
-        target_host = (
-            'localhost',
-            'localhost',
-            'localhost',
-        )
+        target_host = ("localhost", "localhost", "localhost")
         self.temp_dir = self.mkdtemp()
         self.out_parent_path = self.temp_dir
         self.hostdir = cdist.util.str_hash(target_host[0])
-        self.host_base_path = op.join(self.out_parent_path, self.hostdir)
-        self.out_path = op.join(self.host_base_path, "data")
+        self.host_base_path = os.path.join(self.out_parent_path, self.hostdir)
+        out_path = os.path.join(self.host_base_path, "data")
+
+        self.settings = skonfig.settings.SettingsContainer()
+        self.settings.conf_dir = conf_dirs
+        self.settings.out_path = out_path
 
         self.local = local.Local(
-            target_host=target_host,
-            base_root_path=self.host_base_path,
-            exec_path=test.cdist_exec_path
-        )
+            target_host,
+            self.host_base_path,
+            self.settings,
+            exec_path=test.cdist_exec_path)
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
@@ -74,38 +72,38 @@ class LocalTestCase(test.CdistTestCase):
 
     def test_conf_path(self):
         self.assertEqual(self.local.conf_path,
-                         os.path.join(self.out_path, "conf"))
+                         os.path.join(self.settings.out_path, "conf"))
 
     def test_out_path(self):
-        self.assertEqual(self.local.base_path, self.out_path)
+        self.assertEqual(self.local.base_path, self.settings.out_path)
 
     def test_bin_path(self):
         self.assertEqual(self.local.bin_path,
-                         os.path.join(self.out_path, "bin"))
+                         os.path.join(self.settings.out_path, "bin"))
 
     def test_global_explorer_out_path(self):
         self.assertEqual(self.local.global_explorer_out_path,
-                         os.path.join(self.out_path, "explorer"))
+                         os.path.join(self.settings.out_path, "explorer"))
 
     def test_object_path(self):
         self.assertEqual(self.local.object_path,
-                         os.path.join(self.out_path, "object"))
+                         os.path.join(self.settings.out_path, "object"))
 
     # /test api
 
     # test internal implementation
 
     def test_global_explorer_path(self):
-        self.assertEqual(self.local.global_explorer_path,
-                         os.path.join(self.out_path, "conf", "explorer"))
+        self.assertEqual(self.local.global_explorer_path, os.path.join(
+            self.settings.out_path, "conf", "explorer"))
 
     def test_manifest_path(self):
-        self.assertEqual(self.local.manifest_path,
-                         os.path.join(self.out_path, "conf", "manifest"))
+        self.assertEqual(self.local.manifest_path, os.path.join(
+            self.settings.out_path, "conf", "manifest"))
 
     def test_type_path(self):
         self.assertEqual(self.local.type_path,
-                         os.path.join(self.out_path, "conf", "type"))
+                         os.path.join(self.settings.out_path, "conf", "type"))
 
     def test_added_conf_dir_linking(self):
         """Ensure that links are correctly created for types in added conf
@@ -113,16 +111,13 @@ class LocalTestCase(test.CdistTestCase):
 
         test_type = "__cdist_test_type"
 
+        target_host = ("localhost", "localhost", "localhost")
+
         link_test_local = local.Local(
-            target_host=(
-                'localhost',
-                'localhost',
-                'localhost',
-            ),
-            base_root_path=self.host_base_path,
-            exec_path=test.cdist_exec_path,
-            add_conf_dirs=conf_dirs
-        )
+            target_host,
+            self.host_base_path,
+            self.settings,
+            exec_path=test.cdist_exec_path)
 
         link_test_local._create_conf_path_and_link_conf_dirs()
 
@@ -132,28 +127,24 @@ class LocalTestCase(test.CdistTestCase):
 
     def test_conf_dir_from_path_linking(self):
         """Ensure that links are correctly created for types in conf
-           directories which are defined in CDIST_PATH"""
+        directories which are defined in SKONFIG_PATH.
+        """
 
         test_type = "__cdist_test_type"
 
-        os.environ['CDIST_PATH'] = os.pathsep.join(conf_dirs)
+        env = {
+            "SKONFIG_PATH": os.pathsep.join(conf_dirs),
+            }
 
-        # bypass singleton from other tests if any
-        cc.Configuration.instance = None
+        settings = skonfig.settings.SettingsContainer()
+        settings.update_from_env(env)
 
-        configuration = cc.Configuration(argparse.Namespace(),
-                                         env=os.environ)
-
+        target_host = ("localhost", "localhost", "localhost")
         link_test_local = local.Local(
-            target_host=(
-                'localhost',
-                'localhost',
-                'localhost',
-            ),
-            base_root_path=self.host_base_path,
-            exec_path=test.cdist_exec_path,
-            configuration=configuration.get_config(section='skonfig')
-        )
+            target_host,
+            self.host_base_path,
+            settings,
+            exec_path=test.cdist_exec_path)
 
         link_test_local._create_conf_path_and_link_conf_dirs()
 

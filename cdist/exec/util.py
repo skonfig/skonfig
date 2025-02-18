@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # 2016-2017 Darko Poljak (darko.poljak at gmail.com)
+# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of cdist.
 #
@@ -19,13 +20,15 @@
 #
 #
 
+import itertools
 import os
 import subprocess
 
-import cdist
-
 from collections import OrderedDict
 from tempfile import TemporaryFile
+
+import cdist
+
 
 # IMPORTANT:
 # with the code below in python 3.5 when command is executed and error
@@ -182,24 +185,5 @@ else:
                                                    stdfd.read().decode()))
 
 
-def resolve_conf_dirs(configuration, add_conf_dirs):
-    conf_dirs = []
-
-    if 'conf_dir' in configuration:
-        x = configuration['conf_dir']
-        if x:
-            conf_dirs.extend(x)
-
-    if add_conf_dirs:
-        conf_dirs.extend(add_conf_dirs)
-
-    # Remove duplicates.
-    conf_dirs = list(OrderedDict.fromkeys(conf_dirs))
-    return conf_dirs
-
-
-def resolve_conf_dirs_from_config_and_args(args):
-    import cdist.configuration
-    cfg = cdist.configuration.Configuration(args)
-    configuration = cfg.get_config(section='skonfig')
-    return resolve_conf_dirs(configuration, args.conf_dir)
+def resolve_conf_dirs(*args):
+    return list(OrderedDict.fromkeys(itertools.chain.from_iterable(args)))

@@ -22,20 +22,21 @@
 #
 
 import io
-import os
-import shutil
-import random
 import logging
+import os
+import random
+import shutil
 
 import cdist
 import cdist.util
+import skonfig.settings
 
 from cdist import (core, emulator, test)
 from cdist.exec import local
 
-import os.path as op
-my_dirs = list(map(op.abspath, map(op.dirname, (test.__file__, __file__))))
-conf_dirs = [op.join(d, 'fixtures', 'conf') for d in my_dirs]
+my_dirs = list(map(os.path.abspath, map(
+    os.path.dirname, (test.__file__, __file__))))
+conf_dirs = [os.path.join(d, 'fixtures', 'conf') for d in my_dirs]
 
 
 class EmulatorTestCase(test.CdistTestCase):
@@ -48,11 +49,14 @@ class EmulatorTestCase(test.CdistTestCase):
         hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
+        self.settings = skonfig.settings.SettingsContainer()
+        self.settings.conf_dir = conf_dirs
+
         self.local = local.Local(
-            target_host=self.target_host,
-            base_root_path=host_base_path,
-            exec_path=test.cdist_exec_path,
-            add_conf_dirs=conf_dirs)
+            self.target_host,
+            host_base_path,
+            self.settings,
+            exec_path=test.cdist_exec_path)
         self.local.create_files_dirs()
 
         self.manifest = core.Manifest(self.target_host, self.local)
@@ -208,11 +212,14 @@ class EmulatorConflictingRequirementsTestCase(test.CdistTestCase):
         hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
+        self.settings = skonfig.settings.SettingsContainer()
+        self.settings.conf_dir = conf_dirs
+
         self.local = local.Local(
-            target_host=self.target_host,
-            base_root_path=host_base_path,
-            exec_path=test.cdist_exec_path,
-            add_conf_dirs=conf_dirs)
+            self.target_host,
+            host_base_path,
+            self.settings,
+            exec_path=test.cdist_exec_path)
         self.local.create_files_dirs()
 
         self.manifest = core.Manifest(self.target_host, self.local)
@@ -297,11 +304,15 @@ class AutoRequireEmulatorTestCase(test.CdistTestCase):
         hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
+        self.settings = skonfig.settings.SettingsContainer()
+        self.settings.conf_dir = conf_dirs
+
         self.local = local.Local(
-            target_host=self.target_host,
-            base_root_path=host_base_path,
-            exec_path=test.cdist_exec_path,
-            add_conf_dirs=conf_dirs)
+            self.target_host,
+            host_base_path,
+            self.settings,
+            exec_path=test.cdist_exec_path)
+
         self.local.create_files_dirs()
         self.manifest = core.Manifest(self.target_host, self.local)
 
@@ -329,11 +340,14 @@ class OverrideTestCase(test.CdistTestCase):
         hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
+        self.settings = skonfig.settings.SettingsContainer()
+        self.settings.conf_dir = conf_dirs
+
         self.local = local.Local(
-            target_host=self.target_host,
-            base_root_path=host_base_path,
-            exec_path=test.cdist_exec_path,
-            add_conf_dirs=conf_dirs)
+            self.target_host,
+            host_base_path,
+            self.settings,
+            exec_path=test.cdist_exec_path)
         self.local.create_files_dirs()
 
         self.manifest = core.Manifest(self.target_host, self.local)
@@ -373,11 +387,15 @@ class ArgumentsTestCase(test.CdistTestCase):
         handle, self.script = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
 
+        self.settings = skonfig.settings.SettingsContainer()
+        self.settings.conf_dir = conf_dirs
+
         self.local = local.Local(
-            target_host=self.target_host,
-            base_root_path=host_base_path,
-            exec_path=test.cdist_exec_path,
-            add_conf_dirs=conf_dirs)
+            self.target_host,
+            host_base_path,
+            self.settings,
+            exec_path=test.cdist_exec_path)
+
         self.local.create_files_dirs()
 
         self.manifest = core.Manifest(self.target_host, self.local)
@@ -558,11 +576,14 @@ class StdinTestCase(test.CdistTestCase):
         hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
+        self.settings = skonfig.settings.SettingsContainer()
+        self.settings.conf_dir = conf_dirs
+
         self.local = local.Local(
-            target_host=self.target_host,
-            base_root_path=host_base_path,
-            exec_path=test.cdist_exec_path,
-            add_conf_dirs=conf_dirs)
+            self.target_host,
+            host_base_path,
+            self.settings,
+            exec_path=test.cdist_exec_path)
 
         self.local.create_files_dirs()
 
@@ -623,11 +644,14 @@ class EmulatorAlreadyExistingRequirementsWarnTestCase(test.CdistTestCase):
         hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
+        self.settings = skonfig.settings.SettingsContainer()
+        self.settings.conf_dir = conf_dirs
+
         self.local = local.Local(
-            target_host=self.target_host,
-            base_root_path=host_base_path,
-            exec_path=test.cdist_exec_path,
-            add_conf_dirs=conf_dirs)
+            self.target_host,
+            host_base_path,
+            self.settings,
+            exec_path=test.cdist_exec_path)
         self.local.create_files_dirs()
 
         self.manifest = core.Manifest(self.target_host, self.local)

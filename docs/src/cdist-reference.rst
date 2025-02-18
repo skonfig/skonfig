@@ -261,13 +261,13 @@ __cdist_log_level
     in types then nested cdist will honor this specified log level if
     not specified otherwise while invoking it.
 
-CDIST_PATH
+SKONFIG_PATH
     Colon delimited list of config directories.
 
-CDIST_LOCAL_SHELL
+SKONFIG_LOCAL_SHELL
     Use this shell locally instead of /bin/sh to execute scripts.
 
-CDIST_REMOTE_SHELL
+SKONFIG_REMOTE_SHELL
     Use this shell remotely instead of /bin/sh to execute scripts.
 
 CDIST_OVERRIDE
@@ -277,13 +277,10 @@ CDIST_ORDER_DEPENDENCY
     Create dependencies based on the execution order (see  `manifest <cdist-manifest.html>`_).
     Note that in version 6.2.0 semantic of this processing mode is finally fixed and well defined.
 
-CDIST_REMOTE_EXEC
+SKONFIG_REMOTE_EXEC
     Use this command for remote execution (should behave like ssh).
 
-CDIST_COLORED_OUTPUT
+SKONFIG_COLORED_OUTPUT
     Colorize cdist's output. If enabled, cdist will use different colors for
     different log levels.
     Recognized values are 'always', 'never', and 'auto' (the default).
-
-CDIST_CACHE_PATH_PATTERN
-    Custom cache path pattern.

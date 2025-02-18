@@ -3,6 +3,7 @@
 # 2011-2017 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2011-2015 Nico Schottelius (nico-cdist at schottelius.org)
 # 2016-2017 Darko Poljak (darko.poljak at gmail.com)
+# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of cdist.
 #
@@ -18,7 +19,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with cdist. If not, see <http://www.gnu.org/licenses/>.
-#
 #
 
 import datetime
@@ -50,20 +50,16 @@ class Local:
     def __init__(self,
                  target_host,
                  base_root_path,
-                 exec_path=sys.argv[0],
+                 settings,
                  initial_manifest=None,
-                 add_conf_dirs=None,
-                 cache_path_pattern=None,
-                 configuration=None):
-
+                 exec_path=sys.argv[0]):
         self.target_host = target_host
         self.hostdir = os.path.basename(base_root_path.rstrip("/"))
         self.base_path = os.path.join(base_root_path, "data")
 
         self.exec_path = exec_path
         self.custom_initial_manifest = initial_manifest
-        self.cache_path_pattern = cache_path_pattern
-        self.configuration = configuration if configuration else {}
+        self.settings = settings
 
         self._init_log()
         self._init_permissions()
@@ -71,7 +67,7 @@ class Local:
         self._init_cache_dir(None)
         self._init_paths()
         self._init_object_marker()
-        self._init_conf_dirs(add_conf_dirs)
+        self._init_conf_dirs()
 
     def _init_log(self):
         self.log = cdist.log.getLogger(self.target_host[0])
@@ -118,9 +114,8 @@ class Local:
         # Does not need to be secure - just randomly different from .cdist
         self.object_marker_name = tempfile.mktemp(prefix='.cdist-', dir='')
 
-    def _init_conf_dirs(self, add_conf_dirs):
-        self.conf_dirs = util.resolve_conf_dirs(
-            self.configuration, add_conf_dirs=add_conf_dirs)
+    def _init_conf_dirs(self, *args):
+        self.conf_dirs = util.resolve_conf_dirs(self.settings.conf_dir, *args)
 
     def _init_directories(self):
         self.mkdir(self.conf_path)
@@ -146,7 +141,7 @@ class Local:
                        self.object_marker_name, self.object_marker_file)
 
     def _init_cache_dir(self, cache_dir):
-        from skonfig.configuration import get_cache_dir
+        from skonfig.settings import get_cache_dir
         self.cache_path = get_cache_dir()
 
     def rmdir(self, path):
@@ -233,7 +228,7 @@ class Local:
             self.log.debug('%s is executable, running it', script)
             command = [os.path.realpath(script)]
         else:
-            command = [self.configuration.get('local_shell', "/bin/sh"), "-e"]
+            command = [self.settings.local_shell, "-e"]
             self.log.debug('%s is NOT executable, running it with %s',
                            script, " ".join(command))
             command.append(script)
@@ -271,9 +266,10 @@ class Local:
         return cache_subpath
 
     def save_cache(self, start_time=time.time()):
-        self.log.trace("cache subpath pattern: %s", self.cache_path_pattern)
+        self.log.trace("cache subpath pattern: %s",
+                       self.settings.cache_path_pattern)
         cache_subpath = self._cache_subpath(start_time,
-                                            self.cache_path_pattern)
+                                            self.settings.cache_path_pattern)
         self.log.debug("cache subpath: %s", cache_subpath)
         destination = os.path.join(self.cache_path, cache_subpath)
         self.log.trace("Saving cache %s to %s", self.base_path, destination)

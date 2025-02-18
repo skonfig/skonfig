@@ -27,14 +27,15 @@ import logging
 
 import cdist
 import cdist.util
+import skonfig.settings
+
 from cdist import (core, test)
 from cdist.core import code
 from cdist.exec import (local, remote)
 
-import os.path as op
-my_dir = op.abspath(op.dirname(__file__))
-fixtures = op.join(my_dir, 'fixtures')
-conf_dir = op.join(fixtures, 'conf')
+my_dir = os.path.abspath(os.path.dirname(__file__))
+fixtures = os.path.join(my_dir, 'fixtures')
+conf_dir = os.path.join(fixtures, 'conf')
 
 
 class CodeTestCase(test.CdistTestCase):
@@ -44,19 +45,24 @@ class CodeTestCase(test.CdistTestCase):
         self.hostdir = cdist.util.str_hash(self.target_host[0])
         self.host_base_path = os.path.join(self.local_dir, self.hostdir)
 
+        self.settings = skonfig.settings.SettingsContainer()
+        self.settings.conf_dir = [conf_dir]
+
         self.local = local.Local(
-            target_host=self.target_host,
-            base_root_path=self.host_base_path,
-            exec_path=cdist.test.cdist_exec_path,
-            add_conf_dirs=[conf_dir])
+            self.target_host,
+            self.host_base_path,
+            self.settings,
+            exec_path=cdist.test.cdist_exec_path)
+
         self.local.create_files_dirs()
 
         self.remote_dir = self.mkdtemp()
         remote_exec = self.remote_exec
         self.remote = remote.Remote(
-            target_host=self.target_host,
+            self.target_host,
             remote_exec=remote_exec,
             base_path=self.remote_dir,
+            settings=self.settings,
             stdout_base_path=self.local.stdout_base_path,
             stderr_base_path=self.local.stderr_base_path)
         self.remote.create_files_dirs()
