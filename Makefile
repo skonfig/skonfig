@@ -46,6 +46,9 @@ help: .FORCE
 	@echo ""
 
 
+PYTHON = python3
+
+
 ###############################################################################
 # docs
 #
@@ -61,7 +64,7 @@ docs-clean: .FORCE
 	$(MAKE) -C $(DOCS_SRC_DIR) clean
 
 man: .FORCE
-	python3 setup.py build_manpages
+	$(PYTHON) setup.py build_manpages
 
 
 
@@ -83,10 +86,10 @@ shellcheck: .FORCE
 		-exec ${SHELLCHECKCMD} {} +
 
 unittest: .FORCE
-	PYTHONPATH=$$(pwd -P) python3 -m cdist.test
+	PYTHONPATH=$$(pwd -P) $(PYTHON) -m cdist.test
 
 unittest-remote: .FORCE
-	PYTHONPATH=$$(pwd -P) python3 -m cdist.test.exec.remote
+	PYTHONPATH=$$(pwd -P) $(PYTHON) -m cdist.test.exec.remote
 
 
 ###############################################################################
@@ -94,7 +97,7 @@ unittest-remote: .FORCE
 #
 
 clean: docs-clean .FORCE
-	python3 setup.py clean --all
+	$(PYTHON) setup.py clean --all
 	find . -name __pycache__ | xargs rm -rf
 
 # distutils
@@ -109,13 +112,13 @@ clean: docs-clean .FORCE
 #
 
 build: .FORCE
-	python3 setup.py build
+	$(PYTHON) setup.py build
 
 install: build .FORCE
-	python3 setup.py install
+	$(PYTHON) setup.py install
 
 install-user: build .FORCE
-	python3 setup.py install --user
+	$(PYTHON) setup.py install --user
 
 
 .FORCE:
