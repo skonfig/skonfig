@@ -1,6 +1,9 @@
+import atexit
 import logging
+import os
 import shutil
 import sys
+import tempfile
 
 import cdist.log
 import skonfig.settings
@@ -16,6 +19,19 @@ def _initialise_global_settings():
 
     # read values from environment variables
     settings.update_from_env()
+
+    # resolve sets
+    search_dirs = skonfig.settings.get_config_search_dirs()
+    for search_dir in search_dirs:
+        sets_dir = os.path.join(search_dir, "set")
+        if os.path.isdir(sets_dir):
+            settings.conf_dir += [
+                os.path.join(sets_dir, set_dir)
+                for set_dir in os.listdir(sets_dir)
+                if os.path.isdir(os.path.join(sets_dir, set_dir))]
+
+    # because last one wins
+    settings.conf_dir += search_dirs
 
     return settings
 

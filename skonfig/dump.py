@@ -12,7 +12,7 @@ def run(host):
 
 def _get_dumps():
     dumps = {}
-    from skonfig.configuration import get_cache_dir
+    from skonfig.settings import get_cache_dir
     dumps_directory = get_cache_dir()
     if not os.path.isdir(dumps_directory):
         return dumps
