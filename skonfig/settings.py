@@ -41,8 +41,11 @@ def get_config_search_dirs():
         # use default locations
         search_dirs = ["~/.skonfig", "/etc/skonfig"]
 
-    # filter out non-directories
-    search_dirs = filter(os.path.isdir, map(os.path.expanduser, search_dirs))
+    # filter out non-existing directories
+    search_dirs = [
+        search_dir
+        for search_dir in map(os.path.expanduser, search_dirs)
+        if os.path.isdir(search_dir)]
 
     # In cdist "last wins", but from user perspective we want "first wins"
     # (just like with $PATH). This is also useful in next function,
