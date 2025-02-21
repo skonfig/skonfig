@@ -138,13 +138,14 @@ class Explorer:
             self.log.trace(
                 "Multiprocessing start method is %s",
                 multiprocessing.get_start_method())
-        self.log.trace(
-            "Starting multiprocessing Pool for global explorers run")
-        args = [
-            (e, out_path, ) for e in self.list_global_explorer_names()
-        ]
-        mp_pool_run(self._run_global_explorer, args, jobs=self.jobs)
-        self.log.trace("Multiprocessing run for global explorers finished")
+
+        global_explorers = self.list_global_explorer_names()
+        if global_explorers:
+            self.log.trace(
+                "Starting multiprocessing Pool for global explorers run")
+            args = [(e, out_path) for e in global_explorers]
+            mp_pool_run(self._run_global_explorer, args, jobs=self.jobs)
+            self.log.trace("Multiprocessing run for global explorers finished")
 
     # logger is not pickable, so remove it when we pickle
     def __getstate__(self):

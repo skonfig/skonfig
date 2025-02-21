@@ -24,19 +24,14 @@
 import os
 import sys
 import time
-import itertools
 import tempfile
 import multiprocessing
-import atexit
 import shutil
-import socket
 
 import cdist
-import cdist.autil
 import cdist.exec.local
 import cdist.exec.remote
 import cdist.log
-import cdist.util
 
 from cdist.exec.util import get_std_fd
 from cdist.mputil import (mp_pool_run, mp_sig_handler)
