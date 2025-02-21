@@ -2,7 +2,7 @@
 #
 # 2011-2017 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2011-2013 Nico Schottelius (nico-cdist at schottelius.org)
-# 2022,2023 Dennis Camera (dennis.camera at riiengineering.ch)
+# 2022,2023,2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of cdist.
 #
@@ -54,22 +54,20 @@ class Remote:
 
     All interaction with the target should be done through this class.
     Directly accessing the target from Python code is a bug!
-
     """
     def __init__(self,
                  target_host,
                  remote_exec,
-                 base_path=None,
-                 archiving_mode=None,
-                 configuration=None,
+                 base_path,
+                 settings,
                  stdout_base_path=None,
                  stderr_base_path=None):
         self.target_host = target_host
         self._exec = shquot.split(remote_exec)
 
-        self.base_path = base_path or "/var/lib/skonfig"
-        self.archiving_mode = archiving_mode
-        self.configuration = configuration or {}
+        self.archiving_mode = settings.archiving_mode
+        self.base_path = base_path
+        self.settings = settings
 
         self.stdout_base_path = stdout_base_path
         self.stderr_base_path = stderr_base_path
@@ -226,7 +224,7 @@ class Remote:
 
         command = [
             "exec",
-            self.configuration.get('remote_shell', "/bin/sh"),
+            self.settings.remote_shell,
             "-e",
             script
         ]

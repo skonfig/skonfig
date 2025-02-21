@@ -9,13 +9,11 @@ Anyway, those data can be used for debugging skonfig, debugging types and
 debugging after host configuration fails.
 
 Local cache is saved under $HOME/.skonfig/dump directory, one directory entry
-for each host. Subdirectory path is specified by
-:strong:`-C/--cache-path-pattern` option, :strong:`cache_path_pattern`
-configuration option or by using :strong:`CDIST_CACHE_PATH_PATTERN`
-environment variable.
+for each host. Subdirectory path is specified by the
+:strong:`cache_path_pattern` configuration option.
 
 For more info on cache path pattern see :strong:`CACHE PATH PATTERN FORMAT`
-section in cdist man page.
+section.
 
 
 Cache overview
@@ -113,3 +111,21 @@ stdin
 stdout
   directory containing type's manifest, gencode-* and code-* stdout stream
   outputs.
+
+
+CACHE PATH PATTERN FORMAT
+-------------------------
+Cache path pattern specifies path for a cache directory subdirectory.
+In the path, ``%N`` will be substituted by the target host, ``%h`` will
+be substituted by the calculated host directory, ``%P`` will be substituted
+by the current process id. All format codes that
+Python's ``datetime.strftime()`` function supports, except
+``%h``, are supported. These date/time directives format cdist config/install
+start time.
+
+If empty pattern is specified then default calculated host directory is used.
+
+Calculated host directory is a hash of a host cdist operates on.
+
+Resulting path is used to specify cache path subdirectory under which
+current host cache data are saved.

@@ -20,7 +20,6 @@
 # You should have received a copy of the GNU General Public License
 # along with cdist. If not, see <http://www.gnu.org/licenses/>.
 #
-#
 
 import os
 import sys
@@ -34,7 +33,6 @@ import socket
 
 import cdist
 import cdist.autil
-import cdist.configuration
 import cdist.exec.local
 import cdist.exec.remote
 import cdist.log
@@ -127,39 +125,24 @@ class Config:
         self.manifest.cleanup()
 
     @staticmethod
-    def construct_remote_exec_patterns(args):
+    def construct_remote_exec_patterns(settings):
         # default remote cmd patterns
-        args.remote_exec_pattern = None
-        args.remote_cmds_cleanup_pattern = None
+        remote_exec_pattern = None
+        remote_cmds_cleanup_pattern = None
 
-        args_dict = vars(args)
-
-        if args_dict['remote_exec'] is not None:
+        if settings.remote_exec is not None:
             # if remote_exec is not None then then user specified a custom
             # remote_exec command. In this case, we don’t add mux options.
-            return
+            return (None, None)
 
         mux_opts = inspect_ssh_mux_opts()
         if mux_opts:
-            args.remote_exec_pattern = "%s %s" % (cdist.REMOTE_EXEC, mux_opts)
-            args.remote_cmds_cleanup_pattern = \
-                cdist.REMOTE_CMDS_CLEANUP_PATTERN
+            default_remote_exec = "ssh -o User=root"
+            remote_exec_pattern = "%s %s" % (default_remote_exec, mux_opts)
+            remote_cmds_cleanup_pattern = "%s -O exit -S {}" % (
+                default_remote_exec)
 
-    @classmethod
-    def _check_and_prepare_args(cls, args):
-        if args.manifest == '-':
-            # read initial manifest from stdin
-            try:
-                (handle, initial_manifest_temp_path) = tempfile.mkstemp(
-                        prefix='skonfig.stdin.')
-                with os.fdopen(handle, 'w') as fd:
-                    fd.write(sys.stdin.read())
-            except (IOError, OSError) as e:
-                raise cdist.Error(("Creating tempfile for stdin data "
-                                   "failed: {}").format(e))
-
-            args.manifest = initial_manifest_temp_path
-            atexit.register(lambda: os.remove(initial_manifest_temp_path))
+        return (remote_exec_pattern, remote_cmds_cleanup_pattern)
 
     @classmethod
     def _resolve_ssh_control_path(cls):
@@ -169,8 +152,11 @@ class Config:
         return control_path
 
     @classmethod
-    def _resolve_remote_cmds(cls, args):
-        if args.remote_exec_pattern or args.remote_cmds_cleanup_pattern:
+    def _resolve_remote_cmds(cls, settings):
+        (remote_exec_pattern, remote_cmds_cleanup_pattern) = \
+            cls.construct_remote_exec_patterns(settings)
+
+        if remote_exec_pattern or remote_cmds_cleanup_pattern:
             control_path = cls._resolve_ssh_control_path()
 
         # If we constructed patterns for remote commands then there is a {}
@@ -178,13 +164,13 @@ class Config:
         # have unique ControlPath for each host.
         #
         # If not then use remote_exec as the user specified.
-        if args.remote_exec_pattern:
-            remote_exec = args.remote_exec_pattern.format(control_path)
+        if remote_exec_pattern:
+            remote_exec = remote_exec_pattern.format(control_path)
         else:
-            remote_exec = args.remote_exec
+            remote_exec = settings.remote_exec
 
-        if args.remote_cmds_cleanup_pattern:
-            remote_cmds_cleanup = args.remote_cmds_cleanup_pattern.format(
+        if remote_cmds_cleanup_pattern:
+            remote_cmds_cleanup = remote_cmds_cleanup_pattern.format(
                 control_path)
         else:
             remote_cmds_cleanup = ""
@@ -201,13 +187,14 @@ class Config:
                                ": {}").format(host, e))
 
     @classmethod
-    def onehost(cls, host, host_base_path, args, configuration,
+    def onehost(cls, host, host_base_path, override_init_manifest, settings,
+                dry_run=False, jobs=1,
                 remove_remote_files_dirs=False):
         """Configure ONE system."""
         log = cdist.log.getLogger(host)
 
         try:
-            (remote_exec, cleanup_cmd) = cls._resolve_remote_cmds(args)
+            (remote_exec, cleanup_cmd) = cls._resolve_remote_cmds(settings)
             log.debug("remote_exec for host \"%s\": %s", host, remote_exec)
 
             target_host = cls.resolve_target_addresses(host)
@@ -216,11 +203,8 @@ class Config:
             local = cdist.exec.local.Local(
                 target_host=target_host,
                 base_root_path=host_base_path,
-                initial_manifest=args.manifest,
-                add_conf_dirs=args.conf_dir,
-                cache_path_pattern=args.cache_path_pattern,
-                configuration=configuration,
-                exec_path=sys.argv[0])
+                settings=settings,
+                initial_manifest=override_init_manifest)
 
             # Make __global state dir available to custom remote scripts.
             os.environ['__global'] = local.base_path
@@ -228,16 +212,15 @@ class Config:
             remote = cdist.exec.remote.Remote(
                 target_host=target_host,
                 remote_exec=remote_exec,
-                base_path=args.remote_out_path,
-                archiving_mode=cdist.autil.mode_from_str(args.use_archiving),
-                configuration=configuration,
+                base_path=settings.remote_out_path,
+                settings=settings,
                 stdout_base_path=local.stdout_base_path,
                 stderr_base_path=local.stderr_base_path)
 
             cleanup_cmds = []
             if cleanup_cmd:
                 cleanup_cmds.append(cleanup_cmd)
-            c = cls(local, remote, dry_run=args.dry_run, jobs=args.jobs,
+            c = cls(local, remote, dry_run=dry_run, jobs=jobs,
                     cleanup_cmds=cleanup_cmds,
                     remove_remote_files_dirs=remove_remote_files_dirs)
             c.run()

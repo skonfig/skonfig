@@ -25,10 +25,6 @@ import os
 from skonfig import __version__
 
 
-REMOTE_EXEC = "ssh -o User=root"
-REMOTE_CMDS_CLEANUP_PATTERN = "ssh -o User=root -O exit -S {}"
-
-
 # minimum Python version required to run cdist.
 # cdist will refuse to run on lower versions.
 MIN_SUPPORTED_PYTHON_VERSION = (3, 2)

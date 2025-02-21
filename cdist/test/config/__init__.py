@@ -29,6 +29,7 @@ import cdist.config
 import cdist.core.cdist_type
 import cdist.core.cdist_object
 import cdist.util
+import skonfig.settings
 
 from cdist import test
 from cdist import core
@@ -61,19 +62,23 @@ class CdistObjectErrorContext:
 class ConfigRunTestCase(test.CdistTestCase):
 
     def setUp(self):
-
-        # Change env for context
+        # change env for context
         self.orig_environ = os.environ
         os.environ = os.environ.copy()
         self.temp_dir = self.mkdtemp()
+
+        self.settings = skonfig.settings.SettingsContainer()
+        self.settings.conf_dir = [conf_dir]
 
         self.local_dir = os.path.join(self.temp_dir, "local")
         self.hostdir = cdist.util.str_hash(self.target_host[0])
         self.host_base_path = os.path.join(self.local_dir, self.hostdir)
         os.makedirs(self.host_base_path)
+
         self.local = cdist.exec.local.Local(
-            target_host=self.target_host,
-            base_root_path=self.host_base_path)
+            self.target_host,
+            self.host_base_path,
+            self.settings)
 
         # Setup test objects
         self.object_base_path = op.join(self.temp_dir, 'object')
@@ -95,9 +100,10 @@ class ConfigRunTestCase(test.CdistTestCase):
         self.remote_dir = os.path.join(self.temp_dir, "remote")
         os.mkdir(self.remote_dir)
         self.remote = cdist.exec.remote.Remote(
-            target_host=self.target_host,
-            remote_exec=self.remote_exec,
-            base_path=self.remote_dir,
+            self.target_host,
+            self.remote_exec,
+            self.remote_dir,
+            self.settings,
             stdout_base_path=self.local.stdout_base_path,
             stderr_base_path=self.local.stderr_base_path)
 
@@ -193,28 +199,29 @@ class ConfigRunTestCase(test.CdistTestCase):
 
     def test_dryrun(self):
         """Test if the dryrun option is working like expected"""
-        drylocal = cdist.exec.local.Local(
-            target_host=self.target_host,
-            base_root_path=self.host_base_path,
-            # exec_path can not derivated from sys.argv in case of unittest
-            exec_path=test.cdist_exec_path,
-            initial_manifest=os.path.join(fixtures,
-                                          'manifest/dryrun_manifest'),
-            add_conf_dirs=[conf_dir])
+        dry_local = cdist.exec.local.Local(
+            self.target_host,
+            self.host_base_path,
+            self.settings,
+            initial_manifest=os.path.join(
+                fixtures, "manifest/dryrun_manifest"),
+            # exec_path can not derived from sys.argv in unittests
+            exec_path=test.cdist_exec_path)
 
-        dryrun = cdist.config.Config(drylocal, self.remote, dry_run=True)
-        dryrun.run()
-        # if we are here, dryrun works like expected
+        dryrun_config = cdist.config.Config(
+            dry_local, self.remote, dry_run=True)
+        dryrun_config.run()
+        # if we are here, dry runs work like expected
 
     def test_deps_resolver(self):
         """Test to show dependency resolver warning message."""
         local = cdist.exec.local.Local(
-            target_host=self.target_host,
-            base_root_path=self.host_base_path,
-            exec_path=test.cdist_exec_path,
+            self.target_host,
+            self.host_base_path,
+            self.settings,
             initial_manifest=os.path.join(
-                fixtures, 'manifest/init-deps-resolver'),
-            add_conf_dirs=[conf_dir])
+                fixtures, "manifest", "init-deps-resolver"),
+            exec_path=test.cdist_exec_path)
 
         # dry_run is ok for dependency testing
         config = cdist.config.Config(local, self.remote, dry_run=True)
