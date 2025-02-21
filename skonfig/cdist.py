@@ -12,10 +12,10 @@ def _initialise_global_settings():
     settings = skonfig.settings.SettingsContainer()
 
     # read values from config file(s)
-    settings.update_settings_from_config_files()
+    settings.update_from_config_files()
 
     # read values from environment variables
-    settings.update_settings_from_env()
+    settings.update_from_env()
 
     return settings
 
