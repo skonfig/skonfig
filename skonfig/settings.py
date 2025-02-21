@@ -36,20 +36,18 @@ def get_cache_dir():
 def get_config_search_dirs():
     if "SKONFIG_PATH" in os.environ:
         # parse SKONFIG_PATH environment variable for config file locations
-        search_dir_list = os.environ["SKONFIG_PATH"].split(os.pathsep)
+        search_dirs = os.environ["SKONFIG_PATH"].split(os.pathsep)
     else:
         # use default locations
-        search_dir_list = ["~/.skonfig", "/etc/skonfig"]
+        search_dirs = ["~/.skonfig", "/etc/skonfig"]
 
-    search_dirs = [
-        sdir
-        for sdir in map(os.path.expanduser, search_dir_list)
-        if os.path.isdir(sdir)]
+    # filter out non-directories
+    search_dirs = filter(os.path.isdir, map(os.path.expanduser, search_dirs))
 
     # In cdist "last wins", but from user perspective we want "first wins"
     # (just like with $PATH). This is also useful in next function,
     # _set_from_files, where we overwrite previous value(s).
-    return reversed(search_dirs)
+    return list(reversed(search_dirs))
 
 
 class any_setting(property):
