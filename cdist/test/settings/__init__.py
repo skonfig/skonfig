@@ -211,6 +211,31 @@ class SearchPathSettingTestCase(test.CdistTestCase):
 
             self.assertEqual(self.path_setting, [init_value])
 
+    def test_can_use_list_manipulation_operators(self):
+        self.path_setting = ["/bin"]
+        self.assertEqual(self.path_setting, ["/bin"])
+
+        self.path_setting.insert(0, "/sbin")
+        self.assertEqual(self.path_setting, ["/sbin", "/bin"])
+
+        self.path_setting += ["/usr/sbin", "/usr/bin"]
+        self.assertEqual(self.path_setting, [
+            "/sbin", "/bin",
+            "/usr/sbin", "/usr/bin"])
+
+        self.path_setting.extend(["/usr/local/sbin", "/usr/local/bin"])
+        self.assertEqual(self.path_setting, [
+            "/sbin", "/bin",
+            "/usr/sbin", "/usr/bin",
+            "/usr/local/sbin", "/usr/local/bin"])
+
+        self.path_setting.append("/opt/bin")
+        self.assertEqual(self.path_setting, [
+            "/sbin", "/bin",
+            "/usr/sbin", "/usr/bin",
+            "/usr/local/sbin", "/usr/local/bin",
+            "/opt/bin"])
+
 
 class FileSettingTestCase(test.CdistTestCase):
     existing_file = os.path.join(fixtures, "somefile.txt")
