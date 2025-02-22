@@ -21,6 +21,7 @@
 import os
 
 import cdist.autil
+import cdist.log
 
 _logger = cdist.log.getLogger(__name__)
 
@@ -53,15 +54,11 @@ def get_config_search_dirs():
     return list(reversed(search_dirs))
 
 
-class any_setting(property):
-    private_name = None
-
-    def __init__(self, *, default=None, doc=None, nullable=False):
-        super().__init__(
-            lambda container: self._get(container),
-            lambda container, value: self._set(container, value),
-            None,
-            doc)
+class any_setting:
+    def __init__(self, dict_name=None,
+                 *, default=None, doc=None, nullable=False):
+        self.dict_name = dict_name or ("_setting_%x" % (id(self)))
+        self.__doc__ = doc
 
         if default is None and not nullable:
             raise ValueError(
@@ -69,9 +66,6 @@ class any_setting(property):
 
         self.is_nullable = nullable
         self.default = self.transform_store(default)
-
-    def __set_name__(self, owner, name):
-        self.private_name = "_%s" % (name)
 
     def transform_load(self, value):
         return value
@@ -82,19 +76,15 @@ class any_setting(property):
 
         return value
 
-    def _get(self, container):
-        if not self.private_name:
-            return None
-        return self.transform_load(
-            getattr(container, self.private_name, self.default))
+    def __get__(self, instance, owner):
+        if instance:
+            value = getattr(instance, self.dict_name, self.default)
+            return self.transform_load(value)
+        else:
+            return self
 
-    def _set(self, container, value):
-        if not self.private_name:
-            raise ValueError(
-                "cannot assign to this setting, has no private_name.")
-
-        value = self.transform_store(value)
-        setattr(container, self.private_name, value)
+    def __set__(self, instance, value):
+        setattr(instance, self.dict_name, self.transform_store(value))
 
 
 class string_setting(any_setting):
@@ -344,13 +334,19 @@ class SettingsContainer:
         Valid values are: ERROR, WARNING, INFO, VERBOSE, DEBUG, TRACE and OFF.
         """)
 
+    def _get_all_settings(self):
+        return {
+            k: getattr(self, k)
+            for (k, v) in type(self).__dict__.items()
+            if isinstance(v, any_setting)}
+
     def __repr__(self):
         return "\n".join(
-            "%s = %s" % (k, v)
-            for (k, v) in self.__dict__.items())
+            "%s = %r" % (k, getattr(self, k))
+            for (k, v) in self._get_all_settings().items())
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return self._get_all_settings() == other._get_all_settings()
 
     __config_file_settings_map = {
         # config file option = {setting=name of setting, getf=get func to use}
