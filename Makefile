@@ -43,8 +43,8 @@ help: .FORCE
 	@echo "  unittest(*)     run unit tests"
 	@echo "  unittest-remote(*) "
 	@echo ""
-	@echo "(*) if the environment variable SANDBOX is set to bubblewrap/bwrap"
-	@echo "    the tests will be run in a sandbox."
+	@echo "(*) if the environment variable SANDBOX is set, the tests will be"
+	@echo "    executed in a sandbox (use SANDBOX=help for a list of options)."
 	@echo ""
 
 
@@ -104,6 +104,16 @@ _unittest: .FORCE
 _unittest-remote: .FORCE
 	PYTHONPATH=$(UNITTEST_PYTHONPATH) $(UNITTEST_REMOTE_CMD)
 
+# help output
+_unittest-sandbox_help \
+_unittest-remote-sandbox_help: .FORCE
+	@echo "SANDBOX accepts the following values:"
+	@echo ""
+	@echo "  bubblewrap    uses bubblewrap (bwrap command) on Linux"
+	@echo "  seatbelt      uses the seatbelt sandboxing framework on Mac OS X 10.5+"
+	@echo ""
+
+
 # unittest commands using bubblewrap sandbox
 
 UNITTEST_BWRAP_CMD = bwrap\
@@ -130,6 +140,30 @@ _unittest-sandbox_bubblewrap: .FORCE
 _unittest-remote-sandbox_bwrap \
 _unittest-remote-sandbox_bubblewrap: .FORCE
 	$(UNITTEST_BWRAP_CMD) $(UNITTEST_REMOTE_CMD)
+
+
+# unittest commands using Mac OS X seatbelt
+
+/tmp/tmp.skonfig.unittest \
+/tmp/tmp.skonfig.unittest/tmp \
+/tmp/tmp.skonfig.unittest/cache:
+	test -d $@ || mkdir $@
+
+/tmp/tmp.skonfig.unittest/tmp /tmp/tmp.skonfig.unittest/cache: /tmp/tmp.skonfig.unittest
+
+_unittest-sandbox_seatbelt: .FORCE /tmp/tmp.skonfig.unittest/tmp /tmp/tmp.skonfig.unittest/cache
+	TMPDIR=/tmp/tmp.skonfig.unittest/tmp \
+	XDG_CACHE_HOME=/tmp/tmp.skonfig.unittest/cache \
+	PYTHONPATH="$(UNITTEST_PYTHONPATH)" \
+	sandbox-exec -f cdist/test/.unittest.sb $(UNITTEST_CMD)
+	rm -R -f /tmp/tmp.skonfig.unittest/
+
+_unittest-remote-sandbox_seatbelt: .FORCE /tmp/tmp.skonfig.unittest/tmp /tmp/tmp.skonfig.unittest/cache
+	TMPDIR=/tmp/tmp.skonfig.unittest/tmp \
+	XDG_CACHE_HOME=/tmp/tmp.skonfig.unittest/cache \
+	PYTHONPATH="$(UNITTEST_PYTHONPATH)" \
+	sandbox-exec -f cdist/test/.unittest.sb $(UNITTEST_REMOTE_CMD)
+	rm -R -f /tmp/tmp.skonfig.unittest/
 
 
 ###############################################################################
