@@ -91,7 +91,7 @@ shellcheck: .FORCE
 # unit tests
 
 UNITTEST_PYTHONPATH = $$(pwd -P)
-UNITTEST_CMD = $(PYTHON) -m cdist.test
+UNITTEST_CMD = $(PYTHON) -m cdist.test$(TEST_SUITE:%=.%.__init__)
 UNITTEST_REMOTE_CMD = $(UNITTEST_CMD).exec.remote
 
 unittest: _unittest$(SANDBOX:%=-sandbox_%)
