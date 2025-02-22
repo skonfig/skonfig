@@ -153,7 +153,8 @@ class archiving_setting(any_setting):
 
         if isinstance(value, str):
             value = cdist.autil.mode_from_str(value)
-        elif isinstance(value, cdist.autil.ArchivingMode):
+        elif type(value) is type \
+                and issubclass(value, cdist.autil.ArchivingMode):
             pass
         else:
             raise ValueError("invalid archiving mode: %r" % value)
