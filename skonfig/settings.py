@@ -225,7 +225,10 @@ class jobs_setting(any_setting):
         elif value == -1:
             # special case
             import multiprocessing
-            value = min(4, multiprocessing.cpu_count())
+            try:
+                value = min(4, multiprocessing.cpu_count())
+            except NotImplementedError:
+                value = 1
         elif value < 1:
             raise ValueError("value must be at least 1")
 
