@@ -110,6 +110,7 @@ _unittest-remote-sandbox_help: .FORCE
 	@echo "SANDBOX accepts the following values:"
 	@echo ""
 	@echo "  bubblewrap    uses bubblewrap (bwrap command) on Linux"
+	@echo "  openbsd       uses pledge(2)/unveil(2) on OpenBSD (and SerenityOS?)"
 	@echo "  seatbelt      uses the seatbelt sandboxing framework on Mac OS X 10.5+"
 	@echo ""
 
@@ -140,6 +141,28 @@ _unittest-sandbox_bubblewrap: .FORCE
 _unittest-remote-sandbox_bwrap \
 _unittest-remote-sandbox_bubblewrap: .FORCE
 	$(UNITTEST_BWRAP_CMD) $(UNITTEST_REMOTE_CMD)
+
+
+# unittest commands using OpenBSD sandbox
+
+UNITTEST_OPENBSD_CMD = cdist/test/.openbsd-sandbox
+
+cdist/test/.openbsd-sandbox: cdist/test/.openbsd-sandbox.c
+	$(CC) -o cdist/test/.openbsd-sandbox cdist/test/.openbsd-sandbox.c
+
+_unittest-sandbox_openbsd: .FORCE $(UNITTEST_OPENBSD_CMD) /tmp/tmp.skonfig.unittest/tmp /tmp/tmp.skonfig.unittest/cache
+	TMPDIR=/tmp/tmp.skonfig.unittest/tmp\
+	XDG_CACHE_HOME=/tmp/tmp.skonfig.unittest/cache\
+	PYTHONPATH="$(UNITTEST_PYTHONPATH)"\
+	$(UNITTEST_OPENBSD_CMD) $(UNITTEST_CMD)
+	rm -R -f /tmp/tmp.skonfig.unittest/
+
+_unittest-remote-sandbox_openbsd: .FORCE $(UNITTEST_OPENBSD_CMD) /tmp/tmp.skonfig.unittest/tmp /tmp/tmp.skonfig.unittest/cache
+	TMPDIR=/tmp/tmp.skonfig.unittest/tmp\
+	XDG_CACHE_HOME=/tmp/tmp.skonfig.unittest/cache\
+	PYTHONPATH="$(UNITTEST_PYTHONPATH)"\
+	$(UNITTEST_OPENBSD_CMD) $(UNITTEST_REMOTE_CMD)
+	rm -R -f /tmp/tmp.skonfig.unittest/
 
 
 # unittest commands using Mac OS X seatbelt
