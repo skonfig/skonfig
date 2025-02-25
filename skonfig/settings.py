@@ -210,9 +210,9 @@ class loglevel_setting(any_setting):
                 if value == level_name:
                     return level
 
-            raise ValueError("invalid logging level: %s" % (value))
+            raise ValueError("invalid logging level: %s" % (value,))
         else:
-            raise ValueError("invalid value: %s" % (value))
+            raise ValueError("invalid value: %s" % (value,))
 
 
 class jobs_setting(any_setting):

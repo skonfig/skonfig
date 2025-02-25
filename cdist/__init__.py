@@ -125,22 +125,22 @@ class CdistObjectError(CdistEntityError):
     """Something went wrong while working on a specific object"""
     def __init__(self, cdist_object, subject=''):
         params = [
-            ('name', cdist_object.name, ),
-            ('path', cdist_object.absolute_path, ),
-            ('source', " ".join(cdist_object.source), ),
+            ('name', cdist_object.name),
+            ('path', cdist_object.absolute_path),
+            ('source', " ".join(cdist_object.source)),
             ('type', os.path.realpath(
-                cdist_object.cdist_type.absolute_path), ),
-        ]
+                cdist_object.cdist_type.absolute_path)),
+            ]
         stderr_paths = []
         for stderr_name in os.listdir(cdist_object.stderr_path):
             stderr_path = os.path.join(cdist_object.stderr_path,
                                        stderr_name)
-            stderr_paths.append((stderr_name, stderr_path, ))
+            stderr_paths.append((stderr_name, stderr_path))
         stdout_paths = []
         for stdout_name in os.listdir(cdist_object.stdout_path):
             stdout_path = os.path.join(cdist_object.stdout_path,
                                        stdout_name)
-            stdout_paths.append((stdout_name, stdout_path, ))
+            stdout_paths.append((stdout_name, stdout_path))
         super().__init__("object '{}'".format(cdist_object.name),
                          params, stdout_paths, stderr_paths, subject)
 
@@ -150,18 +150,18 @@ class CdistObjectExplorerError(CdistEntityError):
     def __init__(self, cdist_object, explorer_name, explorer_path,
                  stderr_path, subject=''):
         params = [
-            ('object name', cdist_object.name, ),
-            ('object path', cdist_object.absolute_path, ),
-            ('object source', " ".join(cdist_object.source), ),
+            ('object name', cdist_object.name),
+            ('object path', cdist_object.absolute_path),
+            ('object source', " ".join(cdist_object.source)),
             ('object type', os.path.realpath(
-                cdist_object.cdist_type.absolute_path), ),
-            ('explorer name', explorer_name, ),
-            ('explorer path', explorer_path, ),
-        ]
+                cdist_object.cdist_type.absolute_path)),
+            ('explorer name', explorer_name),
+            ('explorer path', explorer_path),
+            ]
         stdout_paths = []
         stderr_paths = [
-            ('remote', stderr_path, ),
-        ]
+            ('remote', stderr_path),
+            ]
         super().__init__("explorer '{}' of object '{}'".format(
             explorer_name, cdist_object.name), params, stdout_paths,
             stderr_paths, subject)
@@ -171,14 +171,14 @@ class InitialManifestError(CdistEntityError):
     """Something went wrong while executing initial manifest"""
     def __init__(self, initial_manifest, stdout_path, stderr_path, subject=''):
         params = [
-            ('path', initial_manifest, ),
-        ]
+            ('path', initial_manifest),
+            ]
         stdout_paths = [
-            ('init', stdout_path, ),
-        ]
+            ('init', stdout_path),
+            ]
         stderr_paths = [
-            ('init', stderr_path, ),
-        ]
+            ('init', stderr_path),
+            ]
         super().__init__('initial manifest', params, stdout_paths,
                          stderr_paths, subject)
 
@@ -187,11 +187,11 @@ class GlobalExplorerError(CdistEntityError):
     """Something went wrong while executing global explorer"""
     def __init__(self, name, path, stderr_path, subject=''):
         params = [
-            ('name', name, ),
-            ('path', path, ),
-        ]
+            ('name', name),
+            ('path', path),
+            ]
         stderr_paths = [
-            ('remote', stderr_path, ),
-        ]
+            ('remote', stderr_path),
+            ]
         super().__init__("global explorer '{}'".format(name),
                          params, [], stderr_paths, subject)

@@ -238,10 +238,10 @@ class ConfigRunTestCase(test.CdistTestCase):
         #      |
         #      +--> d -> e
         graph = {
-            'a': ['b', ],
-            'b': ['c', 'd', ],
-            'd': ['e', ],
-        }
+            'a': ['b'],
+            'b': ['c', 'd'],
+            'd': ['e'],
+            }
         (has_cycle, path) = cdist.config.graph_check_cycle(graph)
         self.assertFalse(has_cycle)
 
@@ -252,10 +252,10 @@ class ConfigRunTestCase(test.CdistTestCase):
         #  \        |
         #   +-------+
         graph = {
-            'a': ['b', ],
-            'b': ['c', ],
-            'c': ['a', ],
-        }
+            'a': ['b'],
+            'b': ['c'],
+            'c': ['a'],
+            }
         (has_cycle, path) = cdist.config.graph_check_cycle(graph)
         self.assertTrue(has_cycle)
         self.assertGreater(path.count(path[-1]), 1)
@@ -276,18 +276,18 @@ class ConfigRunTestCase(test.CdistTestCase):
         # \/    |    \/
         # n     m <- k
         graph = {
-            'a': ['b', 'd', ],
-            'b': ['c', ],
-            'c': ['g', ],
-            'd': ['e', 'f', ],
-            'e': ['g', ],
-            'f': ['g', ],
-            'h': ['i', 'n', ],
-            'i': ['j', ],
-            'j': ['k', ],
-            'k': ['m', ],
-            'm': ['i', ],
-        }
+            'a': ['b', 'd'],
+            'b': ['c'],
+            'c': ['g'],
+            'd': ['e', 'f'],
+            'e': ['g'],
+            'f': ['g'],
+            'h': ['i', 'n'],
+            'i': ['j'],
+            'j': ['k'],
+            'k': ['m'],
+            'm': ['i'],
+            }
         (has_cycle, path) = cdist.config.graph_check_cycle(graph)
         self.assertTrue(has_cycle)
         self.assertGreater(path.count(path[-1]), 1)

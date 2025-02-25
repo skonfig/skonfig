@@ -365,7 +365,7 @@ class Config:
             else:
                 self.log.trace("Starting multiprocessing Pool for %d "
                                "parallel types explorers transferring", nt)
-                args = [(ct, ) for ct in cargo_types]
+                args = [(ct,) for ct in cargo_types]
                 mp_pool_run(self.explorer.transfer_type_explorers, args,
                             jobs=self.jobs)
                 self.log.trace(("Multiprocessing for parallel transferring "
@@ -431,7 +431,7 @@ class Config:
                         multiprocessing.get_start_method())
                 self.log.trace("Starting multiprocessing Pool for %d "
                                "parallel object run", n)
-                args = [(c, ) for c in chunk]
+                args = [(c,) for c in chunk]
                 mp_pool_run(self.object_run, args, jobs=self.jobs)
                 self.log.trace(("Multiprocessing for parallel object "
                                 "run finished"))

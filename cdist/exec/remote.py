@@ -124,7 +124,7 @@ class Remote:
         """Create directory on the target."""
         self.log.trace("Remote mkdir: %s", path)
 
-        cmd = "mkdir -p %s" % (shquot.quote(path),)
+        cmd = "mkdir -p %s" % (shquot.quote(path))
         if umask is not None:
             mode = (0o777 & ~umask)
             cmd = "umask %04o; %s && chmod %o %s" % (
@@ -149,7 +149,7 @@ class Remote:
         self.run(command)
 
     def _transfer_file(self, source, destination, umask=None):
-        remote_cmd = "cat >%s" % (shquot.quote(destination),)
+        remote_cmd = "cat >%s" % (shquot.quote(destination))
         if umask is not None:
             mode = (stat.S_IMODE(os.stat(source).st_mode) & ~umask)
             remote_cmd = "umask %04o; %s && chmod %o %s" % (
