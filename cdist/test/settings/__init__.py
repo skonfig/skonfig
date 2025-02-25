@@ -541,7 +541,7 @@ class SettingsTestCase(test.CdistTestCase):
             self.assertIsNotNone(s.cache_path_pattern)
             self.assertEqual(s.cache_path_pattern, '%N')
         except configparser.InterpolationSyntaxError as e:
-            self.fail("Exception should not have been raised: %r" % e)
+            self.fail("Exception should not have been raised: %r" % (e))
 
     def test_invalid_update_from_configfile(self):
         config_file = os.path.join(fixtures, "config-invalid.ini")

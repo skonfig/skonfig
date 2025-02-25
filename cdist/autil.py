@@ -89,7 +89,7 @@ def mode_from_str(s):
         if (mode.name() == s_lc):
             break
     else:
-        raise ValueError("invalid archiving mode: %s" % s)
+        raise ValueError("invalid archiving mode: %s" % (s))
 
     # check if the method is supported by this python version
     if not mode.is_supported():
@@ -110,7 +110,7 @@ def tar(source, mode=TGZ):
     if fcnt <= FILES_LIMIT:
         return None, fcnt
 
-    tarmode = "w:%s" % mode.tarmode
+    tarmode = "w:%s" % (mode.tarmode)
     _, tarpath = tempfile.mkstemp(suffix=mode.file_ext)
     with tarfile.open(tarpath, tarmode, dereference=True) as tar:
         if os.path.isdir(source):

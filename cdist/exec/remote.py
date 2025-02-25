@@ -36,7 +36,7 @@ def _wrap_addr(addr):
     """If addr is IPv6 then return addr wrapped between '[' and ']',
     otherwise return it unchanged."""
     if ipaddr.is_ipv6(addr):
-        return "[%s]" % addr
+        return "[%s]" % (addr)
     else:
         return addr
 

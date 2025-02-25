@@ -122,8 +122,7 @@ class choice_setting(any_setting):
         if value not in self._choices:
             raise ValueError(
                 "invalid value. value must be one of: %s" % (
-                    ", ".join("\"%s\"" % s for s in self._choices)
-                ))
+                    ", ".join("\"%s\"" % (s) for s in self._choices)))
 
         return value
 
@@ -136,7 +135,7 @@ class file_setting(string_setting):
             return value
 
         if not os.path.isfile(value):
-            raise ValueError("No such file: %s" % value)
+            raise ValueError("No such file: %s" % (value))
 
         return value
 
@@ -149,7 +148,7 @@ class executable_setting(file_setting):
             return value
 
         if not os.access(value, os.X_OK):
-            raise ValueError("File is not executable: %s" % value)
+            raise ValueError("File is not executable: %s" % (value))
 
         return value
 
@@ -166,7 +165,7 @@ class archiving_setting(any_setting):
         elif isinstance(value, cdist.autil.ArchivingMode):
             pass
         else:
-            raise ValueError("invalid archiving mode: %r" % value)
+            raise ValueError("invalid archiving mode: %r" % (value))
 
         return value
 
@@ -213,7 +212,7 @@ class loglevel_setting(any_setting):
 
             raise ValueError("invalid logging level: %s" % (value))
         else:
-            raise ValueError("invalid value: %s" % (value,))
+            raise ValueError("invalid value: %s" % (value))
 
 
 class jobs_setting(any_setting):

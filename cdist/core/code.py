@@ -149,7 +149,8 @@ class Code:
             })
             message_prefix = cdist_object.name
             with get_std_fd(
-                    cdist_object.stderr_path, "gencode-%s" % which) as stderr:
+                    cdist_object.stderr_path,
+                    "gencode-%s" % (which)) as stderr:
                 code += self.local.run_script(
                     script,
                     env=env,

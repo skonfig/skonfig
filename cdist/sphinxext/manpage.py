@@ -24,7 +24,7 @@ class ManualPageTranslator(sphinx.writers.manpage.ManualPageTranslator):
     def header(self):
         tmpl = (".TH \"%(title_upper)s\" \"%(manual_section)s\""
                 " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n")
-        return tmpl % self._docinfo
+        return tmpl % (self._docinfo)
 
 
 class ManualPageWriter(sphinx.writers.manpage.ManualPageWriter):
