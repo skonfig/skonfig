@@ -85,7 +85,7 @@ class CodeTestCase(test.CdistTestCase):
         output_dict = {}
         for line in output_string.split('\n'):
             if line:
-                junk, value = line.split(': ')
+                (junk, value) = line.split(': ')
                 key = junk.split(' ')[1]
                 output_dict[key] = value
         self.assertEqual(output_dict['__target_host'],
@@ -112,7 +112,7 @@ class CodeTestCase(test.CdistTestCase):
         output_dict = {}
         for line in output_string.split('\n'):
             if line:
-                junk, value = line.split(': ')
+                (junk, value) = line.split(': ')
                 key = junk.split(' ')[1]
                 output_dict[key] = value
         self.assertEqual(output_dict['__target_host'],

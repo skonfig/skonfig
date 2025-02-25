@@ -164,21 +164,21 @@ class LocalTestCase(test.CdistTestCase):
 
     def test_run_script_success(self):
         self.local.create_files_dirs()
-        handle, script = self.mkstemp(dir=self.temp_dir)
+        (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines(["#!/bin/sh\n", bin_true])
         self.local.run_script(script)
 
     def test_run_script_fail(self):
         self.local.create_files_dirs()
-        handle, script = self.mkstemp(dir=self.temp_dir)
+        (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines(["#!/bin/sh\n", bin_false])
         self.assertRaises(cdist.Error, self.local.run_script, script)
 
     def test_run_script_get_output(self):
         self.local.create_files_dirs()
-        handle, script = self.mkstemp(dir=self.temp_dir)
+        (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines(["#!/bin/sh\n", "echo foobar"])
         self.assertEqual(self.local.run_script(script, return_output=True),

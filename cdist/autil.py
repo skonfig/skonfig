@@ -108,14 +108,14 @@ def tar(source, mode=TGZ):
     files = glob.glob1(source, '*')
     fcnt = len(files)
     if fcnt <= FILES_LIMIT:
-        return None, fcnt
+        return (None, fcnt)
 
     tarmode = "w:%s" % (mode.tarmode)
-    _, tarpath = tempfile.mkstemp(suffix=mode.file_ext)
+    (_, tarpath) = tempfile.mkstemp(suffix=mode.file_ext)
     with tarfile.open(tarpath, tarmode, dereference=True) as tar:
         if os.path.isdir(source):
             for f in files:
                 tar.add(os.path.join(source, f), arcname=f)
         else:
             tar.add(source)
-    return tarpath, fcnt
+    return (tarpath, fcnt)

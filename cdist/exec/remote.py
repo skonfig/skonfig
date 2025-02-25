@@ -171,7 +171,7 @@ class Remote:
                 import cdist.autil as autil
 
                 # create archive
-                tarpath, fcnt = autil.tar(source, self.archiving_mode)
+                (tarpath, fcnt) = autil.tar(source, self.archiving_mode)
                 if tarpath is None:
                     self.log.trace("Files count %d is lower than %d limit, "
                                    "skipping archiving",

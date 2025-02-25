@@ -46,8 +46,8 @@ def graph_check_cycle(graph):
         path = [node]
         has_cycle = _graph_dfs_cycle(graph, node, path)
         if has_cycle:
-            return has_cycle, path
-    return False, None
+            return (has_cycle, path)
+    return (False, None)
 
 
 def _graph_dfs_cycle(graph, node, path):
@@ -487,7 +487,7 @@ class Config:
 
         while objects_changed:
             # Check for cycles as early as possible.
-            has_cycle, path = self._validate_dependencies()
+            (has_cycle, path) = self._validate_dependencies()
             if has_cycle:
                 raise cdist.UnresolvableRequirementsError(
                     "Cycle detected in object dependencies:\n{}!".format(

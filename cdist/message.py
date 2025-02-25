@@ -30,9 +30,10 @@ class Message:
         self.prefix = prefix
         self.global_messages = messages
 
-        in_fd, self.messages_in = tempfile.mkstemp(suffix='.cdist_message_in')
-        out_fd, self.messages_out = tempfile.mkstemp(
-                suffix='.cdist_message_out')
+        (in_fd, self.messages_in) = tempfile.mkstemp(
+            suffix='.cdist_message_in')
+        (out_fd, self.messages_out) = tempfile.mkstemp(
+            suffix='.cdist_message_out')
 
         os.close(in_fd)
         os.close(out_fd)

@@ -43,7 +43,7 @@ class EmulatorTestCase(test.CdistTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
-        handle, self.script = self.mkstemp(dir=self.temp_dir)
+        (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
         hostdir = cdist.util.str_hash(self.target_host[0])
@@ -206,7 +206,7 @@ class EmulatorConflictingRequirementsTestCase(test.CdistTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
-        handle, self.script = self.mkstemp(dir=self.temp_dir)
+        (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
         hostdir = cdist.util.str_hash(self.target_host[0])
@@ -334,7 +334,7 @@ class OverrideTestCase(test.CdistTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
-        handle, self.script = self.mkstemp(dir=self.temp_dir)
+        (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
         hostdir = cdist.util.str_hash(self.target_host[0])
@@ -384,7 +384,7 @@ class ArgumentsTestCase(test.CdistTestCase):
         base_path = self.temp_dir
         hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
-        handle, self.script = self.mkstemp(dir=self.temp_dir)
+        (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
 
         self.settings = skonfig.settings.SettingsContainer()
@@ -638,7 +638,7 @@ class EmulatorAlreadyExistingRequirementsWarnTestCase(test.CdistTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
-        handle, self.script = self.mkstemp(dir=self.temp_dir)
+        (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
         hostdir = cdist.util.str_hash(self.target_host[0])

@@ -93,7 +93,7 @@ class CdistObject:
         """Return a list of object instances"""
         for object_name in cls.list_object_names(
                 object_base_path, object_marker):
-            type_name, object_id = cls.split_name(object_name)
+            (type_name, object_id) = cls.split_name(object_name)
             yield cls(cdist.core.CdistType(type_base_path, type_name),
                       base_path=object_base_path,
                       object_marker=object_marker,
@@ -122,7 +122,7 @@ class CdistObject:
         """
         type_name = object_name.split(os.sep)[0]
         object_id = os.sep.join(object_name.split(os.sep)[1:])
-        return type_name, object_id
+        return (type_name, object_id)
 
     @staticmethod
     def join_name(type_name, object_id):
@@ -186,7 +186,7 @@ class CdistObject:
         type_path = self.cdist_type.base_path
         object_marker = self.object_marker
 
-        type_name, object_id = self.split_name(object_name)
+        (type_name, object_id) = self.split_name(object_name)
 
         cdist_type = self.cdist_type.__class__(type_path, type_name)
 

@@ -50,7 +50,7 @@ class ManualPageBuilder(sphinx.builders.manpage.ManualPageBuilder):
         logger.info(bold('writing... '), nonl=True)
 
         for info in self.config.man_pages:
-            docname, name, description, authors, section = info
+            (docname, name, description, authors, section) = info
             if isinstance(authors, string_types):
                 if authors:
                     authors = [authors]
