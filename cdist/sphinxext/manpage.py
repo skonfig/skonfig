@@ -24,7 +24,7 @@ class ManualPageTranslator(sphinx.writers.manpage.ManualPageTranslator):
     def header(self):
         tmpl = (".TH \"%(title_upper)s\" \"%(manual_section)s\""
                 " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n")
-        return tmpl % self._docinfo
+        return tmpl % (self._docinfo)
 
 
 class ManualPageWriter(sphinx.writers.manpage.ManualPageWriter):
@@ -50,7 +50,7 @@ class ManualPageBuilder(sphinx.builders.manpage.ManualPageBuilder):
         logger.info(bold('writing... '), nonl=True)
 
         for info in self.config.man_pages:
-            docname, name, description, authors, section = info
+            (docname, name, description, authors, section) = info
             if isinstance(authors, string_types):
                 if authors:
                     authors = [authors]

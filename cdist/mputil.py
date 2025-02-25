@@ -54,7 +54,7 @@ def mp_pool_run(func, args=None, kwds=None, jobs=default_jobs):
     elif kwds:
         fargs = zip(itertools.repeat(()), kwds)
     else:
-        return [func(), ]
+        return [func()]
 
     if hasattr(func, "__self__"):
         # Special case that wraps bound methods for pickling on Python < 3.3

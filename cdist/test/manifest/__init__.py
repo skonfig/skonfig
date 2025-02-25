@@ -75,7 +75,7 @@ class ManifestTestCase(test.CdistTestCase):
     def test_initial_manifest_environment(self):
         initial_manifest = os.path.join(self.local.manifest_path,
                                         "dump_environment")
-        handle, output_file = self.mkstemp(dir=self.temp_dir)
+        (handle, output_file) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         os.environ['__cdist_test_out'] = output_file
         old_loglevel = logging.root.getEffectiveLevel()
@@ -88,7 +88,7 @@ class ManifestTestCase(test.CdistTestCase):
         output_dict = {}
         for line in output_string.split('\n'):
             if line:
-                key, value = line.split(': ')
+                (key, value) = line.split(': ')
                 output_dict[key] = value
         self.assertTrue(output_dict['PATH'].startswith(self.local.bin_path))
         self.assertEqual(output_dict['__target_host'],
@@ -114,7 +114,7 @@ class ManifestTestCase(test.CdistTestCase):
                                         self.local.object_marker_name,
                                         'whatever')
         cdist_object.create()
-        handle, output_file = self.mkstemp(dir=self.temp_dir)
+        (handle, output_file) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         os.environ['__cdist_test_out'] = output_file
         old_loglevel = self.log.getEffectiveLevel()
@@ -127,7 +127,7 @@ class ManifestTestCase(test.CdistTestCase):
         output_dict = {}
         for line in output_string.split('\n'):
             if line:
-                key, value = line.split(': ')
+                (key, value) = line.split(': ')
                 output_dict[key] = value
         self.assertTrue(output_dict['PATH'].startswith(self.local.bin_path))
         self.assertEqual(output_dict['__target_host'],

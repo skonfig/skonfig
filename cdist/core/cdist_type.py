@@ -29,7 +29,7 @@ import cdist.log
 
 # FileNotFoundError is added in 3.3.
 if not hasattr(__builtins__, 'FileNotFoundError'):
-    FileNotFoundError = (OSError, IOError, )
+    FileNotFoundError = (OSError, IOError)
 
 
 class InvalidTypeError(cdist.Error):
@@ -102,7 +102,7 @@ class CdistType:
     _instances = {}
 
     def __getnewargs__(self):
-        return self.base_path, self.name
+        return (self.base_path, self.name)
 
     def __new__(cls, *args, **kwargs):
         """only one instance of each named type may exist"""

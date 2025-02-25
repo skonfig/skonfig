@@ -164,21 +164,21 @@ class LocalTestCase(test.CdistTestCase):
 
     def test_run_script_success(self):
         self.local.create_files_dirs()
-        handle, script = self.mkstemp(dir=self.temp_dir)
+        (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines(["#!/bin/sh\n", bin_true])
         self.local.run_script(script)
 
     def test_run_script_fail(self):
         self.local.create_files_dirs()
-        handle, script = self.mkstemp(dir=self.temp_dir)
+        (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines(["#!/bin/sh\n", bin_false])
         self.assertRaises(cdist.Error, self.local.run_script, script)
 
     def test_run_script_get_output(self):
         self.local.create_files_dirs()
-        handle, script = self.mkstemp(dir=self.temp_dir)
+        (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines(["#!/bin/sh\n", "echo foobar"])
         self.assertEqual(self.local.run_script(script, return_output=True),
@@ -206,27 +206,27 @@ class LocalTestCase(test.CdistTestCase):
         dt = datetime.datetime.fromtimestamp(start_time)
         pid = str(os.getpid())
         cases = [
-            ['', self.local.hostdir, ],
-            ['/', self.local.hostdir, ],
-            ['//', self.local.hostdir, ],
-            ['/%%h', '%h', ],
-            ['%%h', '%h', ],
-            ['%P', pid, ],
-            ['x%P', 'x' + pid, ],
-            ['%h', self.hostdir, ],
+            ['', self.local.hostdir],
+            ['/', self.local.hostdir],
+            ['//', self.local.hostdir],
+            ['/%%h', '%h'],
+            ['%%h', '%h'],
+            ['%P', pid],
+            ['x%P', ('x' + pid)],
+            ['%h', self.hostdir],
             ['%h/%Y-%m-%d/%H%M%S%f%P',
-             dt.strftime(self.hostdir + '/%Y-%m-%d/%H%M%S%f') + pid, ],
+             (dt.strftime(self.hostdir + '/%Y-%m-%d/%H%M%S%f') + pid)],
             ['/%h/%Y-%m-%d/%H%M%S%f%P',
-             dt.strftime(self.hostdir + '/%Y-%m-%d/%H%M%S%f') + pid, ],
+             (dt.strftime(self.hostdir + '/%Y-%m-%d/%H%M%S%f') + pid)],
             ['%Y-%m-%d/%H%M%S%f%P/%h',
-             dt.strftime('%Y-%m-%d/%H%M%S%f' + pid + os.sep + self.hostdir), ],
+             dt.strftime('%Y-%m-%d/%H%M%S%f' + pid + os.sep + self.hostdir)],
             ['///%Y-%m-%d/%H%M%S%f%P/%h',
-             dt.strftime('%Y-%m-%d/%H%M%S%f' + pid + os.sep + self.hostdir), ],
+             dt.strftime('%Y-%m-%d/%H%M%S%f' + pid + os.sep + self.hostdir)],
             ['%h/%Y-%m-%d/%H%M%S-%P',
-             dt.strftime(self.hostdir + '/%Y-%m-%d/%H%M%S-') + pid, ],
+             dt.strftime(self.hostdir + '/%Y-%m-%d/%H%M%S-') + pid],
             ['%Y-%m-%d/%H%M%S-%P/%h',
-             dt.strftime('%Y-%m-%d/%H%M%S-') + pid + os.sep + self.hostdir, ],
-            ['%N', self.local.target_host[0], ],
+             dt.strftime('%Y-%m-%d/%H%M%S-') + pid + os.sep + self.hostdir],
+            ['%N', self.local.target_host[0]],
         ]
         for x in cases:
             x.append(self.local._cache_subpath(start_time, x[0]))

@@ -235,7 +235,7 @@ class ExplorerClassTestCase(test.CdistTestCase):
         output_dict = {}
         for line in output.split('\n'):
             if line:
-                key, value = line.split(': ')
+                (key, value) = line.split(': ')
                 output_dict[key] = value
         self.assertEqual(output_dict['__target_host'],
                          self.local.target_host[0])

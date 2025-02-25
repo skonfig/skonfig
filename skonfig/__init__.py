@@ -13,7 +13,7 @@ def run():
         except cdist.Error:
             pass
     import skonfig.arguments
-    parser, arguments = skonfig.arguments.get()
+    (parser, arguments) = skonfig.arguments.get()
     if arguments.version:
         print("skonfig", __version__)
         return True

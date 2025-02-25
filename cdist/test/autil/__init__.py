@@ -37,7 +37,7 @@ class AUtilTestCase(test.CdistTestCase):
         source = explorers_path
         for mode in cdist.autil.archiving_modes:
             try:
-                tarpath, fcnt = cdist.autil.tar(source, mode)
+                (tarpath, fcnt) = cdist.autil.tar(source, mode)
                 self.assertIsNotNone(tarpath)
                 fcnt = 0
                 with tarfile.open(tarpath, "r:" + mode.tarmode) as tar:

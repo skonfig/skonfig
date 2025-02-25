@@ -72,13 +72,13 @@ try:
         # setuptools 38.6.0 is required for connections to PyPI.
         # cf. also _pypi_can_connect()
         log.warn("You are running an old version of setuptools: %s. "
-                    "Consider upgrading." % setuptools.__version__)
+                    "Consider upgrading." % (setuptools.__version__))
 except ImportError:
     from distutils.core import setup
     using_setuptools = False
 
     log.warn("You are running %s using distutils. "
-                "Please consider installing setuptools." % __file__)
+             "Please consider installing setuptools." % (__file__))
 
 
 import distutils.command.build
@@ -131,7 +131,7 @@ class ManPages:
             destpath = os.path.join(
                 os.path.dirname(path), "%s.%s" % (pagename, section))
 
-            log.info("generating man page %s" % destpath)
+            log.info("generating man page %s" % (destpath))
             if not dry_run:
                 cls._render_manpage(path, destpath)
 
@@ -173,7 +173,7 @@ class ManPages:
     @classmethod
     def clean(cls, distribution, dry_run=False):
         for manpage in cls.find(group_by_section=False):
-            log.info("removing %s" % manpage)
+            log.info("removing %s" % (manpage))
             if not dry_run:
                 os.remove(manpage)
 

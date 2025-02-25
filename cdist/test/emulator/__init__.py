@@ -43,7 +43,7 @@ class EmulatorTestCase(test.CdistTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
-        handle, self.script = self.mkstemp(dir=self.temp_dir)
+        (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
         hostdir = cdist.util.str_hash(self.target_host[0])
@@ -165,11 +165,11 @@ class EmulatorTestCase(test.CdistTestCase):
 
     def test_order_dependency_context(self):
         test_seq = ('A', True, 'B', 'C', 'D', False, 'E', 'F', True, 'G',
-                    'H', False, 'I', )
+                    'H', False, 'I')
         expected_requirements = {
-            'C': set(('__planet/B', )),
-            'D': set(('__planet/C', )),
-            'H': set(('__planet/G', )),
+            'C': set(('__planet/B',)),
+            'D': set(('__planet/C',)),
+            'H': set(('__planet/G',)),
         }
         # Ensure env var is not in env
         if 'CDIST_ORDER_DEPENDENCY' in self.env:
@@ -206,7 +206,7 @@ class EmulatorConflictingRequirementsTestCase(test.CdistTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
-        handle, self.script = self.mkstemp(dir=self.temp_dir)
+        (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
         hostdir = cdist.util.str_hash(self.target_host[0])
@@ -292,7 +292,7 @@ class EmulatorConflictingRequirementsTestCase(test.CdistTestCase):
         cdist_type = core.CdistType(self.local.type_path, '__file_noop')
         cdist_object = core.CdistObject(cdist_type, self.local.object_path,
                                         self.local.object_marker_name, 'eggs')
-        reqs = set(('__directory_noop/spam', '__directory_noop/spameggs',))
+        reqs = set(('__directory_noop/spam', '__directory_noop/spameggs'))
         self.assertEqual(reqs, set(cdist_object.requirements))
 
 
@@ -334,7 +334,7 @@ class OverrideTestCase(test.CdistTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
-        handle, self.script = self.mkstemp(dir=self.temp_dir)
+        (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
         hostdir = cdist.util.str_hash(self.target_host[0])
@@ -384,7 +384,7 @@ class ArgumentsTestCase(test.CdistTestCase):
         base_path = self.temp_dir
         hostdir = cdist.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
-        handle, self.script = self.mkstemp(dir=self.temp_dir)
+        (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
 
         self.settings = skonfig.settings.SettingsContainer()
@@ -556,11 +556,11 @@ class ArgumentsTestCase(test.CdistTestCase):
         obj_params_expected = {
             'bool': '',
             'opt': 'opt',
-            'optmul1': ['val5', ],
-            'optmul': ['val1', 'val2', ],
+            'optmul1': ['val5'],
+            'optmul': ['val1', 'val2'],
             'req': 'req',
-            'reqmul1': ['val6', ],
-            'reqmul': ['val3', 'val4', ],
+            'reqmul1': ['val6'],
+            'reqmul': ['val3', 'val4'],
         }
         self.assertEqual(obj_params, obj_params_expected)
 
@@ -638,7 +638,7 @@ class EmulatorAlreadyExistingRequirementsWarnTestCase(test.CdistTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
-        handle, self.script = self.mkstemp(dir=self.temp_dir)
+        (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
         hostdir = cdist.util.str_hash(self.target_host[0])
@@ -691,7 +691,7 @@ class EmulatorAlreadyExistingRequirementsWarnTestCase(test.CdistTestCase):
 
     def test_parse_require(self):
         require = " \t \n  \t\t\n\t\na\tb\nc d \te\t\nf\ng\t "
-        expected = ['', 'a', 'b', 'c', 'd', 'e', 'f', 'g', '', ]
+        expected = ['', 'a', 'b', 'c', 'd', 'e', 'f', 'g', '']
 
         argv = ['__directory_noop', 'spam']
         emu = emulator.Emulator(argv, env=self.env)

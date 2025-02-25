@@ -89,20 +89,20 @@ class RemoteTestCase(test.CdistTestCase):
         self.assertRaises(cdist.Error, self.remote.run, ['false'])
 
     def test_run_script_success(self):
-        handle, script = self.mkstemp(dir=self.temp_dir)
+        (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines(["#!/bin/sh\n", "true"])
         self.remote.run_script(script)
 
     def test_run_script_fail(self):
-        handle, script = self.mkstemp(dir=self.temp_dir)
+        (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines(["#!/bin/sh\n", "false"])
         self.assertRaises(cdist.Error, self.remote.run_script,
                           script)
 
     def test_run_script_get_output(self):
-        handle, script = self.mkstemp(dir=self.temp_dir)
+        (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines(["#!/bin/sh\n", "echo foobar"])
         self.assertEqual(self.remote.run_script(script, return_output=True),
@@ -120,7 +120,7 @@ class RemoteTestCase(test.CdistTestCase):
         self.assertFalse(os.path.isdir(temp_dir))
 
     def test_transfer_file(self):
-        handle, source = self.mkstemp(dir=self.temp_dir)
+        (handle, source) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         target = self.mkdtemp(dir=self.temp_dir)
         self.remote.transfer(source, target)
@@ -130,7 +130,7 @@ class RemoteTestCase(test.CdistTestCase):
     def test_transfer_dir(self):
         source = self.mkdtemp(dir=self.temp_dir)
         # put a file in the directory as payload
-        handle, source_file = self.mkstemp(dir=source)
+        (handle, source_file) = self.mkstemp(dir=source)
         os.close(handle)
         source_file_name = os.path.split(source_file)[-1]
         target = self.mkdtemp(dir=self.temp_dir)
@@ -143,7 +143,7 @@ class RemoteTestCase(test.CdistTestCase):
         # put 8 files in the directory as payload
         filenames = []
         for x in range(8):
-            handle, source_file = self.mkstemp(dir=source)
+            (handle, source_file) = self.mkstemp(dir=source)
             os.close(handle)
             source_file_name = os.path.split(source_file)[-1]
             filenames.append(source_file_name)
@@ -160,7 +160,7 @@ class RemoteTestCase(test.CdistTestCase):
         self.assertTrue(os.path.isdir(self.remote.conf_path))
 
     def test_run_target_host_in_env(self):
-        handle, remote_exec_path = self.mkstemp(dir=self.temp_dir)
+        (handle, remote_exec_path) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, 'w') as fd:
             fd.writelines(["#!/bin/sh\n", "echo $__target_host"])
         os.chmod(remote_exec_path, 0o755)
@@ -170,27 +170,27 @@ class RemoteTestCase(test.CdistTestCase):
                          "{}\n".format(self.target_host[0]))
 
     def test_run_script_target_host_in_env(self):
-        handle, remote_exec_path = self.mkstemp(dir=self.temp_dir)
+        (handle, remote_exec_path) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, 'w') as fd:
             fd.writelines(["#!/bin/sh\n", "echo $__target_host"])
         os.chmod(remote_exec_path, 0o755)
         remote_exec = remote_exec_path
         r = self.create_remote(remote_exec=remote_exec)
-        handle, script = self.mkstemp(dir=self.temp_dir)
+        (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines(["#!/bin/sh\n", "true"])
         self.assertEqual(r.run_script(script, return_output=True),
                          "{}\n".format(self.target_host[0]))
 
     def test_run_script_with_env_target_host_in_env(self):
-        handle, script = self.mkstemp(dir=self.temp_dir)
+        (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines([
                 "#!/bin/sh\n",
                 ('if [ "$__object" ]; then echo $__object; '
                  'else echo no_env; fi\n')])
         os.chmod(script, 0o755)
-        handle, remote_exec_path = self.mkstemp(dir=self.temp_dir)
+        (handle, remote_exec_path) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, 'w') as fd:
             fd.writelines(["#!/bin/sh\n", 'shift; cmd=$1; shift; $cmd "$@"\n'])
         os.chmod(remote_exec_path, 0o755)
@@ -199,7 +199,7 @@ class RemoteTestCase(test.CdistTestCase):
         output = r.run_script(script, return_output=True)
         self.assertEqual(output, "no_env\n")
 
-        handle, remote_exec_path = self.mkstemp(dir=self.temp_dir)
+        (handle, remote_exec_path) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, 'w') as fd:
             fd.writelines(["#!/bin/sh\n", 'shift; cmd=$1; eval $cmd\n'])
         os.chmod(remote_exec_path, 0o755)

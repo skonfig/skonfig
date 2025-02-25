@@ -46,8 +46,8 @@ def graph_check_cycle(graph):
         path = [node]
         has_cycle = _graph_dfs_cycle(graph, node, path)
         if has_cycle:
-            return has_cycle, path
-    return False, None
+            return (has_cycle, path)
+    return (False, None)
 
 
 def _graph_dfs_cycle(graph, node, path):
@@ -365,7 +365,7 @@ class Config:
             else:
                 self.log.trace("Starting multiprocessing Pool for %d "
                                "parallel types explorers transferring", nt)
-                args = [(ct, ) for ct in cargo_types]
+                args = [(ct,) for ct in cargo_types]
                 mp_pool_run(self.explorer.transfer_type_explorers, args,
                             jobs=self.jobs)
                 self.log.trace(("Multiprocessing for parallel transferring "
@@ -431,7 +431,7 @@ class Config:
                         multiprocessing.get_start_method())
                 self.log.trace("Starting multiprocessing Pool for %d "
                                "parallel object run", n)
-                args = [(c, ) for c in chunk]
+                args = [(c,) for c in chunk]
                 mp_pool_run(self.object_run, args, jobs=self.jobs)
                 self.log.trace(("Multiprocessing for parallel object "
                                 "run finished"))
@@ -487,7 +487,7 @@ class Config:
 
         while objects_changed:
             # Check for cycles as early as possible.
-            has_cycle, path = self._validate_dependencies()
+            (has_cycle, path) = self._validate_dependencies()
             if has_cycle:
                 raise cdist.UnresolvableRequirementsError(
                     "Cycle detected in object dependencies:\n{}!".format(

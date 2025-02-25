@@ -36,7 +36,7 @@ def _wrap_addr(addr):
     """If addr is IPv6 then return addr wrapped between '[' and ']',
     otherwise return it unchanged."""
     if ipaddr.is_ipv6(addr):
-        return "[%s]" % addr
+        return "[%s]" % (addr)
     else:
         return addr
 
@@ -124,7 +124,7 @@ class Remote:
         """Create directory on the target."""
         self.log.trace("Remote mkdir: %s", path)
 
-        cmd = "mkdir -p %s" % (shquot.quote(path),)
+        cmd = "mkdir -p %s" % (shquot.quote(path))
         if umask is not None:
             mode = (0o777 & ~umask)
             cmd = "umask %04o; %s && chmod %o %s" % (
@@ -149,7 +149,7 @@ class Remote:
         self.run(command)
 
     def _transfer_file(self, source, destination, umask=None):
-        remote_cmd = "cat >%s" % (shquot.quote(destination),)
+        remote_cmd = "cat >%s" % (shquot.quote(destination))
         if umask is not None:
             mode = (stat.S_IMODE(os.stat(source).st_mode) & ~umask)
             remote_cmd = "umask %04o; %s && chmod %o %s" % (
@@ -171,7 +171,7 @@ class Remote:
                 import cdist.autil as autil
 
                 # create archive
-                tarpath, fcnt = autil.tar(source, self.archiving_mode)
+                (tarpath, fcnt) = autil.tar(source, self.archiving_mode)
                 if tarpath is None:
                     self.log.trace("Files count %d is lower than %d limit, "
                                    "skipping archiving",
