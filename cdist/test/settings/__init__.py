@@ -314,8 +314,25 @@ class ArchivingSettingTestCase(test.CdistTestCase):
 
     def test_assigning_valid_modes(self):
         for m in cdist.autil.archiving_modes:
+            if not m.is_supported():
+                continue
             self.archiving_setting = m.name()
             self.assertEqual(self.archiving_setting, m)
+
+    def test_raises_if_mode_not_supported(self):
+        orig = cdist.autil.TAR
+        self.archiving_setting = orig
+        self.assertEqual(self.archiving_setting, orig)
+
+        import tarfile
+        patched_open_meths = tarfile.TarFile.OPEN_METH.copy()
+        if "xz" in patched_open_meths:
+            del patched_open_meths['xz']
+        with cdist.test.patch.dict(
+                tarfile.TarFile.OPEN_METH, patched_open_meths, clear=True):
+            with self.assertRaises(RuntimeError):
+                self.archiving_setting = "txz"
+            self.assertEqual(self.archiving_setting, orig)
 
     def test_assigning_invalid_modes(self):
         self.archiving_setting = "tar"

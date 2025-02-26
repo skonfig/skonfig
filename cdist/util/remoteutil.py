@@ -20,7 +20,7 @@
 #
 #
 
-from cdist.util.shquot import split as sh_split
+from cdist.util import shquot
 
 
 def inspect_ssh_mux_opts():
@@ -47,7 +47,7 @@ def inspect_ssh_mux_opts():
     try:
         # check if SSH connections with mux options work
         subprocess.check_output(
-            ["ssh", *sh_split(mux_opts_str)],
+            (["ssh"] + shquot.split(mux_opts_str)),
             stderr=subprocess.STDOUT,
             shell=False)
     except subprocess.CalledProcessError as e:
