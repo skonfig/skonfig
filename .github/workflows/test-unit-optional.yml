@@ -42,5 +42,7 @@ jobs:
           python3 -V
           bin/skonfig -V
       - name: Run unit tests
+        env:
+          SANDBOX: ${{ startsWith(matrix.os, 'macos') && 'seatbelt' || '' }}
         run: |
           make unittest
