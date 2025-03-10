@@ -145,10 +145,10 @@ _unittest-remote-sandbox_bubblewrap: .FORCE
 
 # unittest commands using OpenBSD sandbox
 
-UNITTEST_OPENBSD_CMD = cdist/test/.openbsd-sandbox
+UNITTEST_OPENBSD_CMD = cdist/test/openbsd-sandbox
 
-cdist/test/.openbsd-sandbox: cdist/test/.openbsd-sandbox.c
-	$(CC) -o cdist/test/.openbsd-sandbox cdist/test/.openbsd-sandbox.c
+cdist/test/openbsd-sandbox: cdist/test/openbsd-sandbox.c
+	$(CC) -o $@ cdist/test/openbsd-sandbox.c
 
 _unittest-sandbox_openbsd: .FORCE $(UNITTEST_OPENBSD_CMD) /tmp/tmp.skonfig.unittest/tmp /tmp/tmp.skonfig.unittest/cache
 	TMPDIR=/tmp/tmp.skonfig.unittest/tmp\
@@ -178,14 +178,14 @@ _unittest-sandbox_seatbelt: .FORCE /tmp/tmp.skonfig.unittest/tmp /tmp/tmp.skonfi
 	TMPDIR=/tmp/tmp.skonfig.unittest/tmp \
 	XDG_CACHE_HOME=/tmp/tmp.skonfig.unittest/cache \
 	PYTHONPATH="$(UNITTEST_PYTHONPATH)" \
-	sandbox-exec -f cdist/test/.unittest.sb $(UNITTEST_CMD)
+	sandbox-exec -f cdist/test/unittest.sb $(UNITTEST_CMD)
 	rm -R -f /tmp/tmp.skonfig.unittest/
 
 _unittest-remote-sandbox_seatbelt: .FORCE /tmp/tmp.skonfig.unittest/tmp /tmp/tmp.skonfig.unittest/cache
 	TMPDIR=/tmp/tmp.skonfig.unittest/tmp \
 	XDG_CACHE_HOME=/tmp/tmp.skonfig.unittest/cache \
 	PYTHONPATH="$(UNITTEST_PYTHONPATH)" \
-	sandbox-exec -f cdist/test/.unittest.sb $(UNITTEST_REMOTE_CMD)
+	sandbox-exec -f cdist/test/unittest.sb $(UNITTEST_REMOTE_CMD)
 	rm -R -f /tmp/tmp.skonfig.unittest/
 
 
