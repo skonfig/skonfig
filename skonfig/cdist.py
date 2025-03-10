@@ -97,10 +97,7 @@ def run(skonfig_arguments):
     _logger.debug("Cleaning up %s", host_base_path)
     shutil.rmtree(host_base_path)
 
-    return True
-
 
 def emulator():
     import cdist.emulator
     cdist.emulator.Emulator(sys.argv).run()
-    return True

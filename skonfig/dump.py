@@ -7,7 +7,6 @@ def run(host):
         _print_dumped_hosts(dumps)
     elif host in dumps:
         _print_dump(dumps[host])
-    return True
 
 
 def _get_dumps():
