@@ -161,7 +161,7 @@ class Manifest:
         else:
             user_supplied = True
 
-        if not os.path.isfile(initial_manifest):
+        if not os.access(initial_manifest, os.R_OK):
             raise NoInitialManifestError(initial_manifest, user_supplied)
 
         message_prefix = "initialmanifest"
