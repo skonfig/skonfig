@@ -141,7 +141,10 @@ class JobsSettingTestCase(test.CdistTestCase):
     @staticmethod
     def auto_value():
         import multiprocessing
-        return min(4, multiprocessing.cpu_count())
+        try:
+            return min(4, multiprocessing.cpu_count())
+        except NotImplementedError:
+            return 1
 
     def test_assign_pos_int(self):
         for c in [1, 2, 4, 6, 7, 16, 123, 128, 1024]:

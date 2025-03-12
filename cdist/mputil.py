@@ -27,7 +27,6 @@ import signal
 
 import cdist.log
 
-default_jobs = min(4, multiprocessing.cpu_count())
 log = cdist.log.getLogger("cdist-mputil")
 
 
@@ -40,7 +39,7 @@ def _mp_run_method(self, fname, *args, **kwargs):
     return getattr(self, fname)(*args, **kwargs)
 
 
-def mp_pool_run(func, args=None, kwds=None, jobs=default_jobs):
+def mp_pool_run(func, args=None, kwds=None, *, jobs=None):
     """Run func using concurrent.futures.ProcessPoolExecutor with jobs jobs
     and supplied iterables of args and kwds with one entry for each
     parallel func instance.

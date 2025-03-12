@@ -47,6 +47,7 @@ class CodeTestCase(test.CdistTestCase):
 
         self.settings = skonfig.settings.SettingsContainer()
         self.settings.conf_dir = [conf_dir]
+        self.settings.remote_exec = self.remote_exec
 
         self.local = local.Local(
             self.target_host,
@@ -57,10 +58,9 @@ class CodeTestCase(test.CdistTestCase):
         self.local.create_files_dirs()
 
         self.remote_dir = self.mkdtemp()
-        remote_exec = self.remote_exec
         self.remote = remote.Remote(
             self.target_host,
-            remote_exec=remote_exec,
+            remote_exec=self.settings.remote_exec,
             base_path=self.remote_dir,
             settings=self.settings,
             stdout_base_path=self.local.stdout_base_path,
