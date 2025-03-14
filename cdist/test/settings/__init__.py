@@ -22,9 +22,10 @@
 import logging
 import os
 
+import cdist.autil
+
 from cdist import test
 
-import cdist.log
 import skonfig.settings
 
 my_dir = os.path.abspath(os.path.dirname(__file__))
@@ -331,7 +332,7 @@ class ArchivingSettingTestCase(test.CdistTestCase):
         patched_open_meths = tarfile.TarFile.OPEN_METH.copy()
         if "xz" in patched_open_meths:
             del patched_open_meths['xz']
-        with cdist.test.patch.dict(
+        with test.patch.dict(
                 tarfile.TarFile.OPEN_METH, patched_open_meths, clear=True):
             with self.assertRaises(RuntimeError):
                 self.archiving_setting = "txz"
@@ -366,7 +367,7 @@ class ColouredOutputSettingTestCase(test.CdistTestCase):
             self.coloured_output_setting = s
             self.assertEqual(self.coloured_output_setting, b)
 
-    @cdist.test.patch('sys.stdout.isatty')
+    @test.patch('sys.stdout.isatty')
     def test_auto_respects_no_color(self, stdout_isatty):
         stdout_isatty.return_value = True
 
@@ -376,7 +377,7 @@ class ColouredOutputSettingTestCase(test.CdistTestCase):
         self.coloured_output_setting = "auto"
         self.assertEqual(self.coloured_output_setting, False)
 
-    @cdist.test.patch('sys.stdout.isatty')
+    @test.patch('sys.stdout.isatty')
     def test_auto_checks_isatty(self, stdout_isatty):
         self.coloured_output_setting = "always"
         self.assertEqual(self.coloured_output_setting, True)
