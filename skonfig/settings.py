@@ -418,6 +418,7 @@ class SettingsContainer:
         'SKONFIG_REMOTE_SHELL': 'remote_shell',
         'SKONFIG_REMOTE_EXEC': 'remote_exec',
         'SKONFIG_COLORED_OUTPUT': 'colored_output',
+        'SKONFIG_ARCHIVING': 'archiving_mode',
         '__cdist_log_level': 'verbosity',
         }
 
