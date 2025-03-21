@@ -137,15 +137,14 @@ class Remote:
         import cdist.autil as autil
 
         self.log.trace("Remote extract archive: %s", path)
-        # AIX only allows -C at the end
-        command = [
-            "tar",
-            "-x",
-            "-f", path,
-            "-C", os.path.dirname(path)
-        ]
+        opts = "x"
         if mode is not None:
-            command += mode.extract_opts
+            opts += mode.extract_opts
+        # for maximum compatibility, the filename must immediately follow f
+        command = "cd {} && tar {}f {}".format(
+            shquot.quote(os.path.dirname(path)),
+            opts,
+            shquot.quote("./" + os.path.basename(path)))
         self.run(command)
 
     def _transfer_file(self, source, destination, umask=None):
