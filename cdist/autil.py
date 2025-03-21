@@ -48,28 +48,28 @@ class TAR(ArchivingMode):
     "tar archive"
     tarmode = ""
     file_ext = ".tar"
-    extract_opts = []
+    extract_opts = ""
 
 
 class TGZ(ArchivingMode):
     "gzip tar archive"
     tarmode = "gz"
     file_ext = ".tar.gz"
-    extract_opts = ["-z"]
+    extract_opts = "z"
 
 
 class TBZ2(ArchivingMode):
     "bzip2 tar archive"
     tarmode = "bz2"
     file_ext = ".tar.bz2"
-    extract_opts = ["-j"]
+    extract_opts = "j"
 
 
 class TXZ(ArchivingMode):
     "lzma tar archive"
     tarmode = "xz"
     file_ext = ".tar.xz"
-    extract_opts = ["-J"]
+    extract_opts = "J"
 
 
 archiving_modes = [TAR, TGZ, TBZ2, TXZ]
@@ -112,7 +112,12 @@ def tar(source, mode=TGZ):
 
     tarmode = "w:%s" % (mode.tarmode)
     (_, tarpath) = tempfile.mkstemp(suffix=mode.file_ext)
-    with tarfile.open(tarpath, tarmode, dereference=True) as tar:
+    with tarfile.open(
+        tarpath,
+        tarmode,
+        dereference=True,
+        format=tarfile.USTAR_FORMAT
+    ) as tar:
         if os.path.isdir(source):
             for f in files:
                 tar.add(os.path.join(source, f), arcname=f)
