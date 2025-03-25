@@ -37,6 +37,8 @@ import cdist.message
 
 import cdist.exec.util as util
 
+from cdist.util import shquot
+
 CONF_SUBDIRS_LINKED = ["explorer", "files", "manifest", "type"]
 
 
@@ -186,7 +188,7 @@ class Local:
             message = cdist.message.Message(message_prefix, self.messages_path)
             env.update(message.env)
 
-        self.log.trace("Local run: %s", command)
+        self.log.trace("Local run: %s", shquot.join(command))
         try:
             if return_output:
                 result = subprocess.check_output(

@@ -299,7 +299,7 @@ class Remote:
         os_environ['__target_hostname'] = self.target_host[1]
         os_environ['__target_fqdn'] = self.target_host[2]
 
-        self.log.trace("Remote run: %s", command)
+        self.log.trace("Remote run: %s", shquot.join(command))
         try:
             if return_output:
                 output = subprocess.check_output(

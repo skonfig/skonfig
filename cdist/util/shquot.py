@@ -25,7 +25,7 @@ _needs_shell_quoting = re.compile(r"[^\w@%+=:,./-]", re.ASCII).search
 
 
 def join(cmd_args):
-    return " ".join(quote(a) for a in cmd_args)
+    return " ".join(map(quote, cmd_args))
 
 
 def quote(s):
