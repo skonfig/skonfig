@@ -24,16 +24,6 @@ import os
 from skonfig import __version__
 
 
-# minimum Python version required to run cdist.
-# cdist will refuse to run on lower versions.
-MIN_SUPPORTED_PYTHON_VERSION = (3, 2)
-# minimum recommended Python version. cdist will warn on lower versions.
-# usually the oldest version supported upstream.
-MIN_RECOMMENDED_PYTHON_VERSION = (3, 7)
-# maximum (currently) tested Python version.
-MAX_TESTED_PYTHON_VERSION = (3, 10)
-
-
 class Error(Exception):
     """Base exception class for this project"""
     pass
