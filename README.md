@@ -34,29 +34,33 @@ incubator for new types.
 
 ## Getting Started
 
-### Step 1: Install `skonfig`
-
 ```sh
-pip3 install skonfig@git+https://github.com/skonfig/skonfig
-```
+# clone skonfig itself
+git clone \
+    https://github.com/skonfig/skonfig \
+    ~/.skonfig/skonfig
 
-Note: if you run Python 3.12 or later, you need to have
-[setuptools](https://setuptools.pypa.io/) installed.
+# get base types and explorers
+git clone \
+    https://github.com/skonfig/base \
+    ~/.skonfig/set/base
 
-### Step 2: Clone sets repositories
+# and extra goodies
+git clone \
+    https://github.com/skonfig/extra \
+    ~/.skonfig/set/extra
 
-Clone the sets you are planning to use. To get started installing the `base` and
-`extra` sets is recommended, because they provide the most frequently used types.
-Also, most other sets depend on the types provided by the `base` set.
-```sh
-mkdir -p ~/.skonfig/set
-git clone https://github.com/skonfig/base ~/.skonfig/set/base
-git clone https://github.com/skonfig/extra ~/.skonfig/set/extra
-```
+# add skonfig to path
+ln -s ~/.skonfig/skonfig/bin/skonfig \
+    ~/.local/bin/skonfig
 
-### Step 3: Create initial manifest
+# place for your own files, types and manifests
+mkdir -p \
+    ~/.skonfig/files \
+    ~/.skonfig/type \
+    ~/.skonfig/manifest
 
-```sh
-mkdir -p ~/.skonfig/manifest
-cp "$(pip3 show skonfig | sed -n -e 's;^Location: \(.*\)/lib.*$;\1;p')/share/doc/skonfig/examples/init-manifest" ~/.skonfig/manifest/init
+# copy example initial manifest
+cp ~/.skonfig/skonfig/docs/examples/init-manifest \
+    ~/.skonfig/manifest/init
 ```
