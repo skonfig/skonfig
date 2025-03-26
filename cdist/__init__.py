@@ -3,36 +3,25 @@
 # 2010-2015 Nico Schottelius (nico-cdist at schottelius.org)
 # 2012-2017 Steven Armstrong (steven-cdist at armstrong.cc)
 #
-# This file is part of cdist.
+# This file is part of skonfig.
 #
-# cdist is free software: you can redistribute it and/or modify
+# skonfig is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# cdist is distributed in the hope that it will be useful,
+# skonfig is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with cdist. If not, see <http://www.gnu.org/licenses/>.
-#
+# along with skonfig. If not, see <http://www.gnu.org/licenses/>.
 #
 
 import os
 
 from skonfig import __version__
-
-
-# minimum Python version required to run cdist.
-# cdist will refuse to run on lower versions.
-MIN_SUPPORTED_PYTHON_VERSION = (3, 2)
-# minimum recommended Python version. cdist will warn on lower versions.
-# usually the oldest version supported upstream.
-MIN_RECOMMENDED_PYTHON_VERSION = (3, 7)
-# maximum (currently) tested Python version.
-MAX_TESTED_PYTHON_VERSION = (3, 10)
 
 
 class Error(Exception):

@@ -3,21 +3,20 @@
 # 2011-2017 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2012-2015 Nico Schottelius (nico-cdist at schottelius.org)
 #
-# This file is part of cdist.
+# This file is part of skonfig.
 #
-# cdist is free software: you can redistribute it and/or modify
+# skonfig is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# cdist is distributed in the hope that it will be useful,
+# skonfig is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with cdist. If not, see <http://www.gnu.org/licenses/>.
-#
+# along with skonfig. If not, see <http://www.gnu.org/licenses/>.
 #
 
 import getpass
