@@ -23,10 +23,12 @@ import itertools
 import os
 import subprocess
 
+import cdist
+
 from collections import OrderedDict
 from tempfile import TemporaryFile
 
-import cdist
+from cdist.util import shquot
 
 
 # IMPORTANT:
@@ -174,14 +176,16 @@ if hasattr(subprocess, 'DEVNULL'):
     def log_std_fd(log, command, stdfd, prefix):
         if stdfd is not None and stdfd != subprocess.DEVNULL:
             stdfd.seek(0, 0)
-            log.trace("Command: {}; {}: {}".format(command, prefix,
-                                                   stdfd.read().decode()))
+            log.trace("Command: %s; %s: %s",
+                      shquot.join(command),
+                      prefix, stdfd.read().decode())
 else:
     def log_std_fd(log, command, stdfd, prefix):
         if stdfd is not None and not isinstance(stdfd, int):
             stdfd.seek(0, 0)
-            log.trace("Command: {}; {}: {}".format(command, prefix,
-                                                   stdfd.read().decode()))
+            log.trace("Command: %s; %s: %s",
+                      shquot.join(command),
+                      prefix, stdfd.read().decode())
 
 
 def resolve_conf_dirs(*args):
