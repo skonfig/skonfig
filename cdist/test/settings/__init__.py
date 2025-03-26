@@ -397,6 +397,24 @@ class ColouredOutputSettingTestCase(test.CdistTestCase):
         self.coloured_output_setting = "auto"
         self.assertEqual(self.coloured_output_setting, False)
 
+    @test.patch("sys.stdout.isatty")
+    @test.patch.dict("os.environ")
+    def test_auto_checks_for_dumb_terminals(self, stdout_isatty):
+        stdout_isatty.return_value = True
+        if "NO_COLOR" in os.environ:
+            del os.environ["NO_COLOR"]
+        if "TERM" in os.environ:
+            del os.environ["TERM"]
+
+        # colours should be enabled
+        self.coloured_output_setting = "auto"
+        self.assertEqual(self.coloured_output_setting, True)
+
+        # with TERM=dumb, colours should be disabled
+        os.environ["TERM"] = "dumb"
+        self.coloured_output_setting = "auto"
+        self.assertEqual(self.coloured_output_setting, False)
+
     def test_invalid_choices(self):
         self.coloured_output_setting = "always"
 

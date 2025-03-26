@@ -178,7 +178,10 @@ class coloured_output_setting(choice_setting):
             return False
         elif value == "auto":
             import sys
-            return "NO_COLOR" not in os.environ and sys.stdout.isatty()
+            return all((
+                ("NO_COLOR" not in os.environ),
+                (os.environ.get("TERM") != "dumb"),
+                sys.stdout.isatty()))
 
 
 class loglevel_setting(any_setting):
