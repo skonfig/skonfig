@@ -46,8 +46,6 @@ conf_dir = os.path.join(fixtures, 'conf')
 class ManifestTestCase(test.CdistTestCase):
 
     def setUp(self):
-        self.orig_environ = os.environ
-        os.environ = os.environ.copy()
         self.temp_dir = self.mkdtemp()
 
         out_path = self.temp_dir
@@ -69,9 +67,9 @@ class ManifestTestCase(test.CdistTestCase):
         self.log = logging.getLogger(self.target_host[0])
 
     def tearDown(self):
-        os.environ = self.orig_environ
         shutil.rmtree(self.temp_dir)
 
+    @test.patch.dict("os.environ")
     def test_initial_manifest_environment(self):
         initial_manifest = os.path.join(self.local.manifest_path,
                                         "dump_environment")
@@ -108,6 +106,7 @@ class ManifestTestCase(test.CdistTestCase):
         self.assertEqual(output_dict['__cdist_log_level_name'], 'VERBOSE')
         self.log.setLevel(old_loglevel)
 
+    @test.patch.dict("os.environ")
     def test_type_manifest_environment(self):
         cdist_type = core.CdistType(self.local.type_path, '__dump_environment')
         cdist_object = core.CdistObject(cdist_type, self.local.object_path,

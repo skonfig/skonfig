@@ -68,10 +68,6 @@ class EmulatorTestCase(test.CdistTestCase):
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
 
-#    def test_missing_object_marker_variable(self):
-#        del self.env['__cdist_object_marker']
-#        self.assertRaises(KeyError, emulator.Emulator, argv, env=self.env)
-
     def test_nonexistent_type_exec(self):
         argv = ['__does-not-exist']
         self.assertRaises(core.cdist_type.InvalidTypeError, emulator.Emulator,
@@ -405,6 +401,7 @@ class ArgumentsTestCase(test.CdistTestCase):
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
 
+    @test.patch.dict("os.environ")
     def test_arguments_with_dashes(self):
         argv = ['__arguments_with_dashes', 'some-id', '--with-dash',
                 'some value']
@@ -419,6 +416,7 @@ class ArgumentsTestCase(test.CdistTestCase):
                                         'some-id')
         self.assertTrue('with-dash' in cdist_object.parameters)
 
+    @test.patch.dict("os.environ")
     def test_boolean(self):
         type_name = '__arguments_boolean'
         object_id = 'some-id'
@@ -436,6 +434,7 @@ class ArgumentsTestCase(test.CdistTestCase):
         # empty file -> True
         self.assertTrue(cdist_object.parameters['boolean1'] == '')
 
+    @test.patch.dict("os.environ")
     def test_required_arguments(self):
         """check whether assigning required parameter works"""
 
@@ -457,6 +456,7 @@ class ArgumentsTestCase(test.CdistTestCase):
         self.assertEqual(cdist_object.parameters['required1'], value)
         self.assertEqual(cdist_object.parameters['required2'], value)
 
+    @test.patch.dict("os.environ")
     def test_required_multiple_arguments(self):
         """check whether assigning required multiple parameter works"""
 
@@ -478,16 +478,7 @@ class ArgumentsTestCase(test.CdistTestCase):
         self.assertTrue(value1 in cdist_object.parameters['required1'])
         self.assertTrue(value2 in cdist_object.parameters['required1'])
 
-#    def test_required_missing(self):
-#        type_name = '__arguments_required'
-#        object_id = 'some-id'
-#        value = 'some value'
-#        argv = [type_name, object_id, '--required1', value]
-#        os.environ.update(self.env)
-#        emu = emulator.Emulator(argv)
-#
-#        self.assertRaises(SystemExit, emu.run)
-
+    @test.patch.dict("os.environ")
     def test_optional(self):
         type_name = '__arguments_optional'
         object_id = 'some-id'
@@ -505,6 +496,7 @@ class ArgumentsTestCase(test.CdistTestCase):
         self.assertFalse('optional2' in cdist_object.parameters)
         self.assertEqual(cdist_object.parameters['optional1'], value)
 
+    @test.patch.dict("os.environ")
     def test_optional_multiple(self):
         type_name = '__arguments_optional_multiple'
         object_id = 'some-id'
@@ -524,6 +516,7 @@ class ArgumentsTestCase(test.CdistTestCase):
         self.assertTrue(value1 in cdist_object.parameters['optional1'])
         self.assertTrue(value2 in cdist_object.parameters['optional1'])
 
+    @test.patch.dict("os.environ")
     def test_argument_defaults(self):
         type_name = '__argument_defaults'
         object_id = 'some-id'
@@ -541,6 +534,7 @@ class ArgumentsTestCase(test.CdistTestCase):
         self.assertFalse('optional2' in cdist_object.parameters)
         self.assertEqual(cdist_object.parameters['optional1'], value)
 
+    @test.patch.dict("os.environ")
     def test_object_params_in_context(self):
         type_name = '__arguments_all'
         object_id = 'some-id'
@@ -568,9 +562,6 @@ class ArgumentsTestCase(test.CdistTestCase):
 class StdinTestCase(test.CdistTestCase):
 
     def setUp(self):
-        self.orig_environ = os.environ
-        os.environ = os.environ.copy()
-
         self.temp_dir = self.mkdtemp()
         base_path = os.path.join(self.temp_dir, "out")
         hostdir = cdist.util.str_hash(self.target_host[0])
@@ -588,13 +579,11 @@ class StdinTestCase(test.CdistTestCase):
         self.local.create_files_dirs()
 
     def tearDown(self):
-        os.environ = self.orig_environ
         shutil.rmtree(self.temp_dir)
 
+    @test.patch.dict("os.environ")
     def test_file_from_stdin(self):
-        """
-        Test whether reading from stdin works
-        """
+        """Test whether reading from stdin works"""
 
         ######################################################################
         # Create string with random content
@@ -607,11 +596,13 @@ class StdinTestCase(test.CdistTestCase):
         object_id = "cdist-test-id"
         argv = [type_name, object_id]
 
-        env = os.environ.copy()
-        env['__cdist_manifest'] = "/cdist-test/path/that/does/not/exist"
-        env['__cdist_object_marker'] = self.local.object_marker_name
-        env['__cdist_type_base_path'] = self.local.type_path
-        env['__global'] = self.local.base_path
+        os.environ['__cdist_manifest'] = "/cdist-test/path/that/does/not/exist"
+        os.environ['__cdist_object_marker'] = self.local.object_marker_name
+        os.environ['__cdist_type_base_path'] = self.local.type_path
+        os.environ['__global'] = self.local.base_path
+        os.environ['__target_host'] = self.target_host[0]
+        os.environ['__target_hostname'] = self.target_host[1]
+        os.environ['__target_fqdn'] = self.target_host[2]
 
         ######################################################################
         # Create path where stdin should reside at
@@ -623,7 +614,7 @@ class StdinTestCase(test.CdistTestCase):
 
         ######################################################################
         # Run emulator
-        emu = emulator.Emulator(argv, stdin=random_buffer, env=env)
+        emu = emulator.Emulator(argv, stdin=random_buffer)
         emu.run()
 
         ######################################################################

@@ -368,6 +368,7 @@ class ColouredOutputSettingTestCase(test.CdistTestCase):
             self.assertEqual(self.coloured_output_setting, b)
 
     @test.patch('sys.stdout.isatty')
+    @test.patch.dict("os.environ")
     def test_auto_respects_no_color(self, stdout_isatty):
         stdout_isatty.return_value = True
 
@@ -378,6 +379,7 @@ class ColouredOutputSettingTestCase(test.CdistTestCase):
         self.assertEqual(self.coloured_output_setting, False)
 
     @test.patch('sys.stdout.isatty')
+    @test.patch.dict("os.environ")
     def test_auto_checks_isatty(self, stdout_isatty):
         self.coloured_output_setting = "always"
         self.assertEqual(self.coloured_output_setting, True)
