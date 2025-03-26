@@ -58,12 +58,10 @@ class CdistObjectErrorContext:
                 raise exc_value.original_error
 
 
+@test.patch.dict("os.environ")
 class ConfigRunTestCase(test.CdistTestCase):
 
     def setUp(self):
-        # change env for context
-        self.orig_environ = os.environ
-        os.environ = os.environ.copy()
         self.temp_dir = self.mkdtemp()
 
         self.settings = skonfig.settings.SettingsContainer()
@@ -116,7 +114,6 @@ class ConfigRunTestCase(test.CdistTestCase):
             o.requirements = []
             o.state = ""
 
-        os.environ = self.orig_environ
         shutil.rmtree(self.temp_dir)
 
     def assertRaisesCdistObjectError(self, original_error, callable_obj):

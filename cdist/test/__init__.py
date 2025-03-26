@@ -42,6 +42,7 @@ global_fixtures_dir = os.path.abspath(
 class CdistTestCase(unittest.TestCase):
     remote_exec = os.path.join(global_fixtures_dir, "remote", "exec")
 
+    # host, hostname, fqdn
     target_host = ('cdisttesthost', 'cdisttesthost', 'cdisttesthost')
 
     def mkdtemp(self, **kwargs):
