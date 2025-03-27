@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo vda sda nvme0n1 nvme1n1

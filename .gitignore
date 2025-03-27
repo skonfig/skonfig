@@ -33,4 +33,4 @@ __pycache__/
 /skonfig.egg-info/
 
 # Unit tests
-/cdist/test/.openbsd-sandbox
+/tests/openbsd-sandbox
