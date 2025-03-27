@@ -18,12 +18,14 @@ import os
 import re
 import sphinx_rtd_theme
 
+docs_rootdir = os.path.dirname(os.path.realpath(__file__))
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 # sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath(os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), "..", "..")))
+sys.path.insert(0, os.path.dirname(os.path.dirname(docs_rootdir)))
+sys.path.append(os.path.join(docs_rootdir, "sphinxext"))
 
 # Import skonfig after sys.path fixup above.
 
@@ -38,7 +40,7 @@ import skonfig  # nopep8 - ignore error that import is not at top
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'cdist.sphinxext.manpage',
+    'manpage',
     'sphinx.ext.extlinks',
 ]
 
@@ -261,15 +263,14 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-root_mandir = os.path.dirname(os.path.realpath(__file__))
 mandirs = []
 for mansubdir in ('man1', 'man7'):
-    mandirs.append((os.path.join(root_mandir, mansubdir), mansubdir[-1]))
+    mandirs.append((os.path.join(docs_rootdir, mansubdir), mansubdir[-1]))
 man_pages = []
-for mandir, section in mandirs:
-    for root, dirs, files in os.walk(mandir):
+for (mandir, section) in mandirs:
+    for (root, dirs, files) in os.walk(mandir):
         for fname in files:
-            froot, fext = os.path.splitext(fname)
+            (froot, fext) = os.path.splitext(fname)
             if fext == '.rst':
                 man_page = (os.path.join('man' + str(section), froot),
                             froot, '', [], section)
