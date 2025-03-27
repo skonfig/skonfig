@@ -1,0 +1,15 @@
+#!/bin/sh
+
+printf 'echo "%s: %s"\n' \
+	__target_host "${__target_host-}" \
+	__target_hostname "${__target_hostname-}" \
+	__target_fqdn "${__target_fqdn-}" \
+	__global "${__global-}" \
+	__type "${__type-}" \
+	__object "${__object-}" \
+	__object_id "${__object_id-}" \
+	__object_name "${__object_name-}" \
+	__files "${__files-}" \
+	__target_host_tags "${__target_host_tags-}" \
+	__cdist_log_level "${__cdist_log_level-}" \
+	__cdist_log_level_name "${__cdist_log_level_name-}"
