@@ -184,7 +184,7 @@ class Config:
                     host, e))
 
     @classmethod
-    def onehost(cls, host, host_base_path, override_init_manifest, settings,
+    def onehost(cls, host, override_init_manifest, settings,
                 dry_run=False, jobs=1,
                 remove_remote_files_dirs=False):
         """Configure ONE system."""

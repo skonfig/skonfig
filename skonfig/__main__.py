@@ -20,6 +20,7 @@
 #
 
 import atexit
+import logging
 import os
 import shutil
 import sys
@@ -120,7 +121,6 @@ def run_main():
 
         skonfig.config.Config.onehost(
             target_host,
-            host_base_path,
             override_init_manifest=init_manifest,
             settings=settings,
             dry_run=arguments.dry_run,
