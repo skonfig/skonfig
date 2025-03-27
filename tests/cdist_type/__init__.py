@@ -22,14 +22,14 @@ import os
 
 import tests as test
 
-from cdist import core
+from skonfig import core
 
 import os.path as op
 my_dir = op.abspath(op.dirname(__file__))
 fixtures = op.join(my_dir, 'fixtures')
 
 
-class TypeTestCase(test.CdistTestCase):
+class TypeTestCase(test.SkonfigTestCase):
 
     def test_list_type_names(self):
         base_path = op.join(fixtures, 'list_types')

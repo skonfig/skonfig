@@ -28,15 +28,15 @@ import tempfile
 import multiprocessing
 import shutil
 
-import cdist
-import cdist.exec.local
-import cdist.exec.remote
-import cdist.log
+import skonfig
+import skonfig.exec.local
+import skonfig.exec.remote
+import skonfig.logging
 
-from cdist.exec.util import get_std_fd
-from cdist.mputil import (mp_pool_run, mp_sig_handler)
-from cdist.util import (ipaddr, shquot)
-from cdist.util.remoteutil import inspect_ssh_mux_opts
+from skonfig.exec.util import get_std_fd
+from skonfig.mputil import (mp_pool_run, mp_sig_handler)
+from skonfig.util import (ipaddr, shquot)
+from skonfig.util.remoteutil import inspect_ssh_mux_opts
 
 
 def graph_check_cycle(graph):
@@ -96,13 +96,14 @@ class Config:
         self.cleanup_cmds = cleanup_cmds if cleanup_cmds else []
         self.remove_remote_files_dirs = remove_remote_files_dirs
 
-        self.explorer = cdist.core.Explorer(self.local.target_host, self.local,
-                                            self.remote, jobs=self.jobs,
-                                            dry_run=self.dry_run)
-        self.manifest = cdist.core.Manifest(self.local.target_host, self.local,
-                                            dry_run=self.dry_run)
-        self.code = cdist.core.Code(self.local.target_host, self.local,
-                                    self.remote, dry_run=self.dry_run)
+        self.explorer = skonfig.core.Explorer(
+            self.local.target_host, self.local, self.remote, jobs=self.jobs,
+            dry_run=self.dry_run)
+        self.manifest = skonfig.core.Manifest(
+            self.local.target_host, self.local, dry_run=self.dry_run)
+        self.code = skonfig.core.Code(
+            self.local.target_host, self.local, self.remote,
+            dry_run=self.dry_run)
 
     def _init_files_dirs(self):
         """Prepare files and directories for the run"""
@@ -178,15 +179,16 @@ class Config:
             return ipaddr.resolve_target_addresses(host)
         except:  # noqa
             e = sys.exc_info()[1]
-            raise cdist.Error(("Error resolving target addresses for host '{}'"
-                               ": {}").format(host, e))
+            raise skonfig.Error(
+                "Error resolving target addresses for host '%s': %s" % (
+                    host, e))
 
     @classmethod
     def onehost(cls, host, host_base_path, override_init_manifest, settings,
                 dry_run=False, jobs=1,
                 remove_remote_files_dirs=False):
         """Configure ONE system."""
-        log = cdist.log.getLogger(host)
+        log = skonfig.logging.getLogger(host)
 
         try:
             (remote_exec, cleanup_cmd) = cls._resolve_remote_cmds(settings)
@@ -195,7 +197,7 @@ class Config:
             target_host = cls.resolve_target_addresses(host)
             log.debug("target_host for host \"%s\": %s", host, target_host)
 
-            local = cdist.exec.local.Local(
+            local = skonfig.exec.local.Local(
                 target_host=target_host,
                 base_root_path=host_base_path,
                 settings=settings,
@@ -204,7 +206,7 @@ class Config:
             # Make __global state dir available to custom remote scripts.
             os.environ['__global'] = local.base_path
 
-            remote = cdist.exec.remote.Remote(
+            remote = skonfig.exec.remote.Remote(
                 target_host=target_host,
                 remote_exec=remote_exec,
                 base_path=settings.remote_out_path,
@@ -221,7 +223,7 @@ class Config:
             c.run()
             cls._remove_paths()
 
-        except cdist.Error as e:
+        except skonfig.Error as e:
             log.error(e)
             raise
 
@@ -241,12 +243,12 @@ class Config:
         self.explorer.run_global_explorers(self.local.global_explorer_out_path)
         try:
             self.manifest.run_initial_manifest(self.local.initial_manifest)
-        except cdist.Error as e:
+        except skonfig.Error as e:
             which = "init"
             stdout_path = os.path.join(self.local.stdout_base_path, which)
             stderr_path = os.path.join(self.local.stderr_base_path, which)
-            raise cdist.InitialManifestError(self.local.initial_manifest,
-                                             stdout_path, stderr_path, e)
+            raise skonfig.InitialManifestError(
+                self.local.initial_manifest, stdout_path, stderr_path, e)
         self.iterate_until_finished()
         self._remove_files_dirs()
         self.cleanup()
@@ -267,13 +269,13 @@ class Config:
                      get_std_fd(local.stderr_base_path, "cleanup") as stderr:
                     local.run(
                         cmd, return_output=False, stdout=stdout, stderr=stderr)
-            except cdist.Error as e:
+            except skonfig.Error as e:
                 # Log warning but continue.
                 self.log.warning("Cleanup command failed: %s", e)
 
     def object_list(self):
         """Short name for object list retrieval"""
-        for cdist_object in cdist.core.CdistObject.list_objects(
+        for cdist_object in skonfig.core.CdistObject.list_objects(
                 self.local.object_path, self.local.type_path,
                 self.local.object_marker_name):
             if cdist_object.cdist_type.is_install:
@@ -302,7 +304,7 @@ class Config:
                 """We cannot do anything for this poor object"""
                 continue
 
-            if cdist_object.state == cdist.core.CdistObject.STATE_UNDEF:
+            if cdist_object.state == skonfig.core.CdistObject.STATE_UNDEF:
                 """Prepare the virgin object"""
 
                 self.object_prepare(cdist_object)
@@ -315,7 +317,7 @@ class Config:
                 """
                 continue
 
-            if cdist_object.state == cdist.core.CdistObject.STATE_PREPARED:
+            if cdist_object.state == skonfig.core.CdistObject.STATE_PREPARED:
                 self.object_run(cdist_object)
                 objects_changed = True
 
@@ -332,7 +334,7 @@ class Config:
                 """We cannot do anything for this poor object"""
                 continue
 
-            if cdist_object.state == cdist.core.CdistObject.STATE_UNDEF:
+            if cdist_object.state == skonfig.core.CdistObject.STATE_UNDEF:
                 """Prepare the virgin object"""
 
                 # self.object_prepare(cdist_object)
@@ -386,7 +388,7 @@ class Config:
                 """We cannot do anything for this poor object"""
                 continue
 
-            if cdist_object.state == cdist.core.CdistObject.STATE_PREPARED:
+            if cdist_object.state == skonfig.core.CdistObject.STATE_PREPARED:
                 if cdist_object.has_requirements_unfinished(
                         cdist_object.autorequire):
                     """The previous step created objects we depend on -
@@ -440,7 +442,7 @@ class Config:
         return objects_changed
 
     def _open_logger(self):
-        self.log = cdist.log.getLogger(self.local.target_host[0])
+        self.log = skonfig.logging.getLogger(self.local.target_host[0])
 
     # logger is not pickable, so remove it when we pickle
     def __getstate__(self):
@@ -489,7 +491,7 @@ class Config:
             # Check for cycles as early as possible.
             (has_cycle, path) = self._validate_dependencies()
             if has_cycle:
-                raise cdist.UnresolvableRequirementsError(
+                raise skonfig.UnresolvableRequirementsError(
                     "Cycle detected in object dependencies:\n{}!".format(
                         " -> ".join(path)))
             objects_changed = self.iterate_once()
@@ -525,7 +527,7 @@ class Config:
                                         requirements, cdist_object.name,
                                         autorequire)))
 
-            raise cdist.UnresolvableRequirementsError(
+            raise skonfig.UnresolvableRequirementsError(
                     ("The requirements of the following objects could not be "
                      "resolved:\n{}").format("\n".join(info_string)))
 
@@ -561,14 +563,14 @@ class Config:
             self.log.trace("[ORDER_DEP] Removing order dep files for %s",
                            cdist_object)
             cdist_object.cleanup()
-            cdist_object.state = cdist.core.CdistObject.STATE_PREPARED
-        except cdist.Error as e:
-            raise cdist.CdistObjectError(cdist_object, e)
+            cdist_object.state = skonfig.core.CdistObject.STATE_PREPARED
+        except skonfig.Error as e:
+            raise skonfig.ObjectError(cdist_object, e)
 
     def object_run(self, cdist_object):
         """Run gencode and code for an object"""
-        if cdist_object.state == cdist.core.CdistObject.STATE_DONE:
-            raise cdist.CdistObjectError(
+        if cdist_object.state == skonfig.core.CdistObject.STATE_DONE:
+            raise skonfig.ObjectError(
                 "Attempting to run an already finished object: %s" % (
                     cdist_object))
 
@@ -601,6 +603,6 @@ class Config:
 
             # Mark this object as done
             self.log.trace("Finishing run of %s", cdist_object.name)
-            cdist_object.state = cdist.core.CdistObject.STATE_DONE
-        except cdist.Error as e:
-            raise cdist.CdistObjectError(cdist_object, e)
+            cdist_object.state = skonfig.core.CdistObject.STATE_DONE
+        except skonfig.Error as e:
+            raise skonfig.ObjectError(cdist_object, e)

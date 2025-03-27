@@ -26,16 +26,16 @@ import tempfile
 
 import tests as test
 
-from cdist import core
+from skonfig import core
 
-import cdist
+import skonfig
 
 import os.path as op
 my_dir = op.abspath(op.dirname(__file__))
 fixtures = op.join(my_dir, 'fixtures')
 type_base_path = op.join(fixtures, 'type')
 
-OBJECT_MARKER_NAME = '.cdist-pseudo-random'
+OBJECT_MARKER_NAME = '.skonfig-pseudo-random'
 
 expected_object_names = sorted([
     '__first/child',
@@ -47,7 +47,7 @@ expected_object_names = sorted([
     '__third/moon'])
 
 
-class ObjectClassTestCase(test.CdistTestCase):
+class ObjectClassTestCase(test.SkonfigTestCase):
 
     def setUp(self):
 
@@ -74,7 +74,7 @@ class ObjectClassTestCase(test.CdistTestCase):
         self.assertEqual(found_object_names, expected_object_names)
 
     def test_list_type_names(self):
-        type_names = list(cdist.core.CdistObject.list_type_names(
+        type_names = list(skonfig.core.CdistObject.list_type_names(
             self.object_base_path))
         self.assertEqual(sorted(type_names),
                          ['__first', '__second', '__third'])
@@ -92,11 +92,11 @@ class ObjectClassTestCase(test.CdistTestCase):
     def test_create_singleton_not_singleton_type(self):
         """try to create an object of a type that is not a singleton
            without an object id"""
-        with self.assertRaises(cdist.core.cdist_object.MissingObjectIdError):
+        with self.assertRaises(skonfig.core.cdist_object.MissingObjectIdError):
             self.expected_objects[0].object_from_name("__first")
 
 
-class ObjectIdTestCase(test.CdistTestCase):
+class ObjectIdTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.tempdir = tempfile.mkdtemp(prefix="test")
@@ -161,7 +161,7 @@ class ObjectIdTestCase(test.CdistTestCase):
                              OBJECT_MARKER_NAME, illegal_object_id)
 
 
-class ObjectTestCase(test.CdistTestCase):
+class ObjectTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.tempdir = tempfile.mkdtemp(prefix="test")

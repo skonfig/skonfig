@@ -291,7 +291,7 @@ ManPages.update_data_files(data_files)
 
 setup(
     name="skonfig",
-    packages=["skonfig", "cdist", "cdist.core", "cdist.exec", "cdist.util"],
+    packages=["skonfig"],
     scripts=glob.glob(os.path.join(os.path.dirname(__file__), "bin", "*")),
     version=__import__("skonfig").__version__,
     description="system configuration framework",

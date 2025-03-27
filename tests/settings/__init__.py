@@ -22,7 +22,7 @@
 import logging
 import os
 
-import cdist.autil
+import skonfig.autil
 
 import tests as test
 
@@ -33,7 +33,7 @@ fixtures = os.path.join(my_dir, "fixtures")
 interpolation_config_file = os.path.join(fixtures, "interpolation-test.cfg")
 
 
-class AnySettingTestCase(test.CdistTestCase):
+class AnySettingTestCase(test.SkonfigTestCase):
     any_setting_nullable = skonfig.settings.any_setting(nullable=True)
     any_setting = skonfig.settings.any_setting(default="")
 
@@ -82,7 +82,7 @@ class AnySettingTestCase(test.CdistTestCase):
         self.assertEqual(self.any_setting, 42)
 
 
-class StringSettingTestCase(test.CdistTestCase):
+class StringSettingTestCase(test.SkonfigTestCase):
     string_setting_nullable = skonfig.settings.string_setting(nullable=True)
     string_setting = skonfig.settings.string_setting(default="")
 
@@ -111,7 +111,7 @@ class StringSettingTestCase(test.CdistTestCase):
             self.assertEqual(self.string_setting, init_value)
 
 
-class ChoiceSettingTestCase(test.CdistTestCase):
+class ChoiceSettingTestCase(test.SkonfigTestCase):
     choice_setting_nullable = skonfig.settings.choice_setting(nullable=True)
 
     def setUp(self):
@@ -136,7 +136,7 @@ class ChoiceSettingTestCase(test.CdistTestCase):
             self.assertEqual(self.choice_setting_nullable, 0)
 
 
-class JobsSettingTestCase(test.CdistTestCase):
+class JobsSettingTestCase(test.SkonfigTestCase):
     jobs_setting = skonfig.settings.jobs_setting(default=1)
 
     @staticmethod
@@ -172,7 +172,7 @@ class JobsSettingTestCase(test.CdistTestCase):
             self.assertEqual(self.jobs_setting, 1)
 
 
-class SearchPathSettingTestCase(test.CdistTestCase):
+class SearchPathSettingTestCase(test.SkonfigTestCase):
     path_setting = skonfig.settings.search_path_setting()
 
     def test_default(self):
@@ -241,7 +241,7 @@ class SearchPathSettingTestCase(test.CdistTestCase):
             "/opt/bin"])
 
 
-class FileSettingTestCase(test.CdistTestCase):
+class FileSettingTestCase(test.SkonfigTestCase):
     existing_file = os.path.join(fixtures, "somefile.txt")
     file_setting = skonfig.settings.file_setting(default=existing_file)
 
@@ -267,7 +267,7 @@ class FileSettingTestCase(test.CdistTestCase):
             self.assertEqual(self.file_setting, init_value)
 
 
-class ExecutableSettingTestCase(test.CdistTestCase):
+class ExecutableSettingTestCase(test.SkonfigTestCase):
     existing_file = os.path.join(fixtures, "somefile.txt")
     existing_bin = os.path.join(fixtures, "somescript")
     exec_setting = skonfig.settings.executable_setting(default=existing_bin)
@@ -306,7 +306,7 @@ class ExecutableSettingTestCase(test.CdistTestCase):
             self.assertEqual(self.exec_setting, init_value)
 
 
-class ArchivingSettingTestCase(test.CdistTestCase):
+class ArchivingSettingTestCase(test.SkonfigTestCase):
     archiving_setting = skonfig.settings.archiving_setting(default="tar")
 
     def test_nonnullable_assign_none(self):
@@ -314,17 +314,17 @@ class ArchivingSettingTestCase(test.CdistTestCase):
         with self.assertRaises(ValueError):
             self.archiving_setting = None
         self.assertEqual(self.archiving_setting,
-                         cdist.autil.mode_from_str("tar"))
+                         skonfig.autil.mode_from_str("tar"))
 
     def test_assigning_valid_modes(self):
-        for m in cdist.autil.archiving_modes:
+        for m in skonfig.autil.archiving_modes:
             if not m.is_supported():
                 continue
             self.archiving_setting = m.name()
             self.assertEqual(self.archiving_setting, m)
 
     def test_raises_if_mode_not_supported(self):
-        orig = cdist.autil.TAR
+        orig = skonfig.autil.TAR
         self.archiving_setting = orig
         self.assertEqual(self.archiving_setting, orig)
 
@@ -347,7 +347,7 @@ class ArchivingSettingTestCase(test.CdistTestCase):
             self.assertEqual(self.archiving_setting, init_value)
 
 
-class ColouredOutputSettingTestCase(test.CdistTestCase):
+class ColouredOutputSettingTestCase(test.SkonfigTestCase):
     coloured_output_setting = skonfig.settings.coloured_output_setting(
         default="auto")
 
@@ -424,7 +424,7 @@ class ColouredOutputSettingTestCase(test.CdistTestCase):
             self.assertEqual(self.coloured_output_setting, True)
 
 
-class LoglevelSettingTestCase(test.CdistTestCase):
+class LoglevelSettingTestCase(test.SkonfigTestCase):
     log_setting = skonfig.settings.loglevel_setting(default="INFO")
 
     def test_default(self):
@@ -457,7 +457,7 @@ class LoglevelSettingTestCase(test.CdistTestCase):
             self.assertEqual(self.log_setting, logging.INFO)
 
 
-class SettingsTestCase(test.CdistTestCase):
+class SettingsTestCase(test.SkonfigTestCase):
     all_settings = [
         "archiving_mode", "cache_path_pattern", "colored_output",
         "conf_dir", "init_manifest", "jobs", "local_shell", "out_path",
@@ -465,7 +465,7 @@ class SettingsTestCase(test.CdistTestCase):
 
     def assert_defaults(self, settings):
         self.assertEqual(settings.archiving_mode,
-                         cdist.autil.mode_from_str("tar"))
+                         skonfig.autil.mode_from_str("tar"))
         self.assertEqual(settings.cache_path_pattern, "%N")
         self.assertEqual(settings.colored_output, False)
         self.assertEqual(settings.conf_dir, [])

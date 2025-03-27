@@ -19,7 +19,7 @@
 # along with skonfig. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from cdist.util import shquot
+from skonfig.util import shquot
 
 
 def inspect_ssh_mux_opts():

@@ -22,28 +22,28 @@
 import os
 import shutil
 
-import cdist
-import cdist.util
+import skonfig
 import skonfig.settings
+import skonfig.util
 
 import tests as test
 
-from cdist import core
-from cdist.core import (code, manifest)
-from cdist.exec import (local, remote)
+from skonfig import core
+from skonfig.core import (code, manifest)
+from skonfig.exec import (local, remote)
 
 my_dir = os.path.abspath(os.path.dirname(__file__))
 fixtures = os.path.join(my_dir, 'fixtures')
 conf_dir = os.path.join(fixtures, 'conf')
 
 
-class CaptureOutputTestCase(test.CdistTestCase):
+class CaptureOutputTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
 
         self.local_dir = os.path.join(self.temp_dir, "local")
-        self.hostdir = cdist.util.str_hash(self.target_host[0])
+        self.hostdir = skonfig.util.str_hash(self.target_host[0])
         self.host_base_path = os.path.join(self.local_dir, self.hostdir)
         os.makedirs(self.host_base_path)
 

@@ -26,10 +26,10 @@ import shutil
 import sys
 import tempfile
 
-import cdist.log
+import skonfig.logging
 import skonfig.settings
 
-_logger = cdist.log.getLogger(__name__)
+_logger = skonfig.logging.getLogger(__name__)
 
 
 def _initialise_global_settings():
@@ -70,7 +70,7 @@ def run(skonfig_arguments):
     logging.basicConfig(level=loglevel)
 
     if settings.colored_output:
-        cdist.log.CdistFormatter.USE_COLORS = True
+        skonfig.logging.CdistFormatter.USE_COLORS = True
 
     target_host = skonfig_arguments.host
 
@@ -90,16 +90,16 @@ def run(skonfig_arguments):
                     fd.write(sys.stdin.read())
                 init_manifest = initial_manifest_temp_path
             except (IOError, OSError) as e:
-                raise cdist.Error(
+                raise skonfig.Error(
                     "Creating tempfile for stdin data failed: %s" % (e))
     elif settings.init_manifest is not None:
         # then, we respect the setting chosen in the config file
         init_manifest = settings.init_manifest
     else:
-        # default: use the default as cdist.exec.local detects it.
+        # default: use the default as skonfig.exec.local detects it.
         init_manifest = None
 
-    from cdist.config import Config as cdist_config
+    from skonfig.config import Config as cdist_config
 
     host_base_path = cdist_config.create_temp_host_base_dir(
         settings.out_path)
@@ -120,5 +120,5 @@ def run(skonfig_arguments):
 
 
 def emulator():
-    import cdist.emulator
-    cdist.emulator.Emulator(sys.argv).run()
+    import skonfig.emulator
+    skonfig.emulator.Emulator(sys.argv).run()

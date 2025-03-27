@@ -26,7 +26,7 @@ import skonfig
 
 
 def run_main():
-    import cdist
+    import skonfig
     import skonfig.arguments
     import skonfig.cdist
 
@@ -50,12 +50,12 @@ def run_main():
 
     try:
         return skonfig.cdist.run(arguments)
-    except cdist.Error as e:
+    except skonfig.Error as e:
         pass
 
 
 def run_emulator():
-    import cdist
+    import skonfig
     import skonfig.cdist
     skonfig.cdist.emulator()
 

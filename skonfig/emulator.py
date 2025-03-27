@@ -25,10 +25,10 @@ import os
 import re
 import sys
 
-import cdist
-import cdist.core
-import cdist.flock
-import cdist.log
+import skonfig
+import skonfig.core
+import skonfig.flock
+import skonfig.logging
 
 
 # FileNotFoundError is added in 3.3.
@@ -36,7 +36,7 @@ if not hasattr(__builtins__, 'FileNotFoundError'):
     FileNotFoundError = (OSError, IOError)
 
 
-class MissingRequiredEnvironmentVariableError(cdist.Error):
+class MissingRequiredEnvironmentVariableError(skonfig.Error):
     def __init__(self, name):
         self.name = name
         self.message = ("Emulator requires the environment variable {} to be "
@@ -88,12 +88,12 @@ class Emulator:
         self.typeorder_path = os.path.join(self.global_path, "typeorder")
 
         self.typeorder_dep_path = os.path.join(
-            self.global_path, cdist.core.Manifest.TYPEORDER_DEP_NAME)
+            self.global_path, skonfig.core.Manifest.TYPEORDER_DEP_NAME)
         self.order_dep_state_path = os.path.join(
-            self.global_path, cdist.core.Manifest.ORDER_DEP_STATE_NAME)
+            self.global_path, skonfig.core.Manifest.ORDER_DEP_STATE_NAME)
 
         self.type_name = os.path.basename(argv[0])
-        self.cdist_type = cdist.core.CdistType(
+        self.cdist_type = skonfig.core.CdistType(
             self.type_base_path, self.type_name)
 
         self.__init_log()
@@ -105,7 +105,7 @@ class Emulator:
         self.init_object()
 
         # locking for parallel execution
-        with cdist.flock.Flock(self.flock_path):
+        with skonfig.flock.Flock(self.flock_path):
             self.setup_object()
             self.save_stdin()
             self.record_requirements()
@@ -122,20 +122,20 @@ class Emulator:
                 loglevel = self.env['__cdist_log_level']
                 level = int(loglevel)
             except ValueError:
-                level = cdist.log.WARNING
+                level = skonfig.logging.WARNING
         else:
-            level = cdist.log.WARNING
-        self.log = cdist.log.getLogger(self.target_host[0])
+            level = skonfig.logging.WARNING
+        self.log = skonfig.logging.getLogger(self.target_host[0])
         try:
-            cdist.log.root.setLevel(level)
+            skonfig.logging.root.setLevel(level)
             self.log.setLevel(level)
         except (ValueError, TypeError):
             # if invalid __cdist_log_level value
-            cdist.log.root.setLevel(cdist.log.WARNING)
-            self.log.setLevel(cdist.log.WARNING)
+            skonfig.logging.root.setLevel(skonfig.logging.WARNING)
+            self.log.setLevel(skonfig.logging.WARNING)
 
         colored_log = self.env.get('__cdist_colored_log', 'false')
-        cdist.log.CdistFormatter.USE_COLORS = colored_log == 'true'
+        skonfig.logging.CdistFormatter.USE_COLORS = colored_log == 'true'
 
     def commandline(self):
         """Parse command line"""
@@ -185,7 +185,7 @@ class Emulator:
             del self.args.object_id
 
         # Instantiate the object we are defining
-        self.cdist_object = cdist.core.CdistObject(
+        self.cdist_object = skonfig.core.CdistObject(
                 self.cdist_type, self.object_base_path, self.object_marker,
                 self.object_id)
         lockfname = ('.' + self.cdist_type.name +
@@ -242,7 +242,7 @@ class Emulator:
                               obj_params,
                               self.object_source,
                               self.parameters)
-                raise cdist.Error(errmsg)
+                raise skonfig.Error(errmsg)
         else:
             if self.cdist_object.exists:
                 self.log.debug('Object %s override forced with CDIST_OVERRIDE',
@@ -296,7 +296,7 @@ class Emulator:
                         fd.write(chunk)
                         chunk = self._read_stdin()
             except EnvironmentError as e:
-                raise cdist.Error('Failed to read from stdin: {}'.format(e))
+                raise skonfig.Error('Failed to read from stdin: {}'.format(e))
 
     def record_requirement(self, requirement):
         """record requirement and return recorded requirement"""
@@ -304,12 +304,12 @@ class Emulator:
         # Raises an error, if object cannot be created
         try:
             cdist_object = self.cdist_object.object_from_name(requirement)
-        except cdist.core.InvalidTypeError as e:
+        except skonfig.core.InvalidTypeError as e:
             self.log.error("%s requires object %s, but type %s does not"
                            " exist. Defined at %s", self.cdist_object.name,
                            requirement, e.name, self.object_source)
             raise
-        except cdist.core.MissingObjectIdError:
+        except skonfig.core.MissingObjectIdError:
             self.log.error("%s requires object %s without object id."
                            " Defined at %s", self.cdist_object.name,
                            requirement, self.object_source)

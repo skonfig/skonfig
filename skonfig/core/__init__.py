@@ -19,10 +19,10 @@
 # along with skonfig. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from cdist.core.cdist_type import (CdistType, InvalidTypeError)
-from cdist.core.cdist_object import (
+from skonfig.core.cdist_type import (CdistType, InvalidTypeError)
+from skonfig.core.cdist_object import (
     CdistObject, IllegalObjectIdError, MissingObjectIdError)
-from cdist.core.explorer import Explorer
-from cdist.core.manifest import Manifest
-from cdist.core.code import Code
-from cdist.core.util import listdir
+from skonfig.core.explorer import Explorer
+from skonfig.core.manifest import Manifest
+from skonfig.core.code import Code
+from skonfig.core.util import listdir

@@ -78,7 +78,7 @@ lint: pep8 shellcheck
 test: unittest unittest-remote
 
 pycodestyle pep8: .FORCE
-	pycodestyle bin/ skonfig/ cdist/
+	pycodestyle bin/ skonfig/
 
 
 SHELLCHECKCMD = shellcheck -s sh -f gcc -x

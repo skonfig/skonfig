@@ -25,11 +25,11 @@ import os
 import stat
 import subprocess
 
-import cdist
-import cdist.log
+import skonfig
+import skonfig.logging
 
-from cdist.exec import util
-from cdist.util import (ipaddr, shquot)
+from skonfig.exec import util
+from skonfig.util import (ipaddr, shquot)
 
 
 def _wrap_addr(addr):
@@ -41,7 +41,7 @@ def _wrap_addr(addr):
         return addr
 
 
-class DecodeError(cdist.Error):
+class DecodeError(skonfig.Error):
     def __init__(self, command):
         self.command = command
 
@@ -83,7 +83,7 @@ class Remote:
         self._init_env()
 
     def _open_logger(self):
-        self.log = cdist.log.getLogger(self.target_host[0])
+        self.log = skonfig.logging.getLogger(self.target_host[0])
 
     # logger is not pickable, so remove it when we pickle
     def __getstate__(self):
@@ -134,8 +134,6 @@ class Remote:
 
     def extract_archive(self, path, mode):
         """Extract archive path on the target."""
-        import cdist.autil as autil
-
         self.log.trace("Remote extract archive: %s", path)
         opts = "x"
         if mode is not None:
@@ -166,15 +164,17 @@ class Remote:
             self.mkdir(destination, umask=umask)
             used_archiving = False
             if self.archiving_mode is not None:
+                import skonfig.autil
+
                 self.log.trace("Remote transfer in archiving mode")
-                import cdist.autil as autil
 
                 # create archive
-                (tarpath, fcnt) = autil.tar(source, self.archiving_mode)
+                (tarpath, fcnt) = skonfig.autil.tar(
+                    source, self.archiving_mode)
                 if tarpath is None:
                     self.log.trace("Files count %d is lower than %d limit, "
                                    "skipping archiving",
-                                   fcnt, autil.FILES_LIMIT)
+                                   fcnt, skonfig.autil.FILES_LIMIT)
                 else:
                     self.log.trace("Archiving mode, tarpath: %s, file count: "
                                    "%s", tarpath, fcnt)
@@ -201,7 +201,7 @@ class Remote:
             if not used_archiving:
                 self._transfer_dir(source, destination, umask=umask)
         elif jobs:
-            raise cdist.Error("Source {} is not a directory".format(source))
+            raise skonfig.Error("Source %s is not a directory" % (source))
         else:
             self._transfer_file(source, destination, umask=umask)
 
@@ -249,7 +249,7 @@ class Remote:
         # environment variables can't be passed to the target,
         # so prepend command with variable declarations
 
-        # cdist command prepended with variable assignments expects
+        # The command with prepended variable assignments expects a
         # POSIX shell (bourne, bash) at the remote as user default shell.
         # If remote user shell isn't POSIX shell, but for e.g. csh/tcsh
         # then these var assignments are not var assignments for this
@@ -261,7 +261,7 @@ class Remote:
         # Explicitly use /bin/sh, because var assignments assume POSIX
         # shell already.
         # This leaves the posibility to write script that needs to be run
-        # remotely in e.g. csh and setting up CDIST_REMOTE_SHELL to e.g.
+        # remotely in e.g. csh and setting up SKONFIG_REMOTE_SHELL to e.g.
         # /bin/csh will execute this script in the right way.
         if env:
             remote_env = "export %s; " % (" ".join(
@@ -322,7 +322,7 @@ class Remote:
                 emsg += command
             if error.args:
                 emsg += ": " + str(error.args[1])
-            raise cdist.Error(emsg)
+            raise skonfig.Error(emsg)
         except UnicodeDecodeError:
             raise DecodeError(command)
         finally:

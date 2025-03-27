@@ -24,15 +24,15 @@ import logging
 import os
 import shutil
 
-import cdist
-import cdist.util
+import skonfig
 import skonfig.settings
+import skonfig.util
 
 import tests as test
 
-from cdist import core
-from cdist.core import explorer
-from cdist.exec import (local, remote)
+from skonfig import core
+from skonfig.core import explorer
+from skonfig.exec import (local, remote)
 
 
 my_dir = os.path.abspath(os.path.dirname(__file__))
@@ -40,12 +40,12 @@ fixtures = os.path.join(my_dir, 'fixtures')
 conf_dir = os.path.join(fixtures, "conf")
 
 
-class ExplorerClassTestCase(test.CdistTestCase):
+class ExplorerClassTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
         self.local_path = os.path.join(self.temp_dir, "local")
-        hostdir = cdist.util.str_hash(self.target_host[0])
+        hostdir = skonfig.util.str_hash(self.target_host[0])
         base_root_path = os.path.join(self.local_path, hostdir)
         self.remote_base_path = os.path.join(self.temp_dir, "remote")
         os.makedirs(self.remote_base_path)

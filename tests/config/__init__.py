@@ -23,16 +23,16 @@
 import os
 import shutil
 
-import cdist
-import cdist.config
-import cdist.core.cdist_type
-import cdist.core.cdist_object
-import cdist.util
+import skonfig
+import skonfig.config
+import skonfig.core.cdist_type
+import skonfig.core.cdist_object
+import skonfig.util
 import skonfig.settings
 
 import tests as test
 
-from cdist import core
+from skonfig import core
 
 my_dir = os.path.abspath(os.path.dirname(__file__))
 fixtures = os.path.join(my_dir, 'fixtures')
@@ -59,7 +59,7 @@ class CdistObjectErrorContext:
 
 
 @test.patch.dict("os.environ")
-class ConfigRunTestCase(test.CdistTestCase):
+class ConfigRunTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
@@ -68,11 +68,11 @@ class ConfigRunTestCase(test.CdistTestCase):
         self.settings.conf_dir = [conf_dir]
 
         self.local_dir = os.path.join(self.temp_dir, "local")
-        self.hostdir = cdist.util.str_hash(self.target_host[0])
+        self.hostdir = skonfig.util.str_hash(self.target_host[0])
         self.host_base_path = os.path.join(self.local_dir, self.hostdir)
         os.makedirs(self.host_base_path)
 
-        self.local = cdist.exec.local.Local(
+        self.local = skonfig.exec.local.Local(
             self.target_host,
             self.host_base_path,
             self.settings)
@@ -83,11 +83,11 @@ class ConfigRunTestCase(test.CdistTestCase):
         self.objects = []
         for cdist_object_name in expected_object_names:
             (cdist_type, cdist_object_id) = cdist_object_name.split("/", 1)
-            cdist_object = core.CdistObject(core.CdistType(type_base_path,
-                                                           cdist_type),
-                                            self.object_base_path,
-                                            self.local.object_marker_name,
-                                            cdist_object_id)
+            cdist_object = core.CdistObject(
+                core.CdistType(type_base_path, cdist_type),
+                self.object_base_path,
+                self.local.object_marker_name,
+                cdist_object_id)
             cdist_object.create()
             self.objects.append(cdist_object)
 
@@ -96,7 +96,7 @@ class ConfigRunTestCase(test.CdistTestCase):
 
         self.remote_dir = os.path.join(self.temp_dir, "remote")
         os.mkdir(self.remote_dir)
-        self.remote = cdist.exec.remote.Remote(
+        self.remote = skonfig.exec.remote.Remote(
             self.target_host,
             self.remote_exec,
             self.remote_dir,
@@ -107,7 +107,7 @@ class ConfigRunTestCase(test.CdistTestCase):
         self.local.object_path = self.object_base_path
         self.local.type_path = type_base_path
 
-        self.config = cdist.config.Config(self.local, self.remote)
+        self.config = skonfig.config.Config(self.local, self.remote)
 
     def tearDown(self):
         for o in self.objects:
@@ -116,15 +116,14 @@ class ConfigRunTestCase(test.CdistTestCase):
 
         shutil.rmtree(self.temp_dir)
 
-    def assertRaisesCdistObjectError(self, original_error, callable_obj):
-        """
-        Test if a raised CdistObjectError was caused by the given
+    def assertRaisesObjectError(self, original_error, callable_obj):
+        """Test if a raised skonfig.ObjectError was caused by the given
         original_error.
         """
         with self.assertRaises(original_error):
             try:
                 callable_obj()
-            except cdist.CdistObjectError as e:
+            except skonfig.ObjectError as e:
                 if e.original_error:
                     raise e.original_error
                 else:
@@ -148,7 +147,7 @@ class ConfigRunTestCase(test.CdistTestCase):
 
         try:
             self.config.iterate_once()
-        except cdist.Error:
+        except skonfig.Error:
             # Allow failing, because the third run may or may not be
             # unecessary already,
             # depending on the order of the objects
@@ -165,37 +164,37 @@ class ConfigRunTestCase(test.CdistTestCase):
         first.requirements = [second.name]
         second.requirements = [first.name]
 
-        self.assertRaisesCdistObjectError(
-            cdist.UnresolvableRequirementsError,
+        self.assertRaisesObjectError(
+            skonfig.UnresolvableRequirementsError,
             self.config.iterate_until_finished)
 
     def test_missing_requirements(self):
         """Throw an error if requiring something non-existing"""
         first = self.object_index['__first/man']
         first.requirements = ['__first/not/exist']
-        self.assertRaisesCdistObjectError(
-            cdist.UnresolvableRequirementsError,
+        self.assertRaisesObjectError(
+            skonfig.UnresolvableRequirementsError,
             self.config.iterate_until_finished)
 
     def test_requirement_broken_type(self):
         """Unknown type should be detected in the resolving process"""
         first = self.object_index['__first/man']
         first.requirements = ['__nosuchtype/not/exist']
-        self.assertRaisesCdistObjectError(
-            cdist.core.cdist_type.InvalidTypeError,
+        self.assertRaisesObjectError(
+            skonfig.core.cdist_type.InvalidTypeError,
             self.config.iterate_until_finished)
 
     def test_requirement_singleton_where_no_singleton(self):
         """Missing object id should be detected in the resolving process"""
         first = self.object_index['__first/man']
         first.requirements = ['__first']
-        self.assertRaisesCdistObjectError(
-            cdist.core.cdist_object.MissingObjectIdError,
+        self.assertRaisesObjectError(
+            skonfig.core.cdist_object.MissingObjectIdError,
             self.config.iterate_until_finished)
 
     def test_dryrun(self):
         """Test if the dryrun option is working like expected"""
-        dry_local = cdist.exec.local.Local(
+        dry_local = skonfig.exec.local.Local(
             self.target_host,
             self.host_base_path,
             self.settings,
@@ -204,14 +203,14 @@ class ConfigRunTestCase(test.CdistTestCase):
             # exec_path can not derived from sys.argv in unittests
             exec_path=test.skonfig_exec_path)
 
-        dryrun_config = cdist.config.Config(
+        dryrun_config = skonfig.config.Config(
             dry_local, self.remote, dry_run=True)
         dryrun_config.run()
         # if we are here, dry runs work like expected
 
     def test_deps_resolver(self):
         """Test to show dependency resolver warning message."""
-        local = cdist.exec.local.Local(
+        local = skonfig.exec.local.Local(
             self.target_host,
             self.host_base_path,
             self.settings,
@@ -220,12 +219,12 @@ class ConfigRunTestCase(test.CdistTestCase):
             exec_path=test.skonfig_exec_path)
 
         # dry_run is ok for dependency testing
-        config = cdist.config.Config(local, self.remote, dry_run=True)
+        config = skonfig.config.Config(local, self.remote, dry_run=True)
         config.run()
 
     def test_graph_check_cycle_empty(self):
         graph = {}
-        (has_cycle, path) = cdist.config.graph_check_cycle(graph)
+        (has_cycle, path) = skonfig.config.graph_check_cycle(graph)
         self.assertFalse(has_cycle)
 
     def test_graph_check_cycle_1(self):
@@ -238,7 +237,7 @@ class ConfigRunTestCase(test.CdistTestCase):
             'b': ['c', 'd'],
             'd': ['e'],
             }
-        (has_cycle, path) = cdist.config.graph_check_cycle(graph)
+        (has_cycle, path) = skonfig.config.graph_check_cycle(graph)
         self.assertFalse(has_cycle)
 
     def test_graph_check_cycle_2(self):
@@ -252,7 +251,7 @@ class ConfigRunTestCase(test.CdistTestCase):
             'b': ['c'],
             'c': ['a'],
             }
-        (has_cycle, path) = cdist.config.graph_check_cycle(graph)
+        (has_cycle, path) = skonfig.config.graph_check_cycle(graph)
         self.assertTrue(has_cycle)
         self.assertGreater(path.count(path[-1]), 1)
 
@@ -284,7 +283,7 @@ class ConfigRunTestCase(test.CdistTestCase):
             'k': ['m'],
             'm': ['i'],
             }
-        (has_cycle, path) = cdist.config.graph_check_cycle(graph)
+        (has_cycle, path) = skonfig.config.graph_check_cycle(graph)
         self.assertTrue(has_cycle)
         self.assertGreater(path.count(path[-1]), 1)
 
@@ -297,7 +296,7 @@ class ConfigRunTestCase(test.CdistTestCase):
 #        """Missing object id should be detected in the resolving process"""
 #        first = self.object_index['__first/man']
 #        first.requirements = ['__singleton_test/foo']
-#        with self.assertRaises(cdist.core.?????):
+#        with self.assertRaises(skonfig.core.?????):
 #            self.config.iterate_until_finished()
 
 if __name__ == "__main__":

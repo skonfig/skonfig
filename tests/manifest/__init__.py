@@ -28,28 +28,28 @@ import logging
 import io
 import sys
 
-import cdist
-import cdist.util
+import skonfig
 import skonfig.settings
+import skonfig.util
 
 import tests as test
 
-from cdist.exec import local
-from cdist import core
-from cdist.core import manifest
+from skonfig.exec import local
+from skonfig import core
+from skonfig.core import manifest
 
 my_dir = os.path.abspath(os.path.dirname(__file__))
 fixtures = os.path.join(my_dir, 'fixtures')
 conf_dir = os.path.join(fixtures, 'conf')
 
 
-class ManifestTestCase(test.CdistTestCase):
+class ManifestTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
 
         out_path = self.temp_dir
-        hostdir = cdist.util.str_hash(self.target_host[0])
+        hostdir = skonfig.util.str_hash(self.target_host[0])
         base_root_path = os.path.join(out_path, hostdir)
 
         self.settings = skonfig.settings.SettingsContainer()
@@ -78,7 +78,7 @@ class ManifestTestCase(test.CdistTestCase):
         os.environ['__cdist_test_out'] = output_file
         old_loglevel = logging.root.getEffectiveLevel()
         self.log.setLevel(logging.VERBOSE)
-        manifest = cdist.core.manifest.Manifest(self.target_host, self.local)
+        manifest = skonfig.core.manifest.Manifest(self.target_host, self.local)
         manifest.run_initial_manifest(initial_manifest)
 
         with open(output_file, "r") as f:
@@ -117,7 +117,7 @@ class ManifestTestCase(test.CdistTestCase):
         os.environ['__cdist_test_out'] = output_file
         old_loglevel = self.log.getEffectiveLevel()
         self.log.setLevel(logging.VERBOSE)
-        manifest = cdist.core.manifest.Manifest(self.target_host, self.local)
+        manifest = skonfig.core.manifest.Manifest(self.target_host, self.local)
         manifest.run_type_manifest(cdist_object)
 
         with open(output_file, "r") as f:
@@ -149,7 +149,7 @@ class ManifestTestCase(test.CdistTestCase):
     def test_loglevel_env_setup(self):
         current_level = self.log.getEffectiveLevel()
         self.log.setLevel(logging.DEBUG)
-        manifest = cdist.core.manifest.Manifest(self.target_host, self.local)
+        manifest = skonfig.core.manifest.Manifest(self.target_host, self.local)
         self.assertTrue("__cdist_log_level" in manifest.env)
         self.assertTrue("__cdist_log_level_name" in manifest.env)
         self.assertEqual(manifest.env["__cdist_log_level"],

@@ -29,13 +29,13 @@ import time
 import datetime
 import argparse
 
-import cdist
-import cdist.util
+import skonfig
+import skonfig.util
 import skonfig.settings
 
 import tests as test
 
-from cdist.exec import local
+from skonfig.exec import local
 
 my_dir = os.path.abspath(os.path.dirname(test.__file__))
 fixtures = os.path.join(my_dir, 'fixtures')
@@ -45,13 +45,13 @@ bin_true = "true"
 bin_false = "false"
 
 
-class LocalTestCase(test.CdistTestCase):
+class LocalTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         target_host = ("localhost", "localhost", "localhost")
         self.temp_dir = self.mkdtemp()
         self.out_parent_path = self.temp_dir
-        self.hostdir = cdist.util.str_hash(target_host[0])
+        self.hostdir = skonfig.util.str_hash(target_host[0])
         self.host_base_path = os.path.join(self.out_parent_path, self.hostdir)
         out_path = os.path.join(self.host_base_path, "data")
 
@@ -160,27 +160,27 @@ class LocalTestCase(test.CdistTestCase):
 
     def test_run_fail(self):
         self.local.create_files_dirs()
-        self.assertRaises(cdist.Error, self.local.run, [bin_false])
+        self.assertRaises(skonfig.Error, self.local.run, [bin_false])
 
     def test_run_script_success(self):
         self.local.create_files_dirs()
         (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
-            fd.writelines(["#!/bin/sh\n", bin_true])
+            fd.writelines(["#!/bin/sh\n", bin_true+"\n"])
         self.local.run_script(script)
 
     def test_run_script_fail(self):
         self.local.create_files_dirs()
         (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
-            fd.writelines(["#!/bin/sh\n", bin_false])
-        self.assertRaises(cdist.Error, self.local.run_script, script)
+            fd.writelines(["#!/bin/sh\n", bin_false+"\n"])
+        self.assertRaises(skonfig.Error, self.local.run_script, script)
 
     def test_run_script_get_output(self):
         self.local.create_files_dirs()
         (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
-            fd.writelines(["#!/bin/sh\n", "echo foobar"])
+            fd.writelines(["#!/bin/sh\n", "echo foobar\n"])
         self.assertEqual(self.local.run_script(script, return_output=True),
                          "foobar\n")
 

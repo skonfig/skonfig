@@ -22,7 +22,7 @@
 import fcntl
 import os
 
-import cdist.log
+import skonfig.logging
 
 
 # FileNotFoundError is added in 3.3.
@@ -30,7 +30,7 @@ if not hasattr(__builtins__, 'FileNotFoundError'):
     FileNotFoundError = (OSError, IOError)
 
 
-log = cdist.log.getLogger('cdist-flock')
+log = skonfig.logging.getLogger('cdist-flock')
 
 
 class Flock():

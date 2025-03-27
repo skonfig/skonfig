@@ -22,10 +22,10 @@
 
 import os
 
-import cdist
-import cdist.core
+import skonfig
+import skonfig.core
 
-from cdist.util import fsproperty
+from skonfig.util import fsproperty
 
 
 # FileNotFoundError is added in 3.3.
@@ -33,7 +33,7 @@ if not hasattr(__builtins__, 'FileNotFoundError'):
     FileNotFoundError = (OSError, IOError)
 
 
-class IllegalObjectIdError(cdist.Error):
+class IllegalObjectIdError(skonfig.Error):
     def __init__(self, object_id, message=None):
         self.object_id = object_id
         self.message = message or 'Illegal object id'
@@ -42,7 +42,7 @@ class IllegalObjectIdError(cdist.Error):
         return '{}: {}'.format(self.message, self.object_id)
 
 
-class MissingObjectIdError(cdist.Error):
+class MissingObjectIdError(skonfig.Error):
     def __init__(self, type_name):
         self.type_name = type_name
         self.message = ("Type {} requires object id (is not a "
@@ -93,7 +93,7 @@ class CdistObject:
         for object_name in cls.list_object_names(
                 object_base_path, object_marker):
             (type_name, object_id) = cls.split_name(object_name)
-            yield cls(cdist.core.CdistType(type_base_path, type_name),
+            yield cls(skonfig.core.CdistType(type_base_path, type_name),
                       base_path=object_base_path,
                       object_marker=object_marker,
                       object_id=object_id)
@@ -108,7 +108,7 @@ class CdistObject:
     @classmethod
     def list_type_names(cls, object_base_path):
         """Return a list of type names"""
-        return cdist.core.listdir(object_base_path)
+        return skonfig.core.listdir(object_base_path)
 
     @staticmethod
     def split_name(object_name):
@@ -279,8 +279,9 @@ class CdistObject:
                          self.stderr_path):
                 os.makedirs(path, exist_ok=allow_overwrite)
         except EnvironmentError as error:
-            raise cdist.Error(('Error creating directories for object: '
-                               '{}: {}').format(self, error))
+            raise skonfig.Error(
+                "Error creating directories for object: %r: %s" % (
+                    self, error))
 
     def requirements_unfinished(self, requirements):
         """Return unsatisfied requirements"""
