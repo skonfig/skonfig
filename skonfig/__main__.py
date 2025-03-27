@@ -19,17 +19,43 @@
 # along with skonfig. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import atexit
 import os
+import shutil
 import sys
+import tempfile
 
 import skonfig
 
 
-def run_main():
-    import skonfig
-    import skonfig.arguments
-    import skonfig.cdist
+def _initialise_global_settings():
+    import skonfig.settings
+    settings = skonfig.settings.SettingsContainer()
 
+    # read values from config file(s)
+    settings.update_from_config_files()
+
+    # read values from environment variables
+    settings.update_from_env()
+
+    # resolve sets
+    search_dirs = skonfig.settings.get_config_search_dirs()
+    for search_dir in search_dirs:
+        sets_dir = os.path.join(search_dir, "set")
+        if os.path.isdir(sets_dir):
+            settings.conf_dir += [
+                os.path.join(sets_dir, set_dir)
+                for set_dir in os.listdir(sets_dir)
+                if os.path.isdir(os.path.join(sets_dir, set_dir))]
+
+    # because last one wins
+    settings.conf_dir += search_dirs
+
+    return settings
+
+
+def run_main():
+    import skonfig.arguments
     (parser, arguments) = skonfig.arguments.get()
 
     if arguments.version:
@@ -49,15 +75,65 @@ def run_main():
         sys.exit(1)
 
     try:
-        return skonfig.cdist.run(arguments)
+        settings = _initialise_global_settings()
+
+        # configure logging
+        if arguments.verbosity:
+            loglevel = skonfig.arguments.verbosity_to_logging_level(
+                arguments.verbosity)
+        else:
+            loglevel = settings.verbosity
+
+        logging.basicConfig(level=loglevel)
+
+        if settings.colored_output:
+            skonfig.logging.CdistFormatter.USE_COLORS = True
+
+        target_host = arguments.host
+
+        jobs = arguments.jobs or settings.jobs
+
+        if arguments.manifest:
+            # first, we use the initial manifest provided in argv (-i)
+            init_manifest = arguments.manifest
+
+            if init_manifest == "-":
+                # read manifest from stdin, only possible using argv option
+                try:
+                    (handle, init_manifest_temp_path) = tempfile.mkstemp(
+                        prefix="skonfig.stdin.")
+                    atexit.register(lambda: os.remove(init_manifest_temp_path))
+                    with os.fdopen(handle, "w") as fd:
+                        fd.write(sys.stdin.read())
+                    init_manifest = init_manifest_temp_path
+                except (IOError, OSError) as e:
+                    raise skonfig.Error(
+                        "Creating tempfile for stdin data failed: %s" % (e))
+        elif settings.init_manifest is not None:
+            # then, we respect the setting chosen in the config file
+            init_manifest = settings.init_manifest
+        else:
+            # default: use the default as skonfig.exec.local detects it.
+            init_manifest = None
+
+        import skonfig.config
+
+        skonfig.config.Config.onehost(
+            target_host,
+            host_base_path,
+            override_init_manifest=init_manifest,
+            settings=settings,
+            dry_run=arguments.dry_run,
+            jobs=jobs,
+            remove_remote_files_dirs=(arguments.verbosity < 2))
     except skonfig.Error as e:
         pass
 
 
 def run_emulator():
-    import skonfig
-    import skonfig.cdist
-    skonfig.cdist.emulator()
+    import skonfig.emulator
+    emulator = skonfig.emulator.Emulator(sys.argv)
+    emulator.run()
 
 
 def run():

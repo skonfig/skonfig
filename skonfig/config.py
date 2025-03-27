@@ -190,6 +190,9 @@ class Config:
         """Configure ONE system."""
         log = skonfig.logging.getLogger(host)
 
+        host_base_path = cls.create_temp_host_base_dir(settings.out_path)
+        log.debug("Created temporary working directory: %s", host_base_path)
+
         try:
             (remote_exec, cleanup_cmd) = cls._resolve_remote_cmds(settings)
             log.debug("remote_exec for host \"%s\": %s", host, remote_exec)
@@ -226,6 +229,9 @@ class Config:
         except skonfig.Error as e:
             log.error(e)
             raise
+        finally:
+            log.debug("Cleaning up %s", host_base_path)
+            shutil.rmtree(host_base_path)
 
     @staticmethod
     def create_temp_host_base_dir(tmpdir=None):
