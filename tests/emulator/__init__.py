@@ -26,28 +26,28 @@ import os
 import random
 import shutil
 
-import cdist
-import cdist.util
+import skonfig
 import skonfig.settings
+import skonfig.util
 
 import tests as test
 
-from cdist import (core, emulator)
-from cdist.exec import local
+from skonfig import (core, emulator)
+from skonfig.exec import local
 
 my_dirs = list(map(os.path.abspath, map(
     os.path.dirname, (test.__file__, __file__))))
 conf_dirs = [os.path.join(d, 'fixtures', 'conf') for d in my_dirs]
 
 
-class EmulatorTestCase(test.CdistTestCase):
+class EmulatorTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
         (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
-        hostdir = cdist.util.str_hash(self.target_host[0])
+        hostdir = skonfig.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
         self.settings = skonfig.settings.SettingsContainer()
@@ -199,14 +199,14 @@ class EmulatorTestCase(test.CdistTestCase):
         # if we get here all is fine
 
 
-class EmulatorConflictingRequirementsTestCase(test.CdistTestCase):
+class EmulatorConflictingRequirementsTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
         (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
-        hostdir = cdist.util.str_hash(self.target_host[0])
+        hostdir = skonfig.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
         self.settings = skonfig.settings.SettingsContainer()
@@ -293,12 +293,12 @@ class EmulatorConflictingRequirementsTestCase(test.CdistTestCase):
         self.assertEqual(reqs, set(cdist_object.requirements))
 
 
-class AutoRequireEmulatorTestCase(test.CdistTestCase):
+class AutoRequireEmulatorTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
         base_path = os.path.join(self.temp_dir, "out")
-        hostdir = cdist.util.str_hash(self.target_host[0])
+        hostdir = skonfig.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
         self.settings = skonfig.settings.SettingsContainer()
@@ -327,14 +327,14 @@ class AutoRequireEmulatorTestCase(test.CdistTestCase):
         self.assertEqual(sorted(cdist_object.autorequire), sorted(expected))
 
 
-class OverrideTestCase(test.CdistTestCase):
+class OverrideTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
         (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
-        hostdir = cdist.util.str_hash(self.target_host[0])
+        hostdir = skonfig.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
         self.settings = skonfig.settings.SettingsContainer()
@@ -361,7 +361,7 @@ class OverrideTestCase(test.CdistTestCase):
         argv = ['__cdist_test_type', 'test_override_negative',
                 '--param1', 'foo']
         emu = emulator.Emulator(argv, env=self.env)
-        self.assertRaises(cdist.Error, emu.run)
+        self.assertRaises(skonfig.Error, emu.run)
 
     def test_override_feature(self):
         argv = ['__cdist_test_type', 'test_override_feature']
@@ -374,12 +374,12 @@ class OverrideTestCase(test.CdistTestCase):
         emu.run()
 
 
-class ArgumentsTestCase(test.CdistTestCase):
+class ArgumentsTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
         base_path = self.temp_dir
-        hostdir = cdist.util.str_hash(self.target_host[0])
+        hostdir = skonfig.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
         (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
@@ -560,12 +560,12 @@ class ArgumentsTestCase(test.CdistTestCase):
         self.assertEqual(obj_params, obj_params_expected)
 
 
-class StdinTestCase(test.CdistTestCase):
+class StdinTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
         base_path = os.path.join(self.temp_dir, "out")
-        hostdir = cdist.util.str_hash(self.target_host[0])
+        hostdir = skonfig.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
         self.settings = skonfig.settings.SettingsContainer()
@@ -626,14 +626,14 @@ class StdinTestCase(test.CdistTestCase):
         self.assertEqual(random_string, stdin_saved_by_emulator)
 
 
-class EmulatorAlreadyExistingRequirementsWarnTestCase(test.CdistTestCase):
+class EmulatorAlreadyExistingRequirementsWarnTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
         (handle, self.script) = self.mkstemp(dir=self.temp_dir)
         os.close(handle)
         base_path = self.temp_dir
-        hostdir = cdist.util.str_hash(self.target_host[0])
+        hostdir = skonfig.util.str_hash(self.target_host[0])
         host_base_path = os.path.join(base_path, hostdir)
 
         self.settings = skonfig.settings.SettingsContainer()

@@ -1,20 +1,20 @@
 #
 # 2022,2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
-# This file is part of cdist.
+# This file is part of skonfig.
 #
-# cdist is free software: you can redistribute it and/or modify
+# skonfig is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# cdist is distributed in the hope that it will be useful,
+# skonfig is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with cdist. If not, see <http://www.gnu.org/licenses/>.
+# along with skonfig. If not, see <http://www.gnu.org/licenses/>.
 #
 
 .POSIX:
@@ -78,7 +78,7 @@ lint: pep8 shellcheck
 test: unittest unittest-remote
 
 pycodestyle pep8: .FORCE
-	pycodestyle bin/ skonfig/ cdist/
+	pycodestyle bin/ skonfig/
 
 
 SHELLCHECKCMD = shellcheck -s sh -f gcc -x

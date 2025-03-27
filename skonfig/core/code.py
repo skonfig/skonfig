@@ -22,9 +22,9 @@
 
 import os
 
-import cdist.log
+import skonfig.logging
 
-from cdist.exec.util import get_std_fd
+from skonfig.exec.util import get_std_fd
 
 
 """
@@ -109,9 +109,10 @@ class Code:
             '__global': self.local.base_path,
             '__files': self.local.files_path,
             '__target_host_tags': '',  # backwards compatibility with cdist
-            '__cdist_log_level': cdist.log.log_level_env_var_val(local.log),
-            '__cdist_log_level_name': cdist.log.log_level_name_env_var_val(
-                local.log),
+            '__cdist_log_level':
+                skonfig.logging.log_level_env_var_val(local.log),
+            '__cdist_log_level_name':
+                skonfig.logging.log_level_name_env_var_val(local.log),
         }
 
         if dry_run:

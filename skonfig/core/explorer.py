@@ -25,11 +25,11 @@ import logging
 import multiprocessing
 import os
 
-import cdist
-import cdist.log
+import skonfig
+import skonfig.logging
 
-from cdist.mputil import mp_pool_run
-from cdist.util import shquot
+from skonfig.mputil import mp_pool_run
+from skonfig.util import shquot
 
 """
 common:
@@ -80,10 +80,11 @@ class Explorer:
             '__target_fqdn': self.target_host[2],
             '__explorer': self.remote.global_explorer_path,
             '__target_host_tags': '',  # backwards compatibility with cdist
-            '__cdist_log_level': cdist.log.log_level_env_var_val(self.log),
-            '__cdist_log_level_name': cdist.log.log_level_name_env_var_val(
-                self.log),
-        }
+            '__cdist_log_level':
+                skonfig.logging.log_level_env_var_val(self.log),
+            '__cdist_log_level_name':
+                skonfig.logging.log_level_name_env_var_val(self.log),
+            }
 
         if dry_run:
             self.env['__cdist_dry_run'] = '1'
@@ -92,7 +93,7 @@ class Explorer:
         self.jobs = jobs
 
     def _open_logger(self):
-        self.log = cdist.log.getLogger(self.target_host[0])
+        self.log = skonfig.logging.getLogger(self.target_host[0])
 
     # global
 
@@ -117,12 +118,12 @@ class Explorer:
             output = self.run_global_explorer(explorer)
             with open(path, 'w') as fd:
                 fd.write(output)
-        except cdist.Error as e:
-            local_path = os.path.join(self.local.global_explorer_path,
-                                      explorer)
+        except skonfig.Error as e:
+            local_path = os.path.join(
+                self.local.global_explorer_path, explorer)
             stderr_path = os.path.join(self.local.stderr_base_path, "remote")
-            raise cdist.GlobalExplorerError(explorer, local_path, stderr_path,
-                                            e)
+            raise skonfig.GlobalExplorerError(
+                explorer, local_path, stderr_path, e)
 
     def _run_global_explorers_seq(self, out_path):
         self.log.debug("Running global explorers sequentially")
@@ -203,13 +204,13 @@ class Explorer:
             try:
                 output = self.run_type_explorer(explorer, cdist_object)
                 cdist_object.explorers[explorer] = output
-            except cdist.Error as e:
+            except skonfig.Error as e:
                 path = os.path.join(self.local.type_path,
                                     cdist_type.explorer_path,
                                     explorer)
                 stderr_path = os.path.join(self.local.stderr_base_path,
                                            "remote")
-                raise cdist.CdistObjectExplorerError(
+                raise skonfig.ObjectExplorerError(
                     cdist_object, explorer, path, stderr_path, e)
 
     def run_type_explorer(self, explorer, cdist_object):

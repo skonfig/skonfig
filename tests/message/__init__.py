@@ -23,17 +23,17 @@ import tempfile
 
 import tests as test
 
-import cdist.message
+import skonfig.message
 
 
-class MessageTestCase(test.CdistTestCase):
+class MessageTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.prefix = "cdist-test"
         self.content = "A very short story"
         self.tempfile = tempfile.mkstemp()[1]
-        self.message = cdist.message.Message(prefix=self.prefix,
-                                             messages=self.tempfile)
+        self.message = skonfig.message.Message(
+            prefix=self.prefix, messages=self.tempfile)
 
     def tearDown(self):
         os.remove(self.tempfile)

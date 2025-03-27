@@ -37,7 +37,7 @@ global_fixtures_dir = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "fixtures"))
 
 
-class CdistTestCase(unittest.TestCase):
+class SkonfigTestCase(unittest.TestCase):
     remote_exec = os.path.join(global_fixtures_dir, "remote", "exec")
 
     # host, hostname, fqdn
@@ -52,5 +52,5 @@ class CdistTestCase(unittest.TestCase):
 
 if sys.version_info[:2] < (3, 4):
     from .backports.assertLogs import _AssertLogsContext
-    CdistTestCase.assertLogs = lambda self, logger=None, level=None: \
+    SkonfigTestCase.assertLogs = lambda self, logger=None, level=None: \
         _AssertLogsContext(self, logger, level, no_logs=False)

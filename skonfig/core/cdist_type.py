@@ -21,9 +21,9 @@
 
 import os
 
-import cdist
-import cdist.core
-import cdist.log
+import skonfig
+import skonfig.core
+import skonfig.logging
 
 
 # FileNotFoundError is added in 3.3.
@@ -31,7 +31,7 @@ if not hasattr(__builtins__, 'FileNotFoundError'):
     FileNotFoundError = (OSError, IOError)
 
 
-class InvalidTypeError(cdist.Error):
+class InvalidTypeError(skonfig.Error):
     def __init__(self, name, type_path, type_absolute_path):
         self.name = name
         self.type_path = type_path
@@ -52,7 +52,7 @@ class CdistType:
 
     """
 
-    log = cdist.log.getLogger("cdist-type")
+    log = skonfig.logging.getLogger("cdist-type")
 
     def __init__(self, base_path, name):
         self.base_path = base_path
@@ -96,7 +96,7 @@ class CdistType:
     @classmethod
     def list_type_names(cls, base_path):
         """Return a list of type names"""
-        return cdist.core.listdir(base_path)
+        return skonfig.core.listdir(base_path)
 
     _instances = {}
 
@@ -155,7 +155,7 @@ class CdistType:
         """Return a list of available explorers"""
         if not self.__explorers:
             try:
-                self.__explorers = cdist.core.listdir(
+                self.__explorers = skonfig.core.listdir(
                     os.path.join(self.absolute_path, "explorer"))
             except EnvironmentError:
                 # error ignored
@@ -270,7 +270,7 @@ class CdistType:
                 defaults_dir = os.path.join(self.absolute_path,
                                             "parameter",
                                             "default")
-                for name in cdist.core.listdir(defaults_dir):
+                for name in skonfig.core.listdir(defaults_dir):
                     try:
                         with open(os.path.join(defaults_dir, name)) as fd:
                             defaults[name] = fd.read().rstrip("\n")
@@ -290,7 +290,7 @@ class CdistType:
                 deprecated_dir = os.path.join(self.absolute_path,
                                               "parameter",
                                               "deprecated")
-                for name in cdist.core.listdir(deprecated_dir):
+                for name in skonfig.core.listdir(deprecated_dir):
                     try:
                         with open(os.path.join(deprecated_dir, name)) as fd:
                             deprecated[name] = fd.read().strip()

@@ -22,7 +22,7 @@ import os
 import os.path as op
 import tarfile
 
-import cdist.autil
+import skonfig.autil
 
 import tests as test
 
@@ -31,12 +31,12 @@ fixtures = op.join(my_dir, 'fixtures')
 explorers_path = op.join(fixtures, 'explorer')
 
 
-class AUtilTestCase(test.CdistTestCase):
+class AUtilTestCase(test.SkonfigTestCase):
     def test_tar(self):
         source = explorers_path
-        for mode in cdist.autil.archiving_modes:
+        for mode in skonfig.autil.archiving_modes:
             try:
-                (tarpath, fcnt) = cdist.autil.tar(source, mode)
+                (tarpath, fcnt) = skonfig.autil.tar(source, mode)
                 self.assertIsNotNone(tarpath)
                 fcnt = 0
                 with tarfile.open(tarpath, "r:" + mode.tarmode) as tar:

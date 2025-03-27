@@ -20,10 +20,10 @@
 
 import os
 
-import cdist.autil
-import cdist.log
+import skonfig.autil
+import skonfig.logging
 
-_logger = cdist.log.getLogger(__name__)
+_logger = skonfig.logging.getLogger(__name__)
 
 
 def get_cache_dir():
@@ -151,9 +151,9 @@ class archiving_setting(any_setting):
             return value
 
         if isinstance(value, str):
-            value = cdist.autil.mode_from_str(value)
+            value = skonfig.autil.mode_from_str(value)
         elif type(value) is type \
-                and issubclass(value, cdist.autil.ArchivingMode):
+                and issubclass(value, skonfig.autil.ArchivingMode):
             pass
         else:
             raise ValueError("invalid archiving mode: %r" % (value))

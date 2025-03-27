@@ -23,12 +23,12 @@ import itertools
 import os
 import subprocess
 
-import cdist
+import skonfig
 
 from collections import OrderedDict
 from tempfile import TemporaryFile
 
-from cdist.util import shquot
+from skonfig.util import shquot
 
 
 # IMPORTANT:
@@ -67,7 +67,7 @@ from cdist.util import shquot
 #         errout = err.stderr
 #     else:
 #         errout = STDERR_UNSUPPORTED
-#     raise cdist.Error("Command failed: " + " ".join(command) +
+#     raise skonfig.Error("Command failed: " + " ".join(command) +
 #              " with returncode: {} and stdout: {}, stderr: {}".format(
 #                           err.returncode, err.output, errout))
 #
@@ -136,18 +136,18 @@ def call_get_output(command, env=None, stderr=None):
 def handle_called_process_error(err, command):
     # Currently, stderr is not captured.
     # errout = None
-    # raise cdist.Error("Command failed: " + " ".join(command) +
+    # raise skonfig.Error("Command failed: " + " ".join(command) +
     #                   (" with returncode: {}\n"
     #                    "stdout: {}\n"
     #                    "stderr: {}").format(
     #                       err.returncode, err.output, errout))
     output = err.output if err.output else ""
-    raise cdist.Error(("Command failed: '{}'\n"
-                      "return code: {}\n"
-                       "---- BEGIN stdout ----\n"
-                       "{}" + ("\n" if output else "") +
-                       "---- END stdout ----").format(
-                          " ".join(command), err.returncode, output))
+    raise skonfig.Error(("Command failed: '{}'\n"
+                         "return code: {}\n"
+                         "---- BEGIN stdout ----\n"
+                         "{}" + ("\n" if output else "") +
+                         "---- END stdout ----").format(
+                            " ".join(command), err.returncode, output))
 
 
 # Currently not used.

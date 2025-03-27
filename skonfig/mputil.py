@@ -24,9 +24,9 @@ import multiprocessing
 import os
 import signal
 
-import cdist.log
+import skonfig.logging
 
-log = cdist.log.getLogger("cdist-mputil")
+log = skonfig.logging.getLogger("cdist-mputil")
 
 
 def mp_sig_handler(signum, frame):

@@ -21,10 +21,10 @@
 
 import os
 
-import cdist
-import cdist.log
+import skonfig
+import skonfig.logging
 
-from cdist.exec.util import get_std_fd
+from skonfig.exec.util import get_std_fd
 
 
 # FileNotFoundError is added in 3.3.
@@ -72,7 +72,7 @@ type manifeste is:
 """
 
 
-class NoInitialManifestError(cdist.Error):
+class NoInitialManifestError(skonfig.Error):
     """
     Display missing initial manifest:
         - Display path if user given
@@ -119,18 +119,19 @@ class Manifest:
             '__target_fqdn': self.target_host[2],
             '__files': self.local.files_path,
             '__target_host_tags': '',  # backwards compatibility with cdist
-            '__cdist_log_level': cdist.log.log_level_env_var_val(self.log),
-            '__cdist_log_level_name': cdist.log.log_level_name_env_var_val(
-                self.log),
+            '__cdist_log_level':
+                skonfig.logging.log_level_env_var_val(self.log),
+            '__cdist_log_level_name':
+                skonfig.logging.log_level_name_env_var_val(self.log),
             '__cdist_colored_log': str(
-                cdist.log.CdistFormatter.USE_COLORS).lower(),
+                skonfig.logging.CdistFormatter.USE_COLORS).lower(),
         }
 
         if dry_run:
             self.env['__cdist_dry_run'] = '1'
 
     def _open_logger(self):
-        self.log = cdist.log.getLogger(self.target_host[0])
+        self.log = skonfig.logging.getLogger(self.target_host[0])
 
     # logger is not pickable, so remove it when we pickle
     def __getstate__(self):

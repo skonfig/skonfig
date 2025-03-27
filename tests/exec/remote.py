@@ -26,10 +26,10 @@ import multiprocessing
 import cdist
 import tests as test
 
-from cdist.exec import remote
+from skonfig.exec import remote
 
 
-class RemoteTestCase(test.CdistTestCase):
+class RemoteTestCase(test.SkonfigTestCase):
 
     def setUp(self):
         self.temp_dir = self.mkdtemp()
@@ -86,7 +86,7 @@ class RemoteTestCase(test.CdistTestCase):
         self.remote.run(['true'])
 
     def test_run_fail(self):
-        self.assertRaises(cdist.Error, self.remote.run, ['false'])
+        self.assertRaises(skonfig.error, self.remote.run, ['false'])
 
     def test_run_script_success(self):
         (handle, script) = self.mkstemp(dir=self.temp_dir)
@@ -98,7 +98,7 @@ class RemoteTestCase(test.CdistTestCase):
         (handle, script) = self.mkstemp(dir=self.temp_dir)
         with os.fdopen(handle, "w") as fd:
             fd.writelines(["#!/bin/sh\n", "false"])
-        self.assertRaises(cdist.Error, self.remote.run_script,
+        self.assertRaises(skonfig.error, self.remote.run_script,
                           script)
 
     def test_run_script_get_output(self):

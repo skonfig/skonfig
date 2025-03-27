@@ -30,14 +30,14 @@ import sys
 import tempfile
 import time
 
-import cdist
-import cdist.core
-import cdist.log
-import cdist.message
+import skonfig
+import skonfig.core
+import skonfig.logging
+import skonfig.message
 
-import cdist.exec.util as util
+import skonfig.exec.util as util
 
-from cdist.util import shquot
+from skonfig.util import shquot
 
 CONF_SUBDIRS_LINKED = ["explorer", "files", "manifest", "type"]
 
@@ -72,7 +72,7 @@ class Local:
         self._init_conf_dirs()
 
     def _init_log(self):
-        self.log = cdist.log.getLogger(self.target_host[0])
+        self.log = skonfig.logging.getLogger(self.target_host[0])
 
     # logger is not pickable, so remove it when we pickle
     def __getstate__(self):
@@ -113,8 +113,8 @@ class Local:
     def _init_object_marker(self):
         self.object_marker_file = os.path.join(self.base_path, "object_marker")
 
-        # Does not need to be secure - just randomly different from .cdist
-        self.object_marker_name = tempfile.mktemp(prefix='.cdist-', dir='')
+        # Does not need to be secure - just randomly different from .skonfig
+        self.object_marker_name = tempfile.mktemp(prefix=".skonfig-", dir='')
 
     def _init_conf_dirs(self, *args):
         self.conf_dirs = util.resolve_conf_dirs(self.settings.conf_dir, *args)
@@ -185,7 +185,8 @@ class Local:
         env['__cdist_object_marker'] = self.object_marker_name
 
         if message_prefix:
-            message = cdist.message.Message(message_prefix, self.messages_path)
+            message = skonfig.message.Message(
+                message_prefix, self.messages_path)
             env.update(message.env)
 
         self.log.trace("Local run: %s", shquot.join(command))
@@ -203,9 +204,9 @@ class Local:
 
             return result
         except subprocess.CalledProcessError as e:
-            raise cdist.Error("%s: %d" % (" ".join(e.cmd), e.returncode))
+            raise skonfig.Error("%s: %d" % (" ".join(e.cmd), e.returncode))
         except OSError as e:
-            raise cdist.Error("%s: %d" % (" ".join(command), e.errno))
+            raise skonfig.Error("%s: %d" % (" ".join(command), e.errno))
         finally:
             if message_prefix:
                 message.merge_messages()
@@ -288,7 +289,7 @@ class Local:
                     elif os.path.exists(destentry):
                         os.remove(destentry)
                 except (PermissionError, OSError) as e:
-                    raise cdist.Error(
+                    raise skonfig.Error(
                             "Cannot delete old cache entry {}: {}".format(
                                 destentry, e))
                 shutil.move(srcentry, destentry)
@@ -331,20 +332,20 @@ class Local:
                     try:
                         os.symlink(src, dst)
                     except OSError as e:
-                        raise cdist.Error(
+                        raise skonfig.Error(
                             "Linking {} {} to {} failed: {}".format(
                                 sub_dir, src, dst, e.__str__()))
 
     def _link_types_for_emulator(self):
         """Link emulator to types"""
         src = os.path.abspath(self.exec_path)
-        for cdist_type in cdist.core.CdistType.list_types(self.type_path):
+        for cdist_type in skonfig.core.CdistType.list_types(self.type_path):
             dst = os.path.join(self.bin_path, cdist_type.name)
             self.log.trace("Linking emulator: %s to %s", src, dst)
 
             try:
                 os.symlink(src, dst)
             except OSError as e:
-                raise cdist.Error(
+                raise skonfig.Error(
                         "Linking emulator from {} to {} failed: {}".format(
                             src, dst, e.__str__()))

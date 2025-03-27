@@ -20,7 +20,7 @@
 
 import os
 
-import cdist
+import skonfig
 
 try:
     from collections.abc import (MutableMapping, MutableSequence)
@@ -28,7 +28,7 @@ except ImportError:
     from collections import (MutableMapping, MutableSequence)
 
 
-class AbsolutePathRequiredError(cdist.Error):
+class AbsolutePathRequiredError(skonfig.Error):
     def __init__(self, path):
         self.path = path
 
@@ -73,7 +73,7 @@ class FileList(MutableSequence):
                     fd.write(str(line) + '\n')
         except EnvironmentError as e:
             # should never happen
-            raise cdist.Error(str(e))
+            raise skonfig.Error(str(e))
 
     def __repr__(self):
         return repr(list(self))
@@ -118,7 +118,7 @@ class DirectoryDict(MutableMapping):
             if not os.path.isdir(self.path):
                 os.mkdir(self.path)
         except EnvironmentError as e:
-            raise cdist.Error(str(e))
+            raise skonfig.Error(str(e))
         if initial is not None:
             self.update(initial)
         if kwargs:
@@ -159,7 +159,7 @@ class DirectoryDict(MutableMapping):
                     if value and value[-1] != '\n':
                         fd.write('\n')
         except EnvironmentError as e:
-            raise cdist.Error(str(e))
+            raise skonfig.Error(str(e))
 
     def __delitem__(self, key):
         try:
@@ -171,13 +171,13 @@ class DirectoryDict(MutableMapping):
         try:
             return iter(os.listdir(self.path))
         except EnvironmentError as e:
-            raise cdist.Error(str(e))
+            raise skonfig.Error(str(e))
 
     def __len__(self):
         try:
             return len(os.listdir(self.path))
         except EnvironmentError as e:
-            raise cdist.Error(str(e))
+            raise skonfig.Error(str(e))
 
 
 class FileBasedProperty:
@@ -281,7 +281,7 @@ class FileBooleanProperty(FileBasedProperty):
             try:
                 open(path, "w").close()
             except EnvironmentError as e:
-                raise cdist.Error(str(e))
+                raise skonfig.Error(str(e))
         else:
             try:
                 os.remove(path)
@@ -316,7 +316,7 @@ class FileStringProperty(FileBasedProperty):
                     if value[-1] != '\n':
                         fd.write('\n')
             except EnvironmentError as e:
-                raise cdist.Error(str(e))
+                raise skonfig.Error(str(e))
         else:
             try:
                 os.remove(path)
