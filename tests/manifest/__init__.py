@@ -79,7 +79,7 @@ class ManifestTestCase(test.SkonfigTestCase):
         os.close(handle)
         os.environ['__cdist_test_out'] = output_file
         old_loglevel = logging.root.getEffectiveLevel()
-        self.log.setLevel(logging.VERBOSE)
+        self.log.setLevel(logging.OFF)
         manifest = skonfig.core.manifest.Manifest(self.target_host, self.local)
         manifest.run_initial_manifest(initial_manifest)
 
@@ -101,9 +101,8 @@ class ManifestTestCase(test.SkonfigTestCase):
         self.assertEqual(output_is['__manifest'], self.local.manifest_path)
         self.assertEqual(output_is['__files'], self.local.files_path)
         self.assertEqual(output_is['__target_host_tags'], '')
-        self.assertEqual(output_is['__cdist_log_level'],
-                         str(logging.VERBOSE))
-        self.assertEqual(output_is['__cdist_log_level_name'], 'VERBOSE')
+        self.assertEqual(output_is['__cdist_log_level'], str(logging.OFF))
+        self.assertEqual(output_is['__cdist_log_level_name'], 'OFF')
 
         self.log.setLevel(old_loglevel)
 
@@ -138,7 +137,7 @@ class ManifestTestCase(test.SkonfigTestCase):
         os.close(handle)
         os.environ['__cdist_test_out'] = output_file
         old_loglevel = self.log.getEffectiveLevel()
-        self.log.setLevel(logging.VERBOSE)
+        self.log.setLevel(logging.OFF)
         manifest = skonfig.core.manifest.Manifest(self.target_host, self.local)
         manifest.run_type_manifest(cdist_object)
 
@@ -163,9 +162,8 @@ class ManifestTestCase(test.SkonfigTestCase):
         self.assertEqual(output_is['__object_name'], cdist_object.name)
         self.assertEqual(output_is['__files'], self.local.files_path)
         self.assertEqual(output_is['__target_host_tags'], '')
-        self.assertEqual(output_is['__cdist_log_level'],
-                         str(logging.VERBOSE))
-        self.assertEqual(output_is['__cdist_log_level_name'], 'VERBOSE')
+        self.assertEqual(output_is['__cdist_log_level'], str(logging.OFF))
+        self.assertEqual(output_is['__cdist_log_level_name'], 'OFF')
         self.log.setLevel(old_loglevel)
 
     @test.patch.dict("os.environ")
