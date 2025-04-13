@@ -2,6 +2,7 @@
 #
 # 2010-2011 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2012 Nico Schottelius (nico-cdist at schottelius.org)
+# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -19,13 +20,14 @@
 # along with skonfig. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
 import getpass
+import io
+import logging
+import os
+import random
+import shlex
 import shutil
 import string
-import random
-import logging
-import io
 import sys
 
 import skonfig
@@ -77,7 +79,7 @@ class ManifestTestCase(test.SkonfigTestCase):
         os.close(handle)
         os.environ['__cdist_test_out'] = output_file
         old_loglevel = logging.root.getEffectiveLevel()
-        self.log.setLevel(logging.VERBOSE)
+        self.log.setLevel(logging.OFF)
         manifest = skonfig.core.manifest.Manifest(self.target_host, self.local)
         manifest.run_initial_manifest(initial_manifest)
 
@@ -99,11 +101,30 @@ class ManifestTestCase(test.SkonfigTestCase):
         self.assertEqual(output_is['__manifest'], self.local.manifest_path)
         self.assertEqual(output_is['__files'], self.local.files_path)
         self.assertEqual(output_is['__target_host_tags'], '')
-        self.assertEqual(output_is['__cdist_log_level'],
-                         str(logging.VERBOSE))
-        self.assertEqual(output_is['__cdist_log_level_name'], 'VERBOSE')
+        self.assertEqual(output_is['__cdist_log_level'], str(logging.OFF))
+        self.assertEqual(output_is['__cdist_log_level_name'], 'OFF')
 
         self.log.setLevel(old_loglevel)
+
+    @test.patch.dict("os.environ")
+    def test_initial_manifest_locale(self):
+        initial_manifest = os.path.join(self.local.manifest_path, "locale")
+
+        (output_fd, output_file) = self.mkstemp(dir=self.temp_dir)
+        os.environ["__cdist_test_out"] = output_file
+        manifest = skonfig.core.manifest.Manifest(self.target_host, self.local)
+        manifest.run_initial_manifest(initial_manifest)
+
+        with os.fdopen(output_fd) as f:
+            lines = filter(None, f.read().splitlines(keepends=False))
+
+        for line in lines:
+            (k, v) = line.split("=", 2)
+
+            if "LANG" == k or k.startswith("LC_"):
+                self.assertEqual(
+                    "C", shlex.split(v)[0],
+                    "Environment variable %s is expected to be %s" % (k, "C"))
 
     @test.patch.dict("os.environ")
     def test_type_manifest_environment(self):
@@ -116,7 +137,7 @@ class ManifestTestCase(test.SkonfigTestCase):
         os.close(handle)
         os.environ['__cdist_test_out'] = output_file
         old_loglevel = self.log.getEffectiveLevel()
-        self.log.setLevel(logging.VERBOSE)
+        self.log.setLevel(logging.OFF)
         manifest = skonfig.core.manifest.Manifest(self.target_host, self.local)
         manifest.run_type_manifest(cdist_object)
 
@@ -141,10 +162,33 @@ class ManifestTestCase(test.SkonfigTestCase):
         self.assertEqual(output_is['__object_name'], cdist_object.name)
         self.assertEqual(output_is['__files'], self.local.files_path)
         self.assertEqual(output_is['__target_host_tags'], '')
-        self.assertEqual(output_is['__cdist_log_level'],
-                         str(logging.VERBOSE))
-        self.assertEqual(output_is['__cdist_log_level_name'], 'VERBOSE')
+        self.assertEqual(output_is['__cdist_log_level'], str(logging.OFF))
+        self.assertEqual(output_is['__cdist_log_level_name'], 'OFF')
         self.log.setLevel(old_loglevel)
+
+    @test.patch.dict("os.environ")
+    def test_type_manifest_locale(self):
+        cdist_type = core.CdistType(self.local.type_path, "__locale")
+        cdist_object = core.CdistObject(cdist_type, self.local.object_path,
+                                        self.local.object_marker_name,
+                                        "whatever")
+        cdist_object.create()
+
+        (output_fd, output_file) = self.mkstemp(dir=self.temp_dir)
+        os.environ["__cdist_test_out"] = output_file
+        manifest = skonfig.core.manifest.Manifest(self.target_host, self.local)
+        manifest.run_type_manifest(cdist_object)
+
+        with os.fdopen(output_fd) as f:
+            lines = filter(None, f.read().splitlines(keepends=False))
+
+        for line in lines:
+            (k, v) = line.split("=", 2)
+
+            if "LANG" == k or k.startswith("LC_"):
+                self.assertEqual(
+                    "C", shlex.split(v)[0],
+                    "Environment variable %s is expected to be %s" % (k, "C"))
 
     def test_loglevel_env_setup(self):
         current_level = self.log.getEffectiveLevel()

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# dump gencode-time values as comments
+locale | sed -e 's/^/# /'
+
+# run locale on code execution
+echo 'locale'

@@ -2,6 +2,7 @@
 #
 # 2011-2017 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2012-2015 Nico Schottelius (nico-cdist at schottelius.org)
+# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -20,10 +21,11 @@
 #
 
 import getpass
+import logging
 import os
 import re
+import shlex
 import shutil
-import logging
 
 import skonfig
 import skonfig.settings
@@ -71,19 +73,26 @@ class CodeTestCase(test.SkonfigTestCase):
 
         self.code = code.Code(self.target_host, self.local, self.remote)
 
-        self.cdist_type = core.CdistType(self.local.type_path,
-                                         '__dump_environment')
-        self.cdist_object = core.CdistObject(
-                self.cdist_type, self.local.object_path, 'whatever',
+        self.cdist_type_env = core.CdistType(
+            self.local.type_path, "__dump_environment")
+        self.cdist_object_env = core.CdistObject(
+                self.cdist_type_env, self.local.object_path, "whatever",
                 self.local.object_marker_name)
-        self.cdist_object.create()
+        self.cdist_object_env.create()
+
+        self.cdist_type_locale = core.CdistType(
+            self.local.type_path, "__dump_locale")
+        self.cdist_object_locale = core.CdistObject(
+                self.cdist_type_locale, self.local.object_path, "whatever",
+                self.local.object_marker_name)
+        self.cdist_object_locale.create()
 
     def tearDown(self):
         shutil.rmtree(self.local_dir)
         shutil.rmtree(self.remote_dir)
 
     def test_run_gencode_local_environment(self):
-        output_string = self.code.run_gencode_local(self.cdist_object)
+        output_string = self.code.run_gencode_local(self.cdist_object_env)
 
         regex = re.compile(r"^echo (['\"]?)(.*?): *(.*)\1")
         output_is = dict(
@@ -95,10 +104,10 @@ class CodeTestCase(test.SkonfigTestCase):
             "__target_hostname": self.local.target_host[1],
             "__target_fqdn": self.local.target_host[2],
             "__global": self.local.base_path,
-            "__type": self.cdist_type.absolute_path,
-            "__object": self.cdist_object.absolute_path,
-            "__object_id": self.cdist_object.object_id,
-            "__object_name": self.cdist_object.name,
+            "__type": self.cdist_type_env.absolute_path,
+            "__object": self.cdist_object_env.absolute_path,
+            "__object_id": self.cdist_object_env.object_id,
+            "__object_name": self.cdist_object_env.name,
             "__files": self.local.files_path,
             "__target_host_tags": "",
             "__cdist_log_level": str(logging.WARNING),
@@ -106,9 +115,23 @@ class CodeTestCase(test.SkonfigTestCase):
             }
 
         self.assertEqual(output_expected, output_is)
+
+    def test_run_gencode_local_locale(self):
+        output_string = self.code.run_gencode_local(self.cdist_object_locale)
+
+        for line in output_string.splitlines(keepends=False):
+            if not line.startswith("#"):
+                continue
+
+            (k, v) = re.sub(r"^# *", "", line).split("=", 2)
+
+            if "LANG" == k or k.startswith("LC_"):
+                self.assertEqual(
+                    "C", shlex.split(v)[0],
+                    "Environment variable %s is expected to be %s" % (k, "C"))
 
     def test_run_gencode_remote_environment(self):
-        output_string = self.code.run_gencode_remote(self.cdist_object)
+        output_string = self.code.run_gencode_remote(self.cdist_object_env)
 
         regex = re.compile(r"^echo (['\"]?)(.*?): *(.*)\1")
         output_is = dict(
@@ -120,10 +143,10 @@ class CodeTestCase(test.SkonfigTestCase):
             "__target_hostname": self.local.target_host[1],
             "__target_fqdn": self.local.target_host[2],
             "__global": self.local.base_path,
-            "__type": self.cdist_type.absolute_path,
-            "__object": self.cdist_object.absolute_path,
-            "__object_id": self.cdist_object.object_id,
-            "__object_name": self.cdist_object.name,
+            "__type": self.cdist_type_env.absolute_path,
+            "__object": self.cdist_object_env.absolute_path,
+            "__object_id": self.cdist_object_env.object_id,
+            "__object_name": self.cdist_object_env.name,
             "__files": self.local.files_path,
             "__target_host_tags": "",
             "__cdist_log_level": str(logging.WARNING),
@@ -132,24 +155,125 @@ class CodeTestCase(test.SkonfigTestCase):
 
         self.assertEqual(output_expected, output_is)
 
+    def test_run_gencode_remote_locale(self):
+        output_string = self.code.run_gencode_remote(self.cdist_object_locale)
+
+        for line in output_string.splitlines(keepends=False):
+            if not line.startswith("#"):
+                continue
+
+            (k, v) = re.sub(r"^# *", "", line).split("=", 2)
+
+            if "LANG" == k or k.startswith("LC_"):
+                self.assertEqual(
+                    "C", shlex.split(v)[0],
+                    "Environment variable %s is expected to be %s" % (k, "C"))
+
     def test_transfer_code_remote(self):
-        self.cdist_object.code_remote = self.code.run_gencode_remote(
-                self.cdist_object)
-        self.code.transfer_code_remote(self.cdist_object)
+        self.cdist_object_env.code_remote = self.code.run_gencode_remote(
+                self.cdist_object_env)
+        self.code.transfer_code_remote(self.cdist_object_env)
         destination = os.path.join(self.remote.object_path,
-                                   self.cdist_object.code_remote_path)
+                                   self.cdist_object_env.code_remote_path)
         self.assertTrue(os.path.isfile(destination))
 
-    def test_run_code_local(self):
-        self.cdist_object.code_local = self.code.run_gencode_local(
-                self.cdist_object)
-        self.code.run_code_local(self.cdist_object)
+    def test_run_code_local_environment(self):
+        self.cdist_object_env.code_local = self.code.run_gencode_local(
+                self.cdist_object_env)
+        self.code.run_code_local(self.cdist_object_env)
+
+        code_local_stdout = os.path.join(
+            self.cdist_object_env.stdout_path, "code-local")
+
+        with open(code_local_stdout, "rt") as f:
+            output_is = dict(
+                line.split(": ", 2)
+                for line in filter(None, f.read().splitlines(keepends=False)))
+
+        output_expected = {
+            "__target_host": self.local.target_host[0],
+            "__target_hostname": self.local.target_host[1],
+            "__target_fqdn": self.local.target_host[2],
+            "__global": self.local.base_path,
+            "__type": self.cdist_type_env.absolute_path,
+            "__object": self.cdist_object_env.absolute_path,
+            "__object_id": self.cdist_object_env.object_id,
+            "__object_name": self.cdist_object_env.name,
+            "__files": self.local.files_path,
+            "__target_host_tags": "",
+            "__cdist_log_level": str(logging.WARNING),
+            "__cdist_log_level_name": "WARNING",
+            }
+
+        self.maxDiff = None
+        self.assertEqual(output_expected, output_is)
+
+    def test_run_code_local_locale(self):
+        self.cdist_object_locale.code_local = self.code.run_gencode_local(
+            self.cdist_object_locale)
+        self.code.run_code_local(self.cdist_object_locale)
+
+        code_local_stdout = os.path.join(
+            self.cdist_object_locale.stdout_path, "code-local")
+
+        with open(code_local_stdout, "rt") as f:
+            for line in f.read().splitlines(keepends=False):
+                (k, v) = line.split("=", 2)
+
+                if "LANG" == k or k.startswith("LC_"):
+                    self.assertEqual(
+                        "C", shlex.split(v)[0],
+                        "Environment variable %s is expected to be %s" % (k, "C"))
 
     def test_run_code_remote_environment(self):
-        self.cdist_object.code_remote = self.code.run_gencode_remote(
-                self.cdist_object)
-        self.code.transfer_code_remote(self.cdist_object)
-        self.code.run_code_remote(self.cdist_object)
+        self.cdist_object_env.code_remote = self.code.run_gencode_remote(
+                self.cdist_object_env)
+        self.code.transfer_code_remote(self.cdist_object_env)
+        self.code.run_code_remote(self.cdist_object_env)
+
+        code_remote_stdout = os.path.join(
+            self.cdist_object_env.stdout_path, "code-remote")
+
+        with open(code_remote_stdout, "rt") as f:
+            output_is = dict(
+                line.split(": ", 2)
+                for line in filter(None, f.read().splitlines(keepends=False)))
+
+        output_expected = {
+            "__target_host": self.local.target_host[0],
+            "__target_hostname": self.local.target_host[1],
+            "__target_fqdn": self.local.target_host[2],
+            "__global": self.local.base_path,
+            "__type": self.cdist_type_env.absolute_path,
+            "__object": self.cdist_object_env.absolute_path,
+            "__object_id": self.cdist_object_env.object_id,
+            "__object_name": self.cdist_object_env.name,
+            "__files": self.local.files_path,
+            "__target_host_tags": "",
+            "__cdist_log_level": str(logging.WARNING),
+            "__cdist_log_level_name": "WARNING",
+            }
+
+        self.maxDiff = None
+        self.assertEqual(output_expected, output_is)
+
+    def test_run_code_remote_locale(self):
+        self.cdist_object_locale.code_remote = self.code.run_gencode_remote(
+            self.cdist_object_locale)
+        self.code.transfer_code_remote(self.cdist_object_locale)
+        self.code.run_code_remote(self.cdist_object_locale)
+
+        code_remote_stdout = os.path.join(
+            self.cdist_object_locale.stdout_path, "code-remote")
+
+        with open(code_remote_stdout, "rt") as f:
+            for line in f.read().splitlines(keepends=False):
+                (k, v) = line.split("=", 2)
+
+                if "LANG" == k or k.startswith("LC_"):
+                    self.assertEqual(
+                        "C", shlex.split(v)[0],
+                        "Environment variable %s is expected to be %s" % (k, "C"))
 
 
 if __name__ == '__main__':
