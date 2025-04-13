@@ -139,20 +139,21 @@ class Code:
             scripts = [script]
         else:
             return
-        code = ""
-        for script in scripts:
-            env = os.environ.copy()
-            env.update(self.env_local)
-            env.update({
-                '__type': cdist_object.cdist_type.absolute_path,
-                '__object': cdist_object.absolute_path,
-                '__object_id': cdist_object.object_id,
-                '__object_name': cdist_object.name,
+        env = os.environ.copy()
+        env.update(self.env_local)
+        env.update({
+            "__type": cdist_object.cdist_type.absolute_path,
+            "__object": cdist_object.absolute_path,
+            "__object_id": cdist_object.object_id,
+            "__object_name": cdist_object.name,
             })
-            message_prefix = cdist_object.name
-            with get_std_fd(
-                    cdist_object.stderr_path,
-                    "gencode-%s" % (which)) as stderr:
+        message_prefix = cdist_object.name
+
+        code = ""
+        with get_std_fd(
+                cdist_object.stderr_path,
+                "gencode-%s" % (which)) as stderr:
+            for script in scripts:
                 code += self.local.run_script(
                     script,
                     env=env,

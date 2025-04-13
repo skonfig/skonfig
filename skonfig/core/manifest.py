@@ -215,12 +215,12 @@ class Manifest:
             return
         message_prefix = cdist_object.name
         which = 'manifest'
-        for type_manifest in type_manifests:
-            self.log.verbose("Running type manifest %s for object %s",
-                             type_manifest, cdist_object.name)
 
-            with get_std_fd(cdist_object.stdout_path, which) as stdout, \
-                 get_std_fd(cdist_object.stderr_path, which) as stderr:
+        with get_std_fd(cdist_object.stdout_path, which) as stdout, \
+             get_std_fd(cdist_object.stderr_path, which) as stderr:
+            for type_manifest in type_manifests:
+                self.log.verbose("Running type manifest %s for object %s",
+                                 type_manifest, cdist_object.name)
                 self.local.run_script(
                     type_manifest,
                     env=self.env_type_manifest(cdist_object),
