@@ -2,7 +2,10 @@
 #
 # 2011-2013 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2011-2013 Nico Schottelius (nico-cdist at schottelius.org)
+# 2013 Arkaitz Jimenez (arkaitzj at gmail.com)
+# 2016-2021 Darko Poljak (darko.poljak at gmail.com)
 # 2020,2023,2025 Dennis Camera (dennis.camera at riiengineering.ch)
+# 2024 Ander Punnar (ander at kvlt.ee)
 #
 # This file is part of skonfig.
 #
