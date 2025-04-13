@@ -2,6 +2,7 @@
 #
 # 2011-2013 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2011-2013 Nico Schottelius (nico-cdist at schottelius.org)
+# 2020,2023,2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -110,6 +111,8 @@ class Manifest:
         self._open_logger()
 
         self.env = {
+            'LANG': 'C',
+            'LC_ALL': 'C',
             'PATH': "{}:{}".format(self.local.bin_path, os.environ['PATH']),
             # for use in type emulator
             '__cdist_type_base_path': self.local.type_path,

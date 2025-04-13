@@ -102,7 +102,9 @@ class Code:
         self.target_host = target_host
         self.local = local
         self.remote = remote
-        self.env = {
+        self.env_local = {
+            'LANG': 'C',
+            'LC_ALL': 'C',
             '__target_host': self.target_host[0],
             '__target_hostname': self.target_host[1],
             '__target_fqdn': self.target_host[2],
@@ -116,7 +118,7 @@ class Code:
         }
 
         if dry_run:
-            self.env['__cdist_dry_run'] = '1'
+            self.env_local['__cdist_dry_run'] = '1'
 
     def _run_gencode(self, cdist_object, which):
         cdist_type = cdist_object.cdist_type
@@ -140,7 +142,7 @@ class Code:
         code = ""
         for script in scripts:
             env = os.environ.copy()
-            env.update(self.env)
+            env.update(self.env_local)
             env.update({
                 '__type': cdist_object.cdist_type.absolute_path,
                 '__object': cdist_object.absolute_path,
@@ -197,7 +199,7 @@ class Code:
         # Put some env vars, to allow read only access to the parameters
         # over $__object
         env = os.environ.copy()
-        env.update(self.env)
+        env.update(self.env_local)
         env.update({
             '__object': cdist_object.absolute_path,
             '__object_id': cdist_object.object_id,
@@ -209,6 +211,8 @@ class Code:
         # Put some env vars, to allow read only access to the parameters
         # over $__object which is already on the target
         env = {
+            'LANG': 'C',
+            'LC_ALL': 'C',
             '__object': os.path.join(self.remote.object_path,
                                      cdist_object.path),
             '__object_id': cdist_object.object_id,

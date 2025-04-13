@@ -2,7 +2,7 @@
 #
 # 2011 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2011 Nico Schottelius (nico-cdist at schottelius.org)
-# 2023 Dennis Camera (dennis.camera at riiengineering.ch)
+# 2023,2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -75,6 +75,8 @@ class Explorer:
         self.local = local
         self.remote = remote
         self.env = {
+            'LANG': 'C',
+            'LC_ALL': 'C',
             '__target_host': self.target_host[0],
             '__target_hostname': self.target_host[1],
             '__target_fqdn': self.target_host[2],

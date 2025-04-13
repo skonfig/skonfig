@@ -2,6 +2,7 @@
 #
 # 2010-2011 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2011-2013 Nico Schottelius (nico-cdist at schottelius.org)
+# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -22,6 +23,7 @@
 import glob
 import logging
 import os
+import shlex
 import shutil
 
 import skonfig
@@ -248,6 +250,22 @@ class ExplorerClassTestCase(test.SkonfigTestCase):
             }
 
         self.assertEqual(output_expected, output_is)
+
+    def test_explorer_locale(self):
+        cdist_type = core.CdistType(self.local.type_path, "__dump_locale")
+        cdist_object = core.CdistObject(cdist_type, self.local.object_path,
+                                        self.local.object_marker_name,
+                                        "whatever")
+        self.explorer.transfer_type_explorers(cdist_type)
+        output = self.explorer.run_type_explorer("dump", cdist_object)
+
+        for line in output.splitlines(keepends=False):
+            (k, v) = line.split("=", 2)
+
+            if "LANG" == k or k.startswith("LC_"):
+                self.assertEqual(
+                    "C", shlex.split(v)[0],
+                    "Environment variable %s is expected to be %s" % (k, "C"))
 
 
 if __name__ == '__main__':

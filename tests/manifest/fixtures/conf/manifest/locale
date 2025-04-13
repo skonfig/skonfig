@@ -1,0 +1,3 @@
+#!/bin/sh
+
+locale >"${__cdist_test_out:?}"

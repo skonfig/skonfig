@@ -2,6 +2,7 @@
 #
 # 2010-2011 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2012 Nico Schottelius (nico-cdist at schottelius.org)
+# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -19,13 +20,14 @@
 # along with skonfig. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
 import getpass
+import io
+import logging
+import os
+import random
+import shlex
 import shutil
 import string
-import random
-import logging
-import io
 import sys
 
 import skonfig
@@ -106,6 +108,26 @@ class ManifestTestCase(test.SkonfigTestCase):
         self.log.setLevel(old_loglevel)
 
     @test.patch.dict("os.environ")
+    def test_initial_manifest_locale(self):
+        initial_manifest = os.path.join(self.local.manifest_path, "locale")
+
+        (output_fd, output_file) = self.mkstemp(dir=self.temp_dir)
+        os.environ["__cdist_test_out"] = output_file
+        manifest = skonfig.core.manifest.Manifest(self.target_host, self.local)
+        manifest.run_initial_manifest(initial_manifest)
+
+        with os.fdopen(output_fd) as f:
+            lines = filter(None, f.read().splitlines(keepends=False))
+
+        for line in lines:
+            (k, v) = line.split("=", 2)
+
+            if "LANG" == k or k.startswith("LC_"):
+                self.assertEqual(
+                    "C", shlex.split(v)[0],
+                    "Environment variable %s is expected to be %s" % (k, "C"))
+
+    @test.patch.dict("os.environ")
     def test_type_manifest_environment(self):
         cdist_type = core.CdistType(self.local.type_path, '__dump_environment')
         cdist_object = core.CdistObject(cdist_type, self.local.object_path,
@@ -145,6 +167,30 @@ class ManifestTestCase(test.SkonfigTestCase):
                          str(logging.VERBOSE))
         self.assertEqual(output_is['__cdist_log_level_name'], 'VERBOSE')
         self.log.setLevel(old_loglevel)
+
+    @test.patch.dict("os.environ")
+    def test_type_manifest_locale(self):
+        cdist_type = core.CdistType(self.local.type_path, "__locale")
+        cdist_object = core.CdistObject(cdist_type, self.local.object_path,
+                                        self.local.object_marker_name,
+                                        "whatever")
+        cdist_object.create()
+
+        (output_fd, output_file) = self.mkstemp(dir=self.temp_dir)
+        os.environ["__cdist_test_out"] = output_file
+        manifest = skonfig.core.manifest.Manifest(self.target_host, self.local)
+        manifest.run_type_manifest(cdist_object)
+
+        with os.fdopen(output_fd) as f:
+            lines = filter(None, f.read().splitlines(keepends=False))
+
+        for line in lines:
+            (k, v) = line.split("=", 2)
+
+            if "LANG" == k or k.startswith("LC_"):
+                self.assertEqual(
+                    "C", shlex.split(v)[0],
+                    "Environment variable %s is expected to be %s" % (k, "C"))
 
     def test_loglevel_env_setup(self):
         current_level = self.log.getEffectiveLevel()
