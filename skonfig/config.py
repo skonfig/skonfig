@@ -67,24 +67,6 @@ def _graph_dfs_cycle(graph, node, path):
 
 
 class Config:
-    """Cdist main class to hold arbitrary data"""
-
-    # list of paths (files and/or directories) that will be removed on finish
-    _paths_for_removal = []
-
-    @classmethod
-    def _register_path_for_removal(cls, path):
-        cls._paths_for_removal.append(path)
-
-    @classmethod
-    def _remove_paths(cls):
-        while cls._paths_for_removal:
-            path = cls._paths_for_removal.pop()
-            if os.path.isfile(path):
-                os.remove(path)
-            else:
-                shutil.rmtree(path)
-
     def __init__(self, local, remote, dry_run=False, jobs=None,
                  cleanup_cmds=None, remove_remote_files_dirs=False):
 
@@ -141,19 +123,12 @@ class Config:
         return (remote_exec_pattern, remote_cmds_cleanup_pattern)
 
     @classmethod
-    def _resolve_ssh_control_path(cls):
-        base_path = tempfile.mkdtemp()
-        cls._register_path_for_removal(base_path)
-        control_path = os.path.join(base_path, "s")
-        return control_path
-
-    @classmethod
-    def _resolve_remote_cmds(cls, settings):
+    def _resolve_remote_cmds(cls, settings, base_path):
         (remote_exec_pattern, remote_cmds_cleanup_pattern) = \
             cls.construct_remote_exec_patterns(settings)
 
         if remote_exec_pattern or remote_cmds_cleanup_pattern:
-            control_path = cls._resolve_ssh_control_path()
+            control_path = os.path.join(base_path, "ssh_control.sock")
 
         # If we constructed patterns for remote commands then there is a {}
         # placeholder for SSH’s ControlPath option, format the pattern and we
@@ -190,13 +165,11 @@ class Config:
         """Configure ONE system."""
         log = skonfig.logging.getLogger(host)
 
-        host_base_path = cls.create_temp_host_base_dir(settings.out_path)
+        host_base_path = tempfile.mkdtemp(
+            prefix="skonfig.", dir=settings.out_path)
         log.debug("Created temporary working directory: %s", host_base_path)
 
         try:
-            (remote_exec, cleanup_cmd) = cls._resolve_remote_cmds(settings)
-            log.debug("remote_exec for host \"%s\": %s", host, remote_exec)
-
             target_host = cls.resolve_target_addresses(host)
             log.debug("target_host for host \"%s\": %s", host, target_host)
 
@@ -208,6 +181,11 @@ class Config:
 
             # Make __global state dir available to custom remote scripts.
             os.environ['__global'] = local.base_path
+
+            # set up remote execution
+            (remote_exec, cleanup_cmd) = cls._resolve_remote_cmds(
+                settings, local.temp_dir)
+            log.debug("remote_exec for host \"%s\": %s", host, remote_exec)
 
             remote = skonfig.exec.remote.Remote(
                 target_host=target_host,
@@ -224,7 +202,6 @@ class Config:
                     cleanup_cmds=cleanup_cmds,
                     remove_remote_files_dirs=remove_remote_files_dirs)
             c.run()
-            cls._remove_paths()
 
         except skonfig.Error as e:
             log.error(e)
@@ -232,10 +209,6 @@ class Config:
         finally:
             log.debug("Cleaning up %s", host_base_path)
             shutil.rmtree(host_base_path)
-
-    @staticmethod
-    def create_temp_host_base_dir(tmpdir=None):
-        return tempfile.mkdtemp(prefix="skonfig.", dir=tmpdir)
 
     def run(self):
         """Do what is most often done: deploy & cleanup"""

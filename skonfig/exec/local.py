@@ -58,6 +58,7 @@ class Local:
         self.target_host = target_host
         self.hostdir = os.path.basename(base_root_path.rstrip("/"))
         self.base_path = os.path.join(base_root_path, "data")
+        self.temp_dir = os.path.join(base_root_path, "tmp")
 
         self.exec_path = exec_path
         self.custom_initial_manifest = initial_manifest
@@ -67,6 +68,8 @@ class Local:
         self._init_permissions()
         self.mkdir(self.base_path)
         self._init_cache_dir(None)
+        self.mkdir(self.temp_dir)
+
         self._init_paths()
         self._init_object_marker()
         self._init_conf_dirs()
@@ -186,7 +189,7 @@ class Local:
 
         if message_prefix:
             message = skonfig.message.Message(
-                message_prefix, self.messages_path)
+                message_prefix, self.messages_path, temp_dir=self.temp_dir)
             env.update(message.env)
 
         self.log.trace("Local run: %s", shquot.join(command))

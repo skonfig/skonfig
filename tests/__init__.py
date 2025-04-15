@@ -49,6 +49,11 @@ class SkonfigTestCase(unittest.TestCase):
     def mkstemp(self, **kwargs):
         return tempfile.mkstemp(prefix='tmp.test.', **kwargs)
 
+    if sys.version_info[:2] < (3, 14):
+        from .backports.assertSubstring import (
+            assertStartsWith, assertNotStartsWith,
+            assertEndsWith, assertNotEndsWith)
+
 
 if sys.version_info[:2] < (3, 4):
     from .backports.assertLogs import _AssertLogsContext
