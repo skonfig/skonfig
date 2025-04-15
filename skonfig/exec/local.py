@@ -57,7 +57,8 @@ class Local:
                  exec_path=sys.argv[0]):
         self.target_host = target_host
         self.hostdir = os.path.basename(base_root_path.rstrip("/"))
-        self.base_path = os.path.join(base_root_path, "data")
+
+        self.base_path = os.path.join(base_root_path, "work")
         self.temp_dir = os.path.join(base_root_path, "tmp")
 
         self.exec_path = exec_path
