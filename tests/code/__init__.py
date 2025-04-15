@@ -97,7 +97,7 @@ class CodeTestCase(test.SkonfigTestCase):
         regex = re.compile(r"^echo (['\"]?)(.*?): *(.*)\1")
         output_is = dict(
             regex.match(line).groups()[1:]
-            for line in filter(None, output_string.splitlines(keepends=False)))
+            for line in filter(None, output_string.splitlines(False)))
 
         output_expected = {
             "__target_host": self.local.target_host[0],
@@ -119,7 +119,7 @@ class CodeTestCase(test.SkonfigTestCase):
     def test_run_gencode_local_locale(self):
         output_string = self.code.run_gencode_local(self.cdist_object_locale)
 
-        for line in output_string.splitlines(keepends=False):
+        for line in output_string.splitlines(False):
             if not line.startswith("#"):
                 continue
 
@@ -136,7 +136,7 @@ class CodeTestCase(test.SkonfigTestCase):
         regex = re.compile(r"^echo (['\"]?)(.*?): *(.*)\1")
         output_is = dict(
             regex.match(line).groups()[1:]
-            for line in filter(None, output_string.splitlines(keepends=False)))
+            for line in filter(None, output_string.splitlines(False)))
 
         output_expected = {
             "__target_host": self.local.target_host[0],
@@ -158,7 +158,7 @@ class CodeTestCase(test.SkonfigTestCase):
     def test_run_gencode_remote_locale(self):
         output_string = self.code.run_gencode_remote(self.cdist_object_locale)
 
-        for line in output_string.splitlines(keepends=False):
+        for line in output_string.splitlines(False):
             if not line.startswith("#"):
                 continue
 
@@ -188,7 +188,7 @@ class CodeTestCase(test.SkonfigTestCase):
         with open(code_local_stdout, "rt") as f:
             output_is = dict(
                 line.split(": ", 2)
-                for line in filter(None, f.read().splitlines(keepends=False)))
+                for line in filter(None, f.read().splitlines(False)))
 
         output_expected = {
             "__target_host": self.local.target_host[0],
@@ -217,7 +217,7 @@ class CodeTestCase(test.SkonfigTestCase):
             self.cdist_object_locale.stdout_path, "code-local")
 
         with open(code_local_stdout, "rt") as f:
-            for line in f.read().splitlines(keepends=False):
+            for line in f.read().splitlines(False):
                 (k, v) = line.split("=", 2)
 
                 if "LANG" == k or k.startswith("LC_"):
@@ -237,7 +237,7 @@ class CodeTestCase(test.SkonfigTestCase):
         with open(code_remote_stdout, "rt") as f:
             output_is = dict(
                 line.split(": ", 2)
-                for line in filter(None, f.read().splitlines(keepends=False)))
+                for line in filter(None, f.read().splitlines(False)))
 
         output_expected = {
             "__target_host": self.local.target_host[0],
@@ -267,7 +267,7 @@ class CodeTestCase(test.SkonfigTestCase):
             self.cdist_object_locale.stdout_path, "code-remote")
 
         with open(code_remote_stdout, "rt") as f:
-            for line in f.read().splitlines(keepends=False):
+            for line in f.read().splitlines(False):
                 (k, v) = line.split("=", 2)
 
                 if "LANG" == k or k.startswith("LC_"):
