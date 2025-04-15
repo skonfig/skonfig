@@ -53,7 +53,7 @@ class LocalTestCase(test.SkonfigTestCase):
         self.out_parent_path = self.temp_dir
         self.hostdir = skonfig.util.str_hash(target_host[0])
         self.host_base_path = os.path.join(self.out_parent_path, self.hostdir)
-        out_path = os.path.join(self.host_base_path, "data")
+        out_path = os.path.join(self.host_base_path, "work")
 
         self.settings = skonfig.settings.SettingsContainer()
         self.settings.conf_dir = conf_dirs

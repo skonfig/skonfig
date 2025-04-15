@@ -57,40 +57,31 @@ class Local:
                  exec_path=sys.argv[0]):
         self.target_host = target_host
         self.hostdir = os.path.basename(base_root_path.rstrip("/"))
-        self.base_path = os.path.join(base_root_path, "data")
+
+        self.base_path = os.path.join(base_root_path, "work")
+        self.temp_dir = os.path.join(base_root_path, "tmp")
 
         self.exec_path = exec_path
         self.custom_initial_manifest = initial_manifest
         self.settings = settings
 
-        self._init_log()
-        self._init_permissions()
-        self.mkdir(self.base_path)
-        self._init_cache_dir(None)
-        self._init_paths()
-        self._init_object_marker()
-        self._init_conf_dirs()
+        from skonfig.settings import get_cache_dir
+        self.cache_path = get_cache_dir()
 
-    def _init_log(self):
-        self.log = skonfig.logging.getLogger(self.target_host[0])
+        self.conf_dirs = util.resolve_conf_dirs(self.settings.conf_dir)
 
-    # logger is not pickable, so remove it when we pickle
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        if 'log' in state:
-            del state['log']
-        return state
+        self.object_marker_file = os.path.join(self.base_path, "object_marker")
 
-    # recreate logger when we unpickle
-    def __setstate__(self, state):
-        self.__dict__.update(state)
+        # does not need to be secure - just randomly different from .skonfig
+        self.object_marker_name = tempfile.mktemp(prefix=".skonfig-", dir="")
+
         self._init_log()
 
-    def _init_permissions(self):
         # Setup file permissions using umask
         os.umask(0o077)
+        self.mkdir(self.base_path)
+        self.mkdir(self.temp_dir)
 
-    def _init_paths(self):
         # Depending on out_path
         self.bin_path = os.path.join(self.base_path, "bin")
         self.conf_path = os.path.join(self.base_path, "conf")
@@ -110,16 +101,22 @@ class Local:
 
         self.type_path = os.path.join(self.conf_path, "type")
 
-    def _init_object_marker(self):
-        self.object_marker_file = os.path.join(self.base_path, "object_marker")
+    def _init_log(self):
+        self.log = skonfig.logging.getLogger(self.target_host[0])
 
-        # Does not need to be secure - just randomly different from .skonfig
-        self.object_marker_name = tempfile.mktemp(prefix=".skonfig-", dir='')
+    # logger is not pickable, so remove it when we pickle
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if 'log' in state:
+            del state['log']
+        return state
 
-    def _init_conf_dirs(self, *args):
-        self.conf_dirs = util.resolve_conf_dirs(self.settings.conf_dir, *args)
+    # recreate logger when we unpickle
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self._init_log()
 
-    def _init_directories(self):
+    def create_files_dirs(self):
         self.mkdir(self.conf_path)
         self.mkdir(self.global_explorer_out_path)
         self.mkdir(self.object_path)
@@ -128,23 +125,17 @@ class Local:
         self.mkdir(self.stdout_base_path)
         self.mkdir(self.stderr_base_path)
 
-    def create_files_dirs(self):
-        self._init_directories()
         self._create_conf_path_and_link_conf_dirs()
-        self._create_messages()
+
+        # create empty global messages file
+        with open(self.messages_path, "w"):
+            pass
+
         self._link_types_for_emulator()
-        self._setup_object_marker_file()
 
-    def _setup_object_marker_file(self):
-        with open(self.object_marker_file, 'w') as fd:
-            fd.write("{}\n".format(self.object_marker_name))
-
-        self.log.trace("Object marker %s saved in %s",
-                       self.object_marker_name, self.object_marker_file)
-
-    def _init_cache_dir(self, cache_dir):
-        from skonfig.settings import get_cache_dir
-        self.cache_path = get_cache_dir()
+        # create object marker file
+        with open(self.object_marker_file, "w") as f:
+            f.write((self.object_marker_name + "\n"))
 
     def rmdir(self, path):
         """Remove directory on the local side."""
@@ -186,7 +177,7 @@ class Local:
 
         if message_prefix:
             message = skonfig.message.Message(
-                message_prefix, self.messages_path)
+                message_prefix, self.messages_path, temp_dir=self.temp_dir)
             env.update(message.env)
 
         self.log.trace("Local run: %s", shquot.join(command))
@@ -248,25 +239,16 @@ class Local:
         elif matchobj.group(2) == '%N':
             repl = self.target_host[0]
 
-        return matchobj.group(1) + repl
+        return (matchobj.group(1) + repl)
 
     def _cache_subpath(self, start_time=time.time(), path_format=None):
+        cache_subpath = ""
         if path_format:
-            repl_func = self._cache_subpath_repl
-            cache_subpath = re.sub(r'([^%]|^)(%h|%P|%N)', repl_func,
-                                   path_format)
+            cache_subpath = re.sub(
+                r'([^%]|^)(%h|%P|%N)', self._cache_subpath_repl, path_format)
             dt = datetime.datetime.fromtimestamp(start_time)
             cache_subpath = dt.strftime(cache_subpath)
-        else:
-            cache_subpath = self.hostdir
-
-        i = 0
-        while i < len(cache_subpath) and cache_subpath[i] == os.sep:
-            i += 1
-        cache_subpath = cache_subpath[i:]
-        if not cache_subpath:
-            cache_subpath = self.hostdir
-        return cache_subpath
+        return cache_subpath.lstrip(os.sep) or self.hostdir
 
     def save_cache(self, start_time=time.time()):
         self.log.trace("cache subpath pattern: %s",
@@ -298,11 +280,6 @@ class Local:
         host_cache_path = os.path.join(destination, "target_host")
         with open(host_cache_path, 'w') as hostf:
             print(self.target_host[0], file=hostf)
-
-    def _create_messages(self):
-        """Create empty messages"""
-        with open(self.messages_path, "w"):
-            pass
 
     def _create_conf_path_and_link_conf_dirs(self):
         # Create destination directories

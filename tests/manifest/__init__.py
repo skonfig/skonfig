@@ -86,7 +86,7 @@ class ManifestTestCase(test.SkonfigTestCase):
         with open(output_file, "r") as f:
             output_is = dict(
                 line.split(': ', 2)
-                for line in filter(None, f.read().splitlines(keepends=False)))
+                for line in filter(None, f.read().splitlines(False)))
 
         self.assertTrue(output_is['PATH'].startswith(self.local.bin_path))
         self.assertEqual(output_is['__target_host'],
@@ -116,7 +116,7 @@ class ManifestTestCase(test.SkonfigTestCase):
         manifest.run_initial_manifest(initial_manifest)
 
         with os.fdopen(output_fd) as f:
-            lines = filter(None, f.read().splitlines(keepends=False))
+            lines = filter(None, f.read().splitlines(False))
 
         for line in lines:
             (k, v) = line.split("=", 2)
@@ -144,7 +144,7 @@ class ManifestTestCase(test.SkonfigTestCase):
         with open(output_file, "r") as f:
             output_is = dict(
                 line.split(': ', 2)
-                for line in filter(None, f.read().splitlines(keepends=False)))
+                for line in filter(None, f.read().splitlines(False)))
 
         self.assertTrue(output_is['PATH'].startswith(self.local.bin_path))
         self.assertEqual(output_is['__target_host'],
@@ -180,7 +180,7 @@ class ManifestTestCase(test.SkonfigTestCase):
         manifest.run_type_manifest(cdist_object)
 
         with os.fdopen(output_fd) as f:
-            lines = filter(None, f.read().splitlines(keepends=False))
+            lines = filter(None, f.read().splitlines(False))
 
         for line in lines:
             (k, v) = line.split("=", 2)

@@ -259,7 +259,7 @@ class ExplorerClassTestCase(test.SkonfigTestCase):
         self.explorer.transfer_type_explorers(cdist_type)
         output = self.explorer.run_type_explorer("dump", cdist_object)
 
-        for line in output.splitlines(keepends=False):
+        for line in output.splitlines(False):
             (k, v) = line.split("=", 2)
 
             if "LANG" == k or k.startswith("LC_"):

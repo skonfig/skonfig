@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # 2013 Nico Schottelius (nico-cdist at schottelius.org)
+# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -25,14 +26,14 @@ import tempfile
 
 class Message:
     """Support messaging between types"""
-    def __init__(self, prefix, messages):
+    def __init__(self, prefix, messages, temp_dir=None):
         self.prefix = prefix
         self.global_messages = messages
 
         (in_fd, self.messages_in) = tempfile.mkstemp(
-            suffix='.cdist_message_in')
+            dir=temp_dir, suffix='.message_in')
         (out_fd, self.messages_out) = tempfile.mkstemp(
-            suffix='.cdist_message_out')
+            dir=temp_dir, suffix='.message_out')
 
         os.close(in_fd)
         os.close(out_fd)
@@ -41,11 +42,10 @@ class Message:
 
     @property
     def env(self):
-        env = {}
-        env['__messages_in'] = self.messages_in
-        env['__messages_out'] = self.messages_out
-
-        return env
+        return {
+            "__messages_in": self.messages_in,
+            "__messages_out": self.messages_out,
+            }
 
     def _copy_messages(self):
         """Copy global contents into our copy"""
@@ -60,12 +60,10 @@ class Message:
 
     def _merge_messages(self):
         """merge newly written lines into global file"""
-        with open(self.messages_out) as fd:
-            content = fd.readlines()
-
-        with open(self.global_messages, 'a') as fd:
-            for line in content:
-                fd.write("{}:{}".format(self.prefix, line))
+        with open(self.messages_out) as messages_out, \
+             open(self.global_messages, 'a') as global_messages:
+            for line in messages_out:
+                global_messages.write("%s:%s" % (self.prefix, line))
 
     def merge_messages(self):
         self._merge_messages()
