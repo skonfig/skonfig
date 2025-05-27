@@ -37,7 +37,7 @@ incubator for new types.
 Even more types can be found in sets specialised in helping you configure a
 specific piece of software. Some of these sets can be found in this organization.
 
-And being a fork of [cdist](https://cdis.st/) originally, your cdist manifests
+And being a fork of [cdist](https://cdi.st/) originally, your cdist manifests
 and types will continue to work with skonfig with no or minimal adjustments.
 
 ## Getting Started
