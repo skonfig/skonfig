@@ -291,6 +291,7 @@ ManPages.update_data_files(data_files)
 
 setup(
     name="skonfig",
+    license="GPL-3.0-or-later",
     packages=["skonfig"],
     scripts=glob.glob(os.path.join(os.path.dirname(__file__), "bin", "*")),
     version=__import__("skonfig").__version__,
@@ -311,7 +312,6 @@ setup(
         "Development Status :: 6 - Mature",
         "Environment :: Console",
         "Intended Audience :: System Administrators",
-        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",  # noqa
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: POSIX",
         "Operating System :: POSIX :: BSD",
