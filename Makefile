@@ -26,6 +26,7 @@ help: .FORCE
 	@echo "  build           build the skonfig source code"
 	@echo "  install         install in the system site-packages directory"
 	@echo "  install-user    install in the user site-packages directory"
+	@echo "  skonfig.pyz     generate a single file executable of skonfig for distribution"
 	@echo "  clean           clean"
 	@echo ""
 	@echo "Documentation:"
@@ -43,12 +44,24 @@ help: .FORCE
 	@echo "  unittest(*)     run unit tests"
 	@echo "  unittest-remote(*) "
 	@echo ""
+	@echo "Releasing:"
+	@echo "  sdist           build a source code tar ball for distribution"
+	@echo "  zdist           build a single-file executable for distribution"
+	@echo ""
 	@echo "(*) if the environment variable SANDBOX is set, the tests will be"
 	@echo "    executed in a sandbox (use SANDBOX=help for a list of options)."
 	@echo ""
 
 
 PYTHON = python3
+
+
+###############################################################################
+# directories
+#
+
+dist:
+	mkdir -p $@
 
 
 ###############################################################################
@@ -216,6 +229,24 @@ install: build .FORCE
 
 install-user: build .FORCE
 	$(PYTHON) setup.py install --user
+
+
+###############################################################################
+# release commands
+#
+
+MAKE_PYZ_CMD = $(PYTHON) scripts/compyle.py --compression deflate --main scripts/pyzmain.py skonfig -o
+SKONFIG_VERSION_CMD = $$(python3 -c 'print(__import__("skonfig.version").version.__guess_git_version())')
+
+sdist: dist .FORCE
+	$(PYTHON) setup.py sdist --dist-dir=dist --formats=gztar --owner=$$(id -un 0) --group=$$(id -gn 0) --prune --metadata-check
+
+# development
+skonfig.pyz: .FORCE
+	$(MAKE_PYZ_CMD) $@
+
+zdist: dist .FORCE
+	$(MAKE_PYZ_CMD) "dist/skonfig-$(SKONFIG_VERSION_CMD).pyz"
 
 
 .FORCE:
