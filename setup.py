@@ -292,7 +292,7 @@ ManPages.update_data_files(data_files)
 setup(
     name="skonfig",
     license="GPL-3.0-or-later",
-    packages=["skonfig"],
+    package_dir={"skonfig": "skonfig"},
     scripts=glob.glob(os.path.join(os.path.dirname(__file__), "bin", "*")),
     version=__import__("skonfig").__version__,
     description="system configuration framework",
