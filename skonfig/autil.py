@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # 2017 Darko Poljak (darko.poljak at gmail.com)
-# 2023 Dennis Camera (dennis.camera at riiengineering.ch)
+# 2023,2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -23,6 +23,8 @@ import glob
 import os
 import tarfile
 import tempfile
+
+from skonfig.util import ilistdir
 
 
 class ArchivingMode:
@@ -104,9 +106,13 @@ FILES_LIMIT = 1
 
 
 def tar(source, mode=TGZ):
-    files = glob.glob1(source, '*')
-    fcnt = len(files)
-    if fcnt <= FILES_LIMIT:
+    fcnt = 0
+    for f in ilistdir(source, recursive=True):
+        fcnt += 1
+        if fcnt >= FILES_LIMIT:
+            break
+    else:
+        # not enough files for archiving
         return (None, fcnt)
 
     tarmode = "w:%s" % (mode.tarmode)
@@ -118,7 +124,7 @@ def tar(source, mode=TGZ):
         format=tarfile.USTAR_FORMAT
     ) as tar:
         if os.path.isdir(source):
-            for f in files:
+            for f in ilistdir(source, recursive=False):
                 tar.add(os.path.join(source, f), arcname=f)
         else:
             tar.add(source)
