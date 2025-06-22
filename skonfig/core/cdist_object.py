@@ -3,6 +3,7 @@
 # 2011-2017 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2011-2015 Nico Schottelius (nico-cdist at schottelius.org)
 # 2014 Daniel Heule (hda at sfs.biz)
+# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -136,8 +137,9 @@ class CdistObject:
 
     def validate_object_id(self):
         if self.cdist_type.is_singleton and self.object_id:
-            raise IllegalObjectIdError(('singleton objects can\'t have an '
-                                        'object_id'))
+            raise IllegalObjectIdError(
+                "Singleton object %s/%s can't have an object_id" % (
+                    self.cdist_type.name, self.object_id))
 
         """Validate the given object_id and raise IllegalObjectIdError
            if it's not valid.
