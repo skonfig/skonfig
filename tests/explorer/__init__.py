@@ -36,6 +36,7 @@ from skonfig import core
 from skonfig.core import explorer
 from skonfig.exec import (local, remote)
 
+ilistdir = skonfig.util.ilistdir
 
 my_dir = os.path.abspath(os.path.dirname(__file__))
 fixtures = os.path.join(my_dir, 'fixtures')
@@ -92,8 +93,8 @@ class ExplorerClassTestCase(test.SkonfigTestCase):
         source = self.local.global_explorer_path
         destination = self.remote.global_explorer_path
         self.assertEqual(
-            sorted(glob.glob1(source, "*")),
-            sorted(glob.glob1(destination, "*")))
+            sorted(ilistdir(source, recursive=False)),
+            sorted(ilistdir(destination, recursive=False)))
 
         self.assertFalse(
             os.path.exists(os.path.join(destination, ".hidden")))
@@ -129,8 +130,8 @@ class ExplorerClassTestCase(test.SkonfigTestCase):
         destination = os.path.join(self.remote.type_path,
                                    cdist_type.explorer_path)
         self.assertEqual(
-            sorted(glob.glob1(source, "*")),
-            sorted(glob.glob1(destination, "*")))
+            sorted(ilistdir(source, recursive=False)),
+            sorted(ilistdir(destination, recursive=False)))
 
     def test_transfer_type_explorers_only_once(self):
         cdist_type = core.CdistType(self.local.type_path, '__test_type')
@@ -140,8 +141,8 @@ class ExplorerClassTestCase(test.SkonfigTestCase):
         destination = os.path.join(self.remote.type_path,
                                    cdist_type.explorer_path)
         self.assertEqual(
-            sorted(glob.glob1(source, "*")),
-            sorted(glob.glob1(destination, "*")))
+            sorted(ilistdir(source, recursive=False)),
+            sorted(ilistdir(destination, recursive=False)))
         # nuke destination folder content, but recreate directory
         shutil.rmtree(destination)
         os.makedirs(destination)
@@ -165,8 +166,8 @@ class ExplorerClassTestCase(test.SkonfigTestCase):
         destination = os.path.join(self.remote.object_path,
                                    cdist_object.parameter_path)
         self.assertEqual(
-            sorted(glob.glob1(source, "*")),
-            sorted(glob.glob1(destination, "*")))
+            sorted(ilistdir(source, recursive=False)),
+            sorted(ilistdir(destination, recursive=False)))
 
     def test_run_type_explorer(self):
         cdist_type = core.CdistType(self.local.type_path, '__test_type')
@@ -207,8 +208,8 @@ class ExplorerClassTestCase(test.SkonfigTestCase):
         source = self.local.global_explorer_path
         destination = self.remote.global_explorer_path
         self.assertEqual(
-            sorted(glob.glob1(source, "*")),
-            sorted(glob.glob1(destination, "*")))
+            sorted(ilistdir(source, recursive=False)),
+            sorted(ilistdir(destination, recursive=False)))
 
     def test_run_parallel_jobs(self):
         expl = explorer.Explorer(

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # 2012 Nico Schottelius (nico-cdist at schottelius.org)
+# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -19,6 +20,7 @@
 #
 
 import hashlib
+import os
 
 
 def str_hash(s):
@@ -27,3 +29,28 @@ def str_hash(s):
         return hashlib.md5(s.encode('utf-8')).hexdigest()
     else:
         raise Error("Param should be string")
+
+
+def ilistdir(path, recursive=False):
+    """Return a directory listing of path as an interator.
+
+    Hidden files and save files are ignored.
+    """
+    for f in os.listdir(path):
+        if "." == f[0] or "~" == f[-1]:
+            continue
+
+        if recursive:
+            full_path = os.path.join(path, f)
+            if os.path.isdir(full_path):
+                subprefix = os.path.join(f, "")
+                for x in ilistdir(full_path, recursive=True):
+                    yield (subprefix + x)
+                continue
+
+        yield f
+
+
+def listdir(path, recursive=False):
+    """Return a directory listing of path as a list."""
+    return list(ilistdir(path, recursive=recursive))

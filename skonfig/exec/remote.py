@@ -29,7 +29,7 @@ import skonfig
 import skonfig.logging
 
 from skonfig.exec import util
-from skonfig.util import (ipaddr, shquot)
+from skonfig.util import (ilistdir, ipaddr, shquot)
 
 
 def _wrap_addr(addr):
@@ -206,7 +206,7 @@ class Remote:
             self._transfer_file(source, destination, umask=umask)
 
     def _transfer_dir(self, source, destination, umask=None):
-        for path in glob.glob1(source, "*"):
+        for path in ilistdir(source, recursive=False):
             src_path = os.path.join(source, path)
             dst_path = os.path.join(destination, path)
             if os.path.isdir(src_path):
