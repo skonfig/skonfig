@@ -26,6 +26,7 @@ help: .FORCE
 	@echo "  build           build the skonfig source code"
 	@echo "  install         install in the system site-packages directory"
 	@echo "  install-user    install in the user site-packages directory"
+	@echo "  skonfig.pyz     generate a single file executable of skonfig for distribution"
 	@echo "  clean           clean"
 	@echo ""
 	@echo "Documentation:"
@@ -49,6 +50,14 @@ help: .FORCE
 
 
 PYTHON = python3
+
+
+###############################################################################
+# directories
+#
+
+dist:
+	mkdir -p $@
 
 
 ###############################################################################
@@ -216,6 +225,20 @@ install: build .FORCE
 
 install-user: build .FORCE
 	$(PYTHON) setup.py install --user
+
+
+###############################################################################
+# release commands
+#
+
+MAKE_PYZ_CMD = $(PYTHON) scripts/compyle.py --compression deflate --main scripts/pyzmain.py skonfig -o
+SKONFIG_VERSION_CMD = $$(python3 -c 'print(__import__("skonfig.version").version.__guess_git_version())')
+
+skonfig.pyz: .FORCE
+	$(MAKE_PYZ_CMD) $@
+
+release-pyz: dist/. .FORCE
+	$(MAKE_PYZ_CMD) "dist/skonfig-$(SKONFIG_VERSION_CMD).pyz"
 
 
 .FORCE:
