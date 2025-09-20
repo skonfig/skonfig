@@ -23,7 +23,8 @@ jobs:
           - pypy-3.11
           - graalpy-22.3.1
           - graalpy-23.1.2
-          - graalpy-24.1.2
+          - graalpy-24.2.2
+          - graalpy-25.0.0
         exclude:
           - {os: "macos-14", python-version: "pypy-3.6"}
           - {os: "macos-14", python-version: "pypy-3.7"}
