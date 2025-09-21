@@ -2,14 +2,16 @@
 
 [skonfig](https://skonfig.li) is a system configuration and automation framework
 designed to work with all systems, from your toaster to the data centre.
+All you need is an SSH connection and a POSIX/UNIX-like shell environment.
+And best of all: you already know how to use it (if you know shell scripts).
 
-skonfig uses three main repositories:
+skonfig has three main repositories:
 
-* **skonfig** - implementation of the **skonfig** executable,
+* [skonfig](https://github.com/skonfig/skonfig) - implementation of the **skonfig** executable,
 * [base](https://github.com/skonfig/base) - explorer and types for **general use**,
 * [extra](https://github.com/skonfig/extra) - **special purpose** types and incubator for new types.
 
-**Need support?** You can find us in `#skonfig:matrix.org` ([matrix?](https://matrix.org/faq/)).
+**Need help?** You can find us in `#skonfig` at [OFTC](https://oftc.net).
 
 ## Documentation
 
