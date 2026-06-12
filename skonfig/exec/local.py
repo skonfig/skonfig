@@ -339,7 +339,8 @@ class Local:
                 has_base_explorers = True
             if conf_link.endswith("conf/type/__file"):
                 has_base_types = True
+        error_message_tail = ", verify configuration in " + ", ".join(self.conf_dirs)
         if not has_base_explorers:
-            raise skonfig.Error("no base explorers?")
+            raise skonfig.Error("Missing base explorers" + error_message_tail)
         if not has_base_types:
-            raise skonfig.Error("no base types?")
+            raise skonfig.Error("Missing base types" + error_message_tail)
