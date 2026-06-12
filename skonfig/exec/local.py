@@ -40,6 +40,7 @@ import skonfig.exec.util as util
 from skonfig.util import shquot
 
 CONF_SUBDIRS_LINKED = ["explorer", "files", "manifest", "type"]
+CONF_LINKS_MAP = {}
 
 
 class Local:
@@ -136,6 +137,8 @@ class Local:
         # create object marker file
         with open(self.object_marker_file, "w") as f:
             f.write((self.object_marker_name + "\n"))
+
+        self._verify_files_dirs()
 
     def rmdir(self, path):
         """Remove directory on the local side."""
@@ -308,6 +311,7 @@ class Local:
                     self.log.trace("Linking %s to %s ...", src, dst)
                     try:
                         os.symlink(src, dst)
+                        CONF_LINKS_MAP[dst] = src
                     except OSError as e:
                         raise skonfig.Error(
                             "Linking {} {} to {} failed: {}".format(
@@ -326,3 +330,16 @@ class Local:
                 raise skonfig.Error(
                         "Linking emulator from {} to {} failed: {}".format(
                             src, dst, e.__str__()))
+
+    def _verify_files_dirs(self):
+        has_initial_manifest = False
+        has_base_types = False
+        for conf_link in CONF_LINKS_MAP:
+            if conf_link.endswith("conf/manifest/init"):
+                has_initial_manifest = True
+            if "conf/type/__file" in conf_link:
+                has_base_types = True
+        if not has_initial_manifest:
+            raise skonfig.Error("no initial manifest configured")
+        if not has_base_types:
+            raise skonfig.Error("no base type set configured")
