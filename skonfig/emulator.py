@@ -49,7 +49,7 @@ class MissingRequiredEnvironmentVariableError(skonfig.Error):
 class DefaultList(list):
     """Helper class to allow default values for optional_multiple parameters.
 
-       @see https://groups.google.com/forum/#!msg/comp.lang.python/sAUvkJEDpRc/RnRymrzJVDYJ  # noqa
+    @see https://groups.google.com/forum/#!msg/comp.lang.python/sAUvkJEDpRc/RnRymrzJVDYJ  # noqa
     """
     def __copy__(self):
         return []
@@ -360,14 +360,14 @@ class Emulator:
 
         order_dep_on = self._order_dep_on()
 
-        # Inject the predecessor, but not if its an override
-        # (this would leed to an circular dependency)
+        # Inject the predecessor, but not if it's an override
+        # (this would lead to a circular dependency)
         if (order_dep_on and 'CDIST_OVERRIDE' not in self.env):
             try:
                 # __object_name is the name of the object whose type
                 # manifest is currently executed
                 __object_name = self.env.get('__object_name', None)
-                # load object name created befor this one from typeorder
+                # load object name created before this one from typeorder
                 # dep file
                 if __object_name:
                     parent = self.cdist_object.object_from_name(
@@ -404,7 +404,7 @@ class Emulator:
 
     def record_auto_requirements(self):
         """An object shall automatically depend on all objects that it
-           defined in it's type manifest.
+        defined in its type manifest.
         """
         # __object_name is the name of the object whose type manifest is
         # currently executed

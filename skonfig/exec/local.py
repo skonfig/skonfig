@@ -216,7 +216,6 @@ class Local:
                    message_prefix=None, stdout=None, stderr=None):
         """Run the given script with the given environment.
         Return the output as a string.
-
         """
         if os.access(script, os.X_OK):
             self.log.debug('%s is executable, running it', script)
