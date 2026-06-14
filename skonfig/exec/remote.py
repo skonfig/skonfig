@@ -2,7 +2,7 @@
 #
 # 2011-2017 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2011-2013 Nico Schottelius (nico-cdist at schottelius.org)
-# 2022,2023,2025 Dennis Camera (dennis.camera at riiengineering.ch)
+# 2022,2023,2025-2026 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -66,7 +66,7 @@ class Remote:
         self._exec = shquot.split(remote_exec)
 
         self.archiving_mode = settings.archiving_mode
-        self.base_path = base_path
+        self.base_path = os.path.abspath(base_path)
         self.settings = settings
 
         self.stdout_base_path = stdout_base_path

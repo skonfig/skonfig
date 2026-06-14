@@ -3,7 +3,7 @@
 # 2011-2017 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2011-2015 Nico Schottelius (nico-cdist at schottelius.org)
 # 2016-2017 Darko Poljak (darko.poljak at gmail.com)
-# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
+# 2025-2026 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -58,8 +58,8 @@ class Local:
         self.target_host = target_host
         self.hostdir = os.path.basename(base_root_path.rstrip("/"))
 
-        self.base_path = os.path.join(base_root_path, "work")
-        self.temp_dir = os.path.join(base_root_path, "tmp")
+        self.base_path = os.path.abspath(os.path.join(base_root_path, "work"))
+        self.temp_dir = os.path.abspath(os.path.join(base_root_path, "tmp"))
 
         self.exec_path = exec_path
         self.custom_initial_manifest = initial_manifest
