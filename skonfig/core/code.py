@@ -37,57 +37,53 @@ common:
         __target_hostname: the target hostname provided from __target_host
         __target_fqdn: the target's fully qualified domain name provided from
                        __target_host
-        __cdist_manifest: full qualified path of the manifest == script
-        __cdist_type_base_path: full qualified path to the directory where
+        __cdist_manifest: absolute path to the manifest == script
+        __cdist_type_base_path: absolute path to the directory where
                                 types are defined for use in type emulator
                                 == local.type_path
 
 gencode-local
-    script: full qualified path to a types gencode-local
+    script: absolute path to a type's gencode-local script
 
     env:
         __target_host: the target host we are working on
         __target_hostname: the target hostname provided from __target_host
         __target_fqdn: the target's fully qualified domain name provided from
                        __target_host
-        __global: full qualified path to the global
-                  output dir == local.out_path
-        __object: full qualified path to the object's dir
-        __object_id: the objects id
-        __object_fq: full qualified object id, iow: $type.name + / + object_id
-        __type: full qualified path to the type's dir
-        __files: full qualified path to the files dir
+        __global: absolute path to the global output directory (local.out_path)
+        __object: absolute path to the object's working directory
+        __object_id: the object's id (i.e. user given name)
+        __type: absolute path to the type's code directory
+        __files: absolute path to the files/ directory
         __target_host_tags: empty string (backwards compatibility with cdist)
 
     returns: string containing the generated code or None
 
 gencode-remote
-    script: full qualified path to a types gencode-remote
+    script: absolute path to a type's gencode-remote script
 
     env:
         __target_host: the target host we are working on
         __target_hostname: the target hostname provided from __target_host
         __target_fqdn: the target's fully qualified domain name provided from
                        __target_host
-        __global: full qualified path to the global
-                  output dir == local.out_path
-        __object: full qualified path to the object's dir
-        __object_id: the objects id
-        __object_fq: full qualified object id, iow: $type.name + / + object_id
-        __type: full qualified path to the type's dir
-        __files: full qualified path to the files dir
+        __global: absolute path to the global output dir == local.out_path
+        __object: absolute path to the object's working directory
+        __object_id: the object's id (i.e. user given name)
+        __type: absolute path to the type's code directory
+        __files: absolute path to the files/ directory
         __target_host_tags: empty string (backwards compatibility with cdist)
 
     returns: string containing the generated code or None
 
 
 code-local
-    script: full qualified path to object's code-local
+    script: absolute path to object's code-local script
     - run script localy
     returns: string containing the output
 
 code-remote
-    script: full qualified path to object's code-remote
+    script: absolute path to object's code-remote script
     - copy script to remote
     - run script remotely
     returns: string containing the output

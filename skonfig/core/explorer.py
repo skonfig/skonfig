@@ -36,8 +36,8 @@ common:
     runs only remotely, needs local and remote to construct paths
 
     env:
-        __explorer: full qualified path to other global explorers on target
-            -> remote.global_explorer_path
+        __explorer: absolute path to other global explorers on target
+                    -> remote.global_explorer_path
 
 a global explorer is:
     - a script
@@ -54,11 +54,10 @@ type explorer is:
     - returns its output as a string
 
     env:
-        __object: full qualified path to the object's remote dir
-        __object_id: the objects id
-        __object_fq: full qualified object id, iow: $type.name + / + object_id
-        __type_explorer: full qualified path to the other type explorers on
-                         target
+        __object: absolute path to the object's remote directory
+        __object_id: the object's id (i.e. user given name)
+        __object_name: fully qualified object id, i.e.: type_name/object_id
+        __type_explorer: absolute path to the other type explorers on target
 
     creates: nothing, returns output
 
@@ -169,7 +168,7 @@ class Explorer:
                                  self.jobs, umask=0o077)
 
     def run_global_explorer(self, explorer):
-        """Run the given global explorer and return it's output."""
+        """Run the given global explorer and return its output."""
         script = os.path.join(self.remote.global_explorer_path, explorer)
         return self.remote.run_script(script, env=self.env, return_output=True)
 
@@ -226,7 +225,6 @@ class Explorer:
                                      cdist_object.path),
             '__object_id': cdist_object.object_id,
             '__object_name': cdist_object.name,
-            '__object_fq': cdist_object.path,
             '__type_explorer': os.path.join(self.remote.type_path,
                                             cdist_type.explorer_path)
         })

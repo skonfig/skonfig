@@ -93,8 +93,8 @@ class Local:
         self.target_host = target_host
         self.hostdir = os.path.basename(base_root_path.rstrip("/"))
 
-        self.base_path = os.path.join(base_root_path, "work")
-        self.temp_dir = os.path.join(base_root_path, "tmp")
+        self.base_path = os.path.abspath(os.path.join(base_root_path, "work"))
+        self.temp_dir = os.path.abspath(os.path.join(base_root_path, "tmp"))
 
         self.exec_path = exec_path
         self.custom_initial_manifest = initial_manifest
@@ -251,7 +251,6 @@ class Local:
                    message_prefix=None, stdout=None, stderr=None):
         """Run the given script with the given environment.
         Return the output as a string.
-
         """
         if os.access(script, os.X_OK):
             self.log.debug('%s is executable, running it', script)

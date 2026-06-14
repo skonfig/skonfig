@@ -91,7 +91,7 @@ class ObjectClassTestCase(test.SkonfigTestCase):
 
     def test_create_singleton_not_singleton_type(self):
         """try to create an object of a type that is not a singleton
-           without an object id"""
+        without an object id"""
         with self.assertRaises(skonfig.core.cdist_object.MissingObjectIdError):
             self.expected_objects[0].object_from_name("__first")
 

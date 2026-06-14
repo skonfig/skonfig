@@ -37,9 +37,7 @@ class AbsolutePathRequiredError(skonfig.Error):
 
 
 class FileList(MutableSequence):
-    """A list that stores it's state in a file.
-
-    """
+    """A list that stores its state in a file."""
     def __init__(self, path, initial=None):
         if not os.path.isabs(path):
             raise AbsolutePathRequiredError(path)
@@ -106,9 +104,7 @@ class FileList(MutableSequence):
 
 
 class DirectoryDict(MutableMapping):
-    """A dict that stores it's items as files in a directory.
-
-    """
+    """A dict that stores its items as files in a directory."""
     def __init__(self, path, initial=None, **kwargs):
         if not os.path.isabs(path):
             raise AbsolutePathRequiredError(path)
@@ -291,8 +287,7 @@ class FileBooleanProperty(FileBasedProperty):
 
 
 class FileStringProperty(FileBasedProperty):
-    """A string property which stores its value in a file.
-    """
+    """A string property which stores its value in a file."""
     # Descriptor Protocol
     def __get__(self, instance, owner):
         if instance is None:

@@ -117,8 +117,7 @@ class CdistObject:
            ->
            ('__type_name', 'the/object_id')
 
-        Split the given object name into it's type and object_id parts.
-
+        Split the given object name into its type and object_id parts.
         """
         type_name = object_name.split(os.sep)[0]
         object_id = os.sep.join(object_name.split(os.sep)[1:])
@@ -131,7 +130,6 @@ class CdistObject:
            __type_name/the/object_id'
 
         Join the given type_name and object_id into an object name.
-
         """
         return os.path.join(type_name, object_id)
 
@@ -141,9 +139,7 @@ class CdistObject:
                 "Singleton object %s/%s can't have an object_id" % (
                     self.cdist_type.name, self.object_id))
 
-        """Validate the given object_id and raise IllegalObjectIdError
-           if it's not valid.
-        """
+        # Validate object_id and raise IllegalObjectIdError if it's not valid.
         if self.object_id:
             if self.object_marker in self.object_id.split(os.sep):
                 raise IllegalObjectIdError(
@@ -180,7 +176,6 @@ class CdistObject:
         e.g:
             <CdistObject __foo/bar>.object_from_name('__other/object') ->
                 <CdistObject __other/object>
-
         """
 
         base_path = self.base_path
@@ -208,9 +203,7 @@ class CdistObject:
         return isinstance(other, self.__class__) and self.name < other.name
 
     def sanitise_object_id(self):
-        """
-        Remove leading and trailing slash (one only)
-        """
+        """Remove leading and trailing slash (one only)"""
 
         # Allow empty object id for singletons
         if self.object_id:

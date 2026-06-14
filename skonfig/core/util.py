@@ -23,7 +23,7 @@ import os
 
 def listdir(path='.', include_dot=False):
     """os.listdir but do not include entries whose names begin with a dot('.')
-       if include_dot is False.
+    if include_dot is False.
     """
     if include_dot:
         return os.listdir(path)

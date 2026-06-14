@@ -36,7 +36,7 @@ class UnresolvableRequirementsError(Error):
 
 
 class EntityError(Error):
-    """Something went wrong while executing cdist entity"""
+    """Something went wrong while executing a skonfig entity"""
     def __init__(self, entity_name, entity_params, stdout_paths,
                  stderr_paths, subject=''):
         self.entity_name = entity_name

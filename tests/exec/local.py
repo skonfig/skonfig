@@ -107,7 +107,7 @@ class LocalTestCase(test.SkonfigTestCase):
 
     def test_added_conf_dir_linking(self):
         """Ensure that links are correctly created for types in added conf
-           directories"""
+        directories"""
 
         test_type = "__cdist_test_type"
 

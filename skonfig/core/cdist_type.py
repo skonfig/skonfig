@@ -49,7 +49,6 @@ class CdistType:
     All interaction with types in cdist should be done through this class.
     Directly accessing an type through the file system from python code is
     a bug.
-
     """
 
     log = skonfig.logging.getLogger("cdist-type")
@@ -130,13 +129,13 @@ class CdistType:
     @property
     def is_install(self):
         """Check whether a type is used for installation
-          (if not: for configuration)"""
+        (if not: for configuration)"""
         return os.path.isfile(os.path.join(self.absolute_path, "install"))
 
     @property
     def is_nonparallel(self):
         """Check whether a type is a non parallel, i.e. its objects
-           cannot run in parallel."""
+        cannot run in parallel."""
         return os.path.isfile(os.path.join(self.absolute_path, "nonparallel"))
 
     @property

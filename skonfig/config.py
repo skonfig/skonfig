@@ -264,9 +264,8 @@ class Config:
                 yield cdist_object
 
     def iterate_once(self):
-        """
-            Iterate over the objects once - helper method for
-            iterate_until_finished
+        """Iterate over the objects once - helper method for
+        iterate_until_finished
         """
         if self.jobs:
             return self._iterate_once_parallel()
@@ -292,7 +291,7 @@ class Config:
             if cdist_object.has_requirements_unfinished(
                     cdist_object.autorequire):
                 """The previous step created objects we depend on -
-                    wait for them
+                wait for them
                 """
                 continue
 
@@ -459,10 +458,7 @@ class Config:
         return graph_check_cycle(graph)
 
     def iterate_until_finished(self):
-        """
-            Go through all objects and solve them
-            one after another
-        """
+        """Go through all objects and solve them one after another"""
 
         objects_changed = True
 

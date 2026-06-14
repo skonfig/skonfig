@@ -46,43 +46,40 @@ common:
         __target_hostname: the target hostname provided from __target_host
         __target_fqdn: the target's fully qualified domain name provided from
                        __target_host
-        __global: full qualified path to the global
-                  output dir == local.out_path
-        __cdist_manifest: full qualified path of the manifest == script
-        __cdist_type_base_path: full qualified path to the directory where
-                                types are defined for use in type emulator
-            == local.type_path
-        __files: full qualified path to the files dir
+        __global: absolute path to the global output dir == local.out_path
+        __cdist_manifest: absolute path of the manifest == script
+        __cdist_type_base_path: absolute path to the directory where types are
+                                defined for use in emulator (local.type_path)
+        __files: absolute path to the files/ directory
         __target_host_tags: empty string (backwards compatibility with cdist)
 
 initial manifest is:
-    script: full qualified path to the initial manifest
+    script: absolute path to the initial manifest
 
     env:
         __manifest: path to .../conf/manifest/ == local.manifest_path
 
     creates: new objects through type emulator
 
-type manifeste is:
-    script: full qualified path to the type manifest
+type manifest is:
+    script: absolute path to the type manifest
 
     env:
-        __object: full qualified path to the object's dir
-        __object_id: the objects id
-        __object_fq: full qualified object id, iow: $type.name + / + object_id
-        __type: full qualified path to the type's dir
+        __object: absolute path to the object's working directory
+        __object_id: the object's id (i.e. user given name)
+        __object_name: fully qualified object id, iow: type_name/object_id
+        __type: absolute path to the type's code directory
 
     creates: new objects through type emulator
 """
 
 
 class NoInitialManifestError(skonfig.Error):
-    """
-    Display missing initial manifest:
+    """Display missing initial manifest:
         - Display path if user given
             - try to resolve link if it is a link
         - Omit path if default (is a linked path in temp directory without
-            much help)
+          much help)
     """
 
     def __init__(self, manifest_path, user_supplied):
@@ -98,7 +95,7 @@ class NoInitialManifestError(skonfig.Error):
             self.message = "{}".format(msg_header)
 
     def __str__(self):
-        return repr(self.message)
+        return str(self.message)
 
 
 class Manifest:
