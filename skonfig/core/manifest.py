@@ -95,7 +95,7 @@ class NoInitialManifestError(skonfig.Error):
             self.message = "{}".format(msg_header)
 
     def __str__(self):
-        return repr(self.message)
+        return str(self.message)
 
 
 class Manifest:
