@@ -3,7 +3,7 @@
 # 2011-2017 Steven Armstrong (steven-cdist at armstrong.cc)
 # 2011-2015 Nico Schottelius (nico-cdist at schottelius.org)
 # 2016-2017 Darko Poljak (darko.poljak at gmail.com)
-# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
+# 2025-2026 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -40,6 +40,41 @@ import skonfig.exec.util as util
 from skonfig.util import shquot
 
 CONF_SUBDIRS_LINKED = ["explorer", "files", "manifest", "type"]
+
+
+class NoTypesError(skonfig.Error):
+    """
+    Display no types error
+        - Display path of .skonfig/set or .skonfig/type
+    """
+
+    def __init__(self, conf_dirs):
+        self.conf_dirs = conf_dirs
+
+        if 1 == len(self.conf_dirs):
+            self.error_msg = "There are no types in %s" % (self.conf_dirs[-1])
+        else:
+            self.error_msg = (
+                "There are no types in your SKONFIG_PATH.\n\n"
+                "SKONFIG_PATH=%s") % (
+                    os.pathsep.join(reversed(self.conf_dirs)))
+
+        if not self.conf_dirs:
+            self.description = "Did you forget to add ~/.skonfig to your " \
+                               "SKONFIG_PATH?"
+        else:
+            self.description = (
+                "To get started, please either install the base set "
+                "(%(base_set_url)s) to %(repo_dir)s/set or add some types "
+                "to %(repo_dir)s/type.") % {
+                    "base_set_url": "https://github.com/skonfig/base.git",
+                    "repo_dir": self.conf_dirs[-1],
+                    }
+
+    def __str__(self):
+        import textwrap
+        return "%s\n\n%s\n" % (
+            self.error_msg, textwrap.fill(self.description, 80))
 
 
 class Local:
@@ -312,6 +347,10 @@ class Local:
                         raise skonfig.Error(
                             "Linking {} {} to {} failed: {}".format(
                                 sub_dir, src, dst, e.__str__()))
+
+        if not os.listdir(os.path.join(self.conf_path, "type")):
+            # we have no types
+            raise NoTypesError(self.conf_dirs)
 
     def _link_types_for_emulator(self):
         """Link emulator to types"""
