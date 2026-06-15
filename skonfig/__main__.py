@@ -55,6 +55,18 @@ def _initialise_global_settings():
     return settings
 
 
+def print_version(color):
+    import re
+
+    if color:
+        fmt = "\033[35m%s\033[0m \033[1;34m%s\033[0m\033[90m%s\033[0m"
+    else:
+        fmt = "%s %s%s"
+
+    v = re.match("([0-9.]+)(.*)", skonfig.__version__).groups()
+    print(fmt % ("skonfig", *v))
+
+
 def run_main():
     try:
         settings = _initialise_global_settings()
@@ -64,7 +76,8 @@ def run_main():
             color=settings.colored_output)
 
         if arguments.version:
-            print("skonfig", skonfig.__version__)
+            print_version(
+                color=(settings.colored_output and hasattr(parser, "color")))
             return
 
         if arguments.dump:
