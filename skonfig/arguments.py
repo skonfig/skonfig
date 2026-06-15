@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # 2022-2023 Ander Punnar (ander at kvlt.ee)
-# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
+# 2025-2026 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -38,8 +38,10 @@ def verbosity_to_logging_level(verbosity):
     return levels_used[min(verbosity, len(levels_used)-1)]
 
 
-def get():
+def get(color=True):
     parser = argparse.ArgumentParser()
+    if hasattr(parser, "_set_color"):
+        parser._set_color(color)
     parser.add_argument(
         "-V",
         dest="version",
