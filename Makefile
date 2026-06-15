@@ -1,5 +1,5 @@
 #
-# 2022,2025 Dennis Camera (dennis.camera at riiengineering.ch)
+# 2022,2025-2026 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -46,6 +46,7 @@ help: .FORCE
 	@echo ""
 	@echo "Releasing:"
 	@echo "  sdist           build a source code tar ball for distribution"
+	@echo "  wheel           build a Python wheel"
 	@echo "  zdist           build a single-file executable for distribution"
 	@echo ""
 	@echo "(*) if the environment variable SANDBOX is set, the tests will be"
@@ -235,18 +236,18 @@ install-user: build .FORCE
 # release commands
 #
 
-MAKE_PYZ_CMD = $(PYTHON) scripts/compyle.py --compression deflate --main scripts/pyzmain.py skonfig -o
-SKONFIG_VERSION_CMD = $$(python3 -c 'print(__import__("skonfig.version").version.__guess_git_version())')
-
 sdist: dist .FORCE
 	$(PYTHON) setup.py sdist --dist-dir=dist --formats=gztar --owner=$$(id -un 0) --group=$$(id -gn 0) --prune --metadata-check
 
+wheel: .FORCE
+	$(PYTHON) setup.py bdist_wheel --python-tag py3 --plat-name any
+
 # development
 skonfig.pyz: .FORCE
-	$(MAKE_PYZ_CMD) $@
+	$(PYTYHON) setup.py zdist --output $@
 
 zdist: dist .FORCE
-	$(MAKE_PYZ_CMD) "dist/skonfig-$(SKONFIG_VERSION_CMD).pyz"
+	$(PYTHON) setup.py zdist
 
 
 .FORCE:

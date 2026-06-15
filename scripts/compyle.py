@@ -26,9 +26,9 @@ def add_package_to_zip(package, zipf):
             zipf.writestr(os.path.join(pkg_name, module), f.read())
 
 
-def compile_package(packages, output_file, compression, main_module=None):
+def compile_package(packages, output_file, interpreter, compression, main_module=None):
     with open(output_file, "wb") as exe:
-        exe.write(b"#!/usr/bin/env python3\n")
+        exe.write(b"#!%s\n" % (interpreter.encode()))
 
         with zipfile.ZipFile(exe, "a", compression=compression) as zipf:
             for package in sorted(packages):
@@ -55,6 +55,10 @@ if __name__ == "__main__":
         choices=list(zip_compressions.keys()),
         default="store")
     parser.add_argument(
+        "--interpreter",
+        dest="interpreter",
+        default="/usr/bin/env python3")
+    parser.add_argument(
         "--main",
         dest="main_script",
         help="run this script when the binary is executed")
@@ -71,5 +75,6 @@ if __name__ == "__main__":
     compile_package(
         args.packages,
         output_file=args.output_file,
+        interpreter=args.interpreter,
         main_module=args.main_script,
         compression=zip_compressions[args.compression])
