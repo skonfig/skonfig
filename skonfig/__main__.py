@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # 2022,2024 Ander Punnar (ander at kvlt.ee)
-# 2025 Dennis Camera (dennis.camera at riiengineering.ch)
+# 2025-2026 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -56,27 +56,28 @@ def _initialise_global_settings():
 
 
 def run_main():
-    import skonfig.arguments
-    (parser, arguments) = skonfig.arguments.get()
-
-    if arguments.version:
-        print("skonfig", skonfig.__version__)
-        return
-
-    if arguments.dump:
-        import skonfig.dump
-        skonfig.dump.run(arguments.host)
-        return
-
-    if not arguments.host:
-        from argparse import (ArgumentError, _)
-        e = ArgumentError(
-            None, _("the following arguments are required: %s") % ("host"))
-        parser.error(str(e))
-        sys.exit(1)
-
     try:
         settings = _initialise_global_settings()
+
+        import skonfig.arguments
+        (parser, arguments) = skonfig.arguments.get(
+            color=settings.colored_output)
+
+        if arguments.version:
+            print("skonfig", skonfig.__version__)
+            return
+
+        if arguments.dump:
+            import skonfig.dump
+            skonfig.dump.run(arguments.host)
+            return
+
+        if not arguments.host:
+            from argparse import (ArgumentError, _)
+            e = ArgumentError(
+                None, _("the following arguments are required: %s") % ("host"))
+            parser.error(str(e))
+            sys.exit(1)
 
         # configure logging
         if arguments.verbosity:
