@@ -25,7 +25,6 @@ import os
 import sys
 import time
 import tempfile
-import multiprocessing
 import shutil
 
 import skonfig
@@ -325,12 +324,6 @@ class Config:
             self.object_prepare(cargo[0])
             objects_changed = True
         elif cargo:
-            if callable(getattr(multiprocessing, "get_start_method", None)):
-                # Python >= 3.4
-                self.log.trace(
-                    "Multiprocessing start method is %s",
-                    multiprocessing.get_start_method())
-
             self.log.trace("Multiprocessing cargo: %s", cargo)
 
             cargo_types = set()
@@ -403,12 +396,6 @@ class Config:
                 self.object_run(chunk[0])
                 objects_changed = True
             elif chunk:
-                if callable(getattr(
-                        multiprocessing, "get_start_method", None)):
-                    # Python >= 3.4
-                    self.log.trace(
-                        "Multiprocessing start method is %s",
-                        multiprocessing.get_start_method())
                 self.log.trace("Starting multiprocessing Pool for %d "
                                "parallel object run", n)
                 args = [(c,) for c in chunk]
