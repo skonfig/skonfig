@@ -64,7 +64,7 @@ def print_version(color):
         fmt = "%s %s%s"
 
     v = re.match("([0-9.]+)(.*)", skonfig.__version__).groups()
-    print(fmt % ("skonfig", *v))
+    print(fmt % ("skonfig", v[0], v[1]))
 
 
 def run_main():
