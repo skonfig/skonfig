@@ -20,17 +20,23 @@
 
 import concurrent.futures as cf
 import itertools
-import multiprocessing
+import multiprocessing as mp
 import os
 import signal
 
 import skonfig.logging
 
-log = skonfig.logging.getLogger("cdist-mputil")
+_logger = skonfig.logging.getLogger(__name__)
+
+if hasattr(mp, "set_start_method"):
+    mp.set_start_method("fork")
+
+if hasattr(mp, "get_start_method"):
+    _logger.trace("Multiprocessing start method is %s", mp.get_start_method())
 
 
 def mp_sig_handler(signum, frame):
-    log.trace("signal %s, SIGKILL whole process group", signum)
+    _logger.trace("signal %s, SIGKILL whole process group", signum)
     os.killpg(os.getpgrp(), signal.SIGKILL)
 
 

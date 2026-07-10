@@ -22,7 +22,6 @@
 
 import glob
 import logging
-import multiprocessing
 import os
 
 import skonfig
@@ -134,12 +133,6 @@ class Explorer:
     def _run_global_explorers_parallel(self, out_path):
         self.log.debug(
             "Running global explorers in %s parallel jobs", self.jobs)
-        if callable(getattr(multiprocessing, "get_start_method", None)):
-            # Python >= 3.4
-            self.log.trace(
-                "Multiprocessing start method is %s",
-                multiprocessing.get_start_method())
-
         global_explorers = self.list_global_explorer_names()
         if global_explorers:
             self.log.trace(
