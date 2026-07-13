@@ -1,5 +1,5 @@
 #
-# 2022,2025 Dennis Camera (dennis.camera at riiengineering.ch)
+# 2022,2025-2026 Dennis Camera (dennis.camera at riiengineering.ch)
 #
 # This file is part of skonfig.
 #
@@ -26,6 +26,7 @@ help: .FORCE
 	@echo "  build           build the skonfig source code"
 	@echo "  install         install in the system site-packages directory"
 	@echo "  install-user    install in the user site-packages directory"
+	@echo "  skonfig.pyz     generate a single file executable of skonfig for distribution"
 	@echo "  clean           clean"
 	@echo ""
 	@echo "Documentation:"
@@ -43,12 +44,25 @@ help: .FORCE
 	@echo "  unittest(*)     run unit tests"
 	@echo "  unittest-remote(*) "
 	@echo ""
+	@echo "Releasing:"
+	@echo "  sdist           build a source code tar ball for distribution"
+	@echo "  wheel           build a Python wheel"
+	@echo "  zdist           build a single-file executable for distribution"
+	@echo ""
 	@echo "(*) if the environment variable SANDBOX is set, the tests will be"
 	@echo "    executed in a sandbox (use SANDBOX=help for a list of options)."
 	@echo ""
 
 
 PYTHON = python3
+
+
+###############################################################################
+# directories
+#
+
+dist:
+	mkdir -p $@
 
 
 ###############################################################################
@@ -216,6 +230,24 @@ install: build .FORCE
 
 install-user: build .FORCE
 	$(PYTHON) setup.py install --user
+
+
+###############################################################################
+# release commands
+#
+
+sdist: dist .FORCE
+	$(PYTHON) setup.py sdist --dist-dir=dist --formats=gztar --owner=$$(id -un 0) --group=$$(id -gn 0) --prune --metadata-check
+
+wheel: .FORCE
+	$(PYTHON) setup.py bdist_wheel --python-tag py3 --plat-name any
+
+# development
+skonfig.pyz: .FORCE
+	$(PYTYHON) setup.py zdist --output $@
+
+zdist: dist .FORCE
+	$(PYTHON) setup.py zdist
 
 
 .FORCE:

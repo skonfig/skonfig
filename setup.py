@@ -72,7 +72,7 @@ try:
         # setuptools 38.6.0 is required for connections to PyPI.
         # cf. also _pypi_can_connect()
         log.warn("You are running an old version of setuptools: %s. "
-                    "Consider upgrading." % (setuptools.__version__))
+                 "Consider upgrading." % (setuptools.__version__))
 except ImportError:
     from distutils.core import setup
     using_setuptools = False
@@ -223,6 +223,31 @@ class skonfig_sdist(distutils.command.sdist.sdist):
         hardcode_version(version_file)
 
 
+class skonfig_zdist(distutils.cmd.Command):
+    user_options = [
+        ('executable=', 'e', "specify final destination interpreter path"),
+        ('output=', 'o', "output filename of .pyz file"),
+    ]
+
+    def initialize_options(self):
+        self.output = os.path.join("dist", self.distribution.get_fullname() + ".pyz")
+        self.executable = "/usr/bin/env python3"
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        import scripts.compyle
+        import zipfile
+
+        scripts.compyle.compile_package(
+            self.distribution.package_dir.keys(),
+            output_file=self.output,
+            interpreter=self.executable,
+            main_module="scripts/pyzmain.py",
+            compression=zipfile.ZIP_DEFLATED)
+
+
 class skonfig_clean(distutils.command.clean.clean):
     def run(self):
         ManPages.clean(self.distribution, dry_run=self.dry_run)
@@ -301,12 +326,11 @@ setup(
     data_files=data_files,
     cmdclass={
         "build": skonfig_build,
+        "build_manpages": skonfig_build_manpages,
         "build_py": skonfig_build_py,
         "sdist": skonfig_sdist,
+        "zdist": skonfig_zdist,
         "clean": skonfig_clean,
-
-        # custom commands
-        "build_manpages": skonfig_build_manpages,
     },
     classifiers=[
         "Development Status :: 6 - Mature",
