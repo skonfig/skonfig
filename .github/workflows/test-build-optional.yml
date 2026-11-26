@@ -11,36 +11,44 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
-          - macos-14  # ARM
+          - ubuntu-24.04
+          - macos-15
           - macos-15-intel
         python-version:
+          - 3.8
+          - 3.9
           - pypy-3.6
           - pypy-3.7
           - pypy-3.8
           - pypy-3.9
           - pypy-3.10
           - pypy-3.11
+          - pypy-3.12
           - graalpy-22.3.1
           - graalpy-23.1.2
           - graalpy-24.2.2
-          - graalpy-25.0.3
+          - graalpy-25.2.4
+          - graalpy-25.6.5
         exclude:
-          - {os: "macos-14", python-version: "pypy-3.6"}
-          - {os: "macos-14", python-version: "pypy-3.7"}
-          - {os: "macos-15-intel", python-version: "graalpy-25.0.3"}
+          - {os: "macos-15", python-version: "pypy-3.6"}
+          - {os: "macos-15", python-version: "pypy-3.7"}
+          - {os: "macos-15-intel", python-version: "graalpy-25.2.4"}
+          - {os: "macos-15-intel", python-version: "graalpy-25.6.5"}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           submodules: true
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
+          allow-prereleases: true
           python-version: ${{ matrix.python-version }}
-          pip-install: setuptools
+      - name: Install setuptools, wheel
+        run: |
+          python3 -m pip install setuptools wheel
       - name: Information
         run: |
           python3 -V
